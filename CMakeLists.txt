@@ -18,3 +18,19 @@ add_library(
 	SHARED
 	${CMAKE_CURRENT_SOURCE_DIR}/src/message_parser.cpp
 )
+
+add_library(
+	cnc_movement_task
+	SHARED
+	${CMAKE_CURRENT_SOURCE_DIR}/src/cnc_movement_task.cpp
+)
+
+add_executable(
+	cnc_task_test
+	${CMAKE_CURRENT_SOURCE_DIR}/src/cnc_task_test.cpp
+)
+target_link_libraries(
+	cnc_task_test
+	PRIVATE
+	cnc_movement_task
+)
