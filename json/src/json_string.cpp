@@ -21,7 +21,7 @@ std::string JsonString::getJsonString() const {
 	return output_string;
 }
 
-const char * JsonString::parse(const char * const from) {
+const char *JsonString::parse(const char * const from) {
 	if (nullptr == from) {
 		throw std::invalid_argument("nullptr reveived");
 	}
