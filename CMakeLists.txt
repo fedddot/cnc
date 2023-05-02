@@ -2,35 +2,16 @@ cmake_minimum_required(VERSION 3.10)
 
 project(cnc)
 
-set(CMAKE_C_FLAGS "-std=c99 -pedantic-errors -Wall -Wextra -O0")
-set(CMAKE_CXX_FLAGS "-std=c++17 -pedantic-errors -Wall -Wextra -O0")
-set(CMAKE_C_COMPILER "/usr/bin/gcc")
-set(CMAKE_CXX_COMPILER "/usr/bin/g++")
+set(CMAKE_COLOR_MAKEFILE ON)
 
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/cnc_server ${CMAKE_CURRENT_LIST_DIR}/cnc_server/build)
+set(DEV_PATH ${CMAKE_CURRENT_LIST_DIR}/..)
+set(CNC_PATH ${DEV_PATH}/cnc)
+set(JSON_PATH ${CNC_PATH}/json)
 
 include_directories(
-	${CMAKE_CURRENT_SOURCE_DIR}/include
+	$(CNC_PATH)/include
 )
 
-add_library(
-	message_parser
-	SHARED
-	${CMAKE_CURRENT_SOURCE_DIR}/src/message_parser.cpp
-)
+add_library(iparsable STATIC ${CNC_PATH}/src/iparsable.cpp)
 
-add_library(
-	cnc_movement_task
-	SHARED
-	${CMAKE_CURRENT_SOURCE_DIR}/src/cnc_movement_task.cpp
-)
-
-add_executable(
-	cnc_task_test
-	${CMAKE_CURRENT_SOURCE_DIR}/src/cnc_task_test.cpp
-)
-target_link_libraries(
-	cnc_task_test
-	PRIVATE
-	cnc_movement_task
-)
+add_subdirectory(${JSON_PATH})
