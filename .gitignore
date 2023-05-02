@@ -1,4 +1,6 @@
 *.*
+build/
+.vscode/
 !*.cpp
 !*.hpp
 !CMakeLists.txt
