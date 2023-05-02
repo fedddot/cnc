@@ -7,7 +7,7 @@
 using namespace json;
 using namespace testing;
 
-TEST(SanityTests, MethodParse) {
+TEST(SanityTests, JsonStringMethodParse) {
 	// Given
 	JsonString json_str;
 	const char * const test_str1 = "\"param1\"";
@@ -26,7 +26,7 @@ TEST(SanityTests, MethodParse) {
 	ASSERT_STREQ(json_str.getJsonString().c_str(), "\"param2\"");
 }
 
-TEST(NegativeTests, MethodParse) {
+TEST(NegativeTests, JsonStringMethodParse) {
 	// Given
 	JsonString json_str;
 	const char * const test_str1 = "param1";

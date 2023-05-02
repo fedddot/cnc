@@ -5,10 +5,9 @@
 #include <cstddef>
 
 #include "ijson_value.hpp"
-#include "iparsable.hpp"
 
 namespace json {
-	class JsonString: public IJsonValue, public common::IParsable {
+	class JsonString: public IJsonValue {
 	public:
 		JsonString(const std::string& value = "");
 		virtual JsonValueType getType() const override;

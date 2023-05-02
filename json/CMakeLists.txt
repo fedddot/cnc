@@ -11,6 +11,7 @@ include_directories(
 
 add_library(ijson_value STATIC ${CMAKE_CURRENT_LIST_DIR}/src/ijson_value.cpp)
 add_library(json_string STATIC ${CMAKE_CURRENT_LIST_DIR}/src/json_string.cpp)
+add_library(json_object STATIC ${CMAKE_CURRENT_LIST_DIR}/src/json_object.cpp)
 add_library(json_utils STATIC ${CMAKE_CURRENT_LIST_DIR}/src/json_utils.cpp)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tests)

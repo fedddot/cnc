@@ -4,8 +4,10 @@
 #include <string>
 #include <cstddef>
 
+#include "iparsable.hpp"
+
 namespace json {
-	class IJsonValue {
+	class IJsonValue: public common::IParsable {
 	public:
 		enum class JsonValueType : int {
 			STRING,

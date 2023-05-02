@@ -16,6 +16,7 @@ add_executable(
 	${PROJECT_NAME}_exec
 	json_tests.cpp
 	ut_json_string.cpp
+	ut_json_object.cpp
 )
 
 target_link_libraries(
@@ -23,6 +24,7 @@ target_link_libraries(
 	PUBLIC
 	ijson_value
 	json_string
+	json_object
 	json_utils
 	iparsable
 	gtest
