@@ -7,7 +7,7 @@ set(CMAKE_COLOR_MAKEFILE ON)
 set(DEV_PATH ${CMAKE_SOURCE_DIR}/..)
 
 include_directories(
-	$(CMAKE_SOURCE_DIR)/include
+	${CMAKE_SOURCE_DIR}/include
 )
 
 add_library(iparsable STATIC ${CMAKE_SOURCE_DIR}/src/iparsable.cpp)
