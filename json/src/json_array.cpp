@@ -9,48 +9,39 @@
 
 using namespace json;
 
-JsonObject::JsonValueType JsonObject::getType() const {
-	return JsonValueType::OBJECT;
+JsonArray::JsonValueType JsonArray::getType() const {
+	return JsonValueType::ARRAY;
 }
 
-std::string JsonObject::getJsonString() const {
+std::string JsonArray::getJsonString() const {
 	std::stringstream output_string_stream;
-	output_string_stream << (char)(JsonSpecialChar::OBJECT_START);
+	output_string_stream << (char)(JsonSpecialChar::ARRAY_START);
 	for (auto iter = m_values.begin(); iter != m_values.end(); ++iter) {
-		output_string_stream << (char)(JsonSpecialChar::SPACE) << (char)(JsonSpecialChar::STRING_START) << iter->first << (char)(JsonSpecialChar::STRING_END) << (char)(JsonSpecialChar::SEMICOLON) << (char)(JsonSpecialChar::SPACE) << iter->second->getJsonString() << (char)(JsonSpecialChar::DELIMITER);
+		output_string_stream << (char)(JsonSpecialChar::SPACE) << (*iter)->getJsonString() << (char)(JsonSpecialChar::DELIMITER);
 	}
-	output_string_stream << (char)(JsonSpecialChar::OBJECT_END);
+	output_string_stream << (char)(JsonSpecialChar::ARRAY_END);
 	return output_string_stream.str();
 }
 
-const char *JsonObject::parse(const char * const from) {
+const char *JsonArray::parse(const char * const from) {
 	if (nullptr == from) {
 		throw std::invalid_argument("nullptr reveived");
 	}
 	const char *iter = skipChars(from, (char)(JsonSpecialChar::SPACE));
-	if ((char)(JsonSpecialChar::OBJECT_START) != *iter) {
-		throw std::invalid_argument("invalid object start");
+	if ((char)(JsonSpecialChar::ARRAY_START) != *iter) {
+		throw std::invalid_argument("invalid array start");
 	}
 	++iter;
-	JsonObject parsed_object;
+	JsonArray parsed_array;
 	while (!('\0' == *iter)) {
-		if ((char)(JsonSpecialChar::OBJECT_END) == *iter) {
-			m_values = parsed_object.m_values;
+		if ((char)(JsonSpecialChar::ARRAY_END) == *iter) {
+			m_values = parsed_array.m_values;
 			++iter;
 			return iter;
 		}
 
-		JsonString field_name;
-		iter = field_name.parse(iter);
-
 		iter = skipChars(iter, (char)(JsonSpecialChar::SPACE));
-		if ((char)(JsonSpecialChar::SEMICOLON) != *iter) {
-			throw std::invalid_argument("failed to parse key");
-		}
-		++iter;
-
-		iter = skipChars(iter, (char)(JsonSpecialChar::SPACE));
-
+		
 		std::shared_ptr<IJsonValue> new_value(nullptr);
 		switch (*iter)
 		{
@@ -68,7 +59,7 @@ const char *JsonObject::parse(const char * const from) {
 		}
 
 		iter = new_value->parse(iter);
-		parsed_object.addObject(field_name.get(), new_value);
+		parsed_array.addObject(new_value);
 
 		iter = skipChars(iter, (char)(JsonSpecialChar::SPACE));
 		switch (*iter)
@@ -76,16 +67,16 @@ const char *JsonObject::parse(const char * const from) {
 		case ((char)(JsonSpecialChar::DELIMITER)):
 			++iter;
 			break;
-		case ((char)(JsonSpecialChar::OBJECT_END)):
+		case ((char)(JsonSpecialChar::ARRAY_END)):
 			;
 			break;
 		default:
 			throw std::invalid_argument("failed to parse delimiter or object end");
 		}
 	}
-	throw std::invalid_argument("invalid string end");
+	throw std::invalid_argument("invalid array end");
 }
 
-void JsonObject::addObject(const std::string& key, const std::shared_ptr<IJsonValue>& value) {
-	m_values[key] = value;
+void JsonArray::addObject(const std::shared_ptr<IJsonValue>& value) {
+	m_values.push_back(value);
 }
