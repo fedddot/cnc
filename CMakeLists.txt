@@ -4,14 +4,12 @@ project(cnc)
 
 set(CMAKE_COLOR_MAKEFILE ON)
 
-set(DEV_PATH ${CMAKE_CURRENT_LIST_DIR}/..)
-set(CNC_PATH ${DEV_PATH}/cnc)
-set(JSON_PATH ${CNC_PATH}/json)
+set(DEV_PATH ${CMAKE_SOURCE_DIR}/..)
 
 include_directories(
-	$(CNC_PATH)/include
+	$(CMAKE_SOURCE_DIR)/include
 )
 
-add_library(iparsable STATIC ${CNC_PATH}/src/iparsable.cpp)
+add_library(iparsable STATIC ${CMAKE_SOURCE_DIR}/src/iparsable.cpp)
 
-add_subdirectory(${JSON_PATH})
+add_subdirectory(${CMAKE_SOURCE_DIR}/json)
