@@ -8,12 +8,12 @@ namespace common
 	{
 	public:
 		virtual ~IListener() noexcept = 0;
-		virtual void onEvent(const Event& event) = 0;
+		virtual void onEvent(Event event) = 0;
 	}; // IListener
 
 	template <class Event>
-	IListener<Event>::~IListener() noexcept
-	{
+	IListener<Event>::~IListener() noexcept {
+
 	}
 
 } // common
