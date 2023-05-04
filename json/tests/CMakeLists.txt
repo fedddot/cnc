@@ -25,6 +25,7 @@ target_link_libraries(
 	ijson_value
 	json_string
 	json_object
+	json_array
 	json_utils
 	iparsable
 	gtest

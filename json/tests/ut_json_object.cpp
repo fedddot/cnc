@@ -11,7 +11,7 @@ TEST(SanityTests, JsonObjectMethodParse) {
 	// Given
 	JsonObject json_obj;
 	const char * const test_str1 = "{ \"name1\": \"val1\", \"name2\": {},}";
-	const char * const test_str2 = "{\"name1\": \"val1\", \"name2\": {  \"name3\": \"\"}}C";
+	const char * const test_str2 = "{\"name1\": \"val1\", \"name2\": {  \"name3\": [\"\"]}}C";
 	// const char * const test_str2 = " \"param2\"C  ";
 	const char *output = nullptr;
 
@@ -24,7 +24,7 @@ TEST(SanityTests, JsonObjectMethodParse) {
 	ASSERT_NO_THROW(output = json_obj.parse(test_str2));
 	ASSERT_THAT(output, NotNull());
 	ASSERT_THAT(*output, Eq('C'));
-	ASSERT_STREQ(json_obj.getJsonString().c_str(), "{ \"name1\": \"val1\", \"name2\": { \"name3\": \"\",},}");
+	ASSERT_STREQ(json_obj.getJsonString().c_str(), "{ \"name1\": \"val1\", \"name2\": { \"name3\": [ \"\",],},}");
 }
 
 TEST(NegativeTests, JsonObjectMethodParse) {
