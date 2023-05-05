@@ -12,7 +12,7 @@ namespace message
 	{
 	public:
 		MessageParser(const std::vector<char>& start_signature, const std::size_t& length_field_size);
-		virtual ~MessageParser() noexcept = default;
+		// virtual ~MessageParser() noexcept override = default;
 		virtual void setMessageListener(common::IListener<const Message&> *message_listener_ptr);
 		virtual void onEvent(const char& event) override;
 	private:
