@@ -13,3 +13,4 @@ include_directories(
 add_library(iparsable STATIC ${CMAKE_SOURCE_DIR}/src/iparsable.cpp)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/json)
+add_subdirectory(${CMAKE_SOURCE_DIR}/message_parser)

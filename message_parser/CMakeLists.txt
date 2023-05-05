@@ -9,6 +9,5 @@ include_directories(
 	${CMAKE_CURRENT_LIST_DIR}/include
 )
 
-add_library(imessage_parser STATIC ${CMAKE_CURRENT_LIST_DIR}/src/imessage_parser.cpp)
-add_library(imessage STATIC ${CMAKE_CURRENT_LIST_DIR}/src/imessage.cpp)
-# add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tests)
+add_library(message_parser STATIC ${CMAKE_CURRENT_LIST_DIR}/src/message_parser.cpp)
+add_library(message STATIC ${CMAKE_CURRENT_LIST_DIR}/src/message.cpp)
