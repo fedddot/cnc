@@ -4,14 +4,6 @@ project(json_tests)
 
 set(CMAKE_COLOR_MAKEFILE ON)
 
-set(GOOGLE_TESTS_PATH ${DEV_PATH}/googletest)
-
-add_subdirectory(${GOOGLE_TESTS_PATH} ${CMAKE_CURRENT_LIST_DIR}/build/gtest/build)
-
-include_directories(
-	${GOOGLE_TESTS_PATH}/googletest/include
-)
-
 add_executable(
 	${PROJECT_NAME}_exec
 	${CMAKE_CURRENT_LIST_DIR}/src/json_tests.cpp
