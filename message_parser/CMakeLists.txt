@@ -10,4 +10,10 @@ include_directories(
 )
 
 add_library(message_parser STATIC ${CMAKE_CURRENT_LIST_DIR}/src/message_parser.cpp)
+target_link_libraries(
+	message_parser
+	ilistener_const_char_ref
+)
 add_library(message STATIC ${CMAKE_CURRENT_LIST_DIR}/src/message.cpp)
+
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tests)
