@@ -81,6 +81,7 @@ std::size_t MessageParser::parseMessageSize(const std::vector<char>& buff) {
 		msg_size |= (std::size_t)(*iter);
 		msg_size <<= bits_in_byte;
 	}
+	return msg_size;
 }
 
 Message MessageParser::parseMessage(const std::vector<char>& buff) {
