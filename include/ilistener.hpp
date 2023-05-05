@@ -1,8 +1,7 @@
 #ifndef	__ILISTENER_HPP__
 #define	__ILISTENER_HPP__
 
-namespace common
-{
+namespace common {
 	template <class Event>
 	class IListener
 	{
@@ -10,12 +9,6 @@ namespace common
 		virtual ~IListener() noexcept = 0;
 		virtual void onEvent(Event event) = 0;
 	}; // IListener
-
-	template <class Event>
-	IListener<Event>::~IListener() noexcept {
-
-	}
-
 } // common
 
 #endif // __ILISTENER_HPP__
