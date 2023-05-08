@@ -8,9 +8,6 @@ namespace common {
 		virtual ~ITask() noexcept = 0;
 		virtual void execute() = 0;
 	};
-	ITask::~ITask() noexcept {
-
-	}
 }
 
 
