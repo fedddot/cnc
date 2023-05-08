@@ -2,7 +2,6 @@
 #define	__IJSON_VALUE_HPP__
 
 #include <string>
-#include <cstddef>
 
 #include "iparsable.hpp"
 
