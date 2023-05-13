@@ -54,6 +54,19 @@ add_subdirectory(${CNC_PATH}/data ${CMAKE_BINARY_DIR}/data)
 
 include_directories(
 	${CMAKE_CURRENT_LIST_DIR}/include
+	${CNC_PATH}/data/include
+)
+
+add_library(
+	string
+	STATIC
+	${CMAKE_CURRENT_LIST_DIR}/src/string.cpp
+)
+
+add_library(
+	features
+	STATIC
+	${CMAKE_CURRENT_LIST_DIR}/src/features.cpp
 )
 
 # add_library(
