@@ -2,7 +2,10 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-# add_library(iparsable STATIC ${CMAKE_CURRENT_SOURCE_DIR}/src/iparsable.cpp)
+add_library(string STATIC ${CMAKE_CURRENT_SOURCE_DIR}/src/string.cpp)
+# add_library(shared_ptr_istring STATIC ${CMAKE_CURRENT_SOURCE_DIR}/src/shared_ptr_istring.cpp)
 # add_library(ilistener_const_char_ref STATIC ${CMAKE_CURRENT_SOURCE_DIR}/src/ilistener_const_char_ref.cpp)
 # add_library(ilistener_const_message_ref STATIC ${CMAKE_CURRENT_SOURCE_DIR}/src/ilistener_const_message_ref.cpp)
 # add_library(itask STATIC ${CMAKE_CURRENT_SOURCE_DIR}/src/itask.cpp)
+
+add_subdirectory(tests)
