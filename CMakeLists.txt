@@ -6,7 +6,7 @@ set(CMAKE_COLOR_MAKEFILE ON)
 
 set(DEV_PATH ${CMAKE_SOURCE_DIR}/..)
 
-set(GOOGLE_TESTS_PATH ${DEV_PATH}/googletest)
+set(GOOGLE_TESTS_PATH ${DEV_PATH}/tools/googletest)
 
 add_subdirectory(${GOOGLE_TESTS_PATH} ${CMAKE_SOURCE_DIR}/build/gtest/build)
 
@@ -24,4 +24,5 @@ add_library(itask STATIC ${CMAKE_SOURCE_DIR}/src/itask.cpp)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/json)
 add_subdirectory(${CMAKE_SOURCE_DIR}/message_parser)
-add_subdirectory(${CMAKE_SOURCE_DIR}/onboard)
+add_subdirectory(${CMAKE_SOURCE_DIR}/server)
+add_subdirectory(${CMAKE_SOURCE_DIR}/data)
