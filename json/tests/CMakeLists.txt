@@ -8,7 +8,7 @@ add_executable(
 	${PROJECT_NAME}_exec
 	${CMAKE_CURRENT_LIST_DIR}/src/json_tests.cpp
 	${CMAKE_CURRENT_LIST_DIR}/src/ut_json_string.cpp
-	${CMAKE_CURRENT_LIST_DIR}/src/ut_json_object.cpp
+	# ${CMAKE_CURRENT_LIST_DIR}/src/ut_json_object.cpp
 )
 
 target_link_libraries(
@@ -16,10 +16,11 @@ target_link_libraries(
 	PUBLIC
 	ijson_value
 	json_string
-	json_object
-	json_array
+	# json_object
+	# json_array
 	json_utils
 	iparsable
+	string
 	gtest
 	gmock
 )

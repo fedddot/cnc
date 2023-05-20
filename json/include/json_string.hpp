@@ -1,24 +1,24 @@
 #ifndef	__JSON_STRING_HPP__
 #define	__JSON_STRING_HPP__
 
-#include <string>
-#include <cstddef>
+#include <stddef.h>
 
 #include "ijson_value.hpp"
+#include "string.hpp"
 
 namespace json {
 	class JsonString: public IJsonValue {
 	public:
-		JsonString(const std::string& value = "");
+		JsonString(const data::String& value = "");
 		virtual JsonValueType getType() const override;
-		virtual std::string getJsonString() const override;
+		virtual data::String getJsonString() const override;
 		virtual const char *parse(const char * const from) override;
-		inline std::string get() const;
+		inline data::String get() const;
 	private:
-		std::string m_value;
+		data::String m_value;
 	};
 
-	inline std::string JsonString::get() const {
+	inline data::String JsonString::get() const {
 		return m_value;
 	}
 }

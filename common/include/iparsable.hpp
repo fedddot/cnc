@@ -3,13 +3,11 @@
 
 namespace common
 {
-	class IParsable
-	{
+	class IParsable {
 	public:
 		virtual ~IParsable() noexcept = 0;
 		virtual const char *parse(const char * const from) = 0;
 	}; // IParsable
-
 } // common
 
 #endif // __IPARSABLE_HPP__

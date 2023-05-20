@@ -3,12 +3,11 @@
 
 namespace common {
 	template <class Event>
-	class IListener
-	{
+	class IListener {
 	public:
 		virtual ~IListener() noexcept = 0;
 		virtual void onEvent(Event event) = 0;
 	}; // IListener
-} // common
+} // namespace common
 
 #endif // __ILISTENER_HPP__

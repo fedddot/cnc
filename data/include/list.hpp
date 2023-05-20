@@ -3,34 +3,152 @@
 
 #include <stddef.h>
 
-#include "iiterable.hpp"
-
 namespace data {
 	template <class T>
 	class List {
+	private:
+		class Node;
 	public:
+		class Iter {
+		public:
+			Iter(Node *node);
+			~Iter() noexcept = default;
+			Iter(const Iter& other) = default;
+			Iter& operator=(const Iter& other) = default;
+
+			inline T& get();
+			inline const T& get() const;
+			inline bool operator==(const Iter& other) const;
+			inline bool operator!=(const Iter& other) const;
+			inline Iter& operator++();
+			inline bool isEndIter() const;
+			inline bool isLastIter() const;
+			inline Iter insert_before(const T& value);
+			inline void erase();
+		private:
+			Node *m_node;
+		};
+
 		List();
-		virtual ~List() noexcept = 0;
-		virtual size_t size() const = 0;
-		virtual T& operator[](const size_t& index) = 0;
-		virtual const T& operator[](const size_t& index) const = 0;
-		virtual void push_back(const T& value) = 0;
+		List(const List& other) = delete;
+		List& operator=(const List& other) = delete;
+		virtual ~List() noexcept;
+
+		inline virtual Iter begin();
+		inline virtual Iter end();
+
+		inline virtual void flush();
+		inline virtual void push_front(const T& value);
+		inline virtual T pop_front();
+		inline virtual void push_back(const T& value);
+		inline virtual T pop_back();
+		inline virtual size_t size() const;
+		inline virtual bool empty() const;
+
 	private:
 		class Node {
 		public:
-			Node(const T& value, Node *next);
-			T& getValue();
-			const T& getValue() const;
-			T& getNext();
-			const T& getNext() const;
-		private:
-			T m_value;
+			Node(); // Dummy node Ctor
+			Node(const T& value, Node *next = nullptr); // Data node Ctor
+			Node(const Node& other);
+			Node& operator=(const Node& other);
+			~Node() noexcept;
+			T *m_value;
 			Node *m_next;
 		};
-	
-		Node *m_root;
-		size_t m_size;
-	};
-}
+
+		Node *m_head;
+	}; // List
+
+	template <class T>
+	List<T>::List(): m_head(new Node) {
+	}
+
+	template <class T>
+	List<T>::~List() noexcept {
+		flush();
+		delete m_head;
+	}
+
+	template <class T>
+	inline void List<T>::flush() {
+		while (!empty()) {
+			auto iter = begin();
+			iter.erase();
+		}
+	}
+
+	template <class T>
+	inline typename List<T>::Iter List<T>::begin() {
+		return Iter(m_head);
+	}
+
+	template <class T>
+	inline typename List<T>::Iter List<T>::end() {
+		auto iter = begin();
+		while (!(iter.isEndIter())) {
+			++iter;
+		}
+		return iter;
+	}
+
+	template <class T>
+	void List<T>::push_front(const T& value) {
+		auto iter = begin();
+		iter.insert_before(value);
+	}
+
+	template <class T>
+	T List<T>::pop_front() {
+		if (empty()) {
+			// TODO: handle it
+		}
+		auto iter = begin();
+		T value(iter.get());
+		iter.erase();
+		return value;
+	}
+
+	template <class T>
+	void List<T>::push_back(const T& value) {
+		auto iter = end();
+		iter.insert_before(value);
+	}
+
+	template <class T>
+	T List<T>::pop_back() {
+		if (empty()) {
+			// TODO: handle it
+		}
+		auto iter = begin();
+		while (!iter.isLastIter()) {
+			++iter;
+		}
+		T value(iter.get());
+		iter.erase();
+		return value;
+	}
+
+	template <class T>
+	size_t List<T>::size() const {
+		size_t list_size = 0;
+		auto iter = const_cast<List<T> *>(this)->begin();
+		auto iter_end = const_cast<List<T> *>(this)->end();
+		while (iter != iter_end) {
+			++list_size;
+			++iter;
+		}
+		return list_size;
+	}
+
+	template <class T>
+	bool List<T>::empty() const {
+		auto iter = const_cast<List<T> *>(this)->begin();
+		return iter.isEndIter();
+	}
+} // namespace data
+
+#include "list_node.hpp"
+#include "list_iter.hpp"
 
 #endif // __LIST_HPP__
