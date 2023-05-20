@@ -10,56 +10,64 @@
 using namespace data;
 using namespace testing;
 
-TEST(ut_List, List_PushFrontPopFront_sanity) {
+TEST(ut_List, push_front_pop_front_SANITY) {
 	// GIVEN
-	List<String> test_list;
+	List<int> test_list;
+	int test_values[] = { 0, 1, 2, 3 };
+	const size_t test_values_size = 4;
 
+	// WHEN
+	size_t expected_size = 0;
+	
 	// THEN
-	test_list.push_front("string1");
+	for (int i = 0; i < test_values_size; ++i) {
+		ASSERT_NO_THROW(test_list.push_front(test_values[i]));
+		++expected_size;
+		ASSERT_EQ(expected_size, test_list.size());
+	}
+
+	for (int i = test_values_size - 1; i > 0; --i) {
+		int val = 0;
+		ASSERT_NO_THROW(val = test_list.pop_front());
+		--expected_size;
+		ASSERT_EQ(expected_size, test_list.size());
+		ASSERT_EQ(val, test_values[i]);
+	}
 }
 
-// TEST(ut_String, String_AssignmentOperator_sanity) {
-// 	// GIVEN
-// 	String test_str1;
-// 	String test_str2("test_str2");
-// 	String test_str3;
+TEST(ut_List, push_back_pop_back_SANITY) {
+	// GIVEN
+	List<int> test_list;
+	int test_values[] = { 0, 1, 2, 3 };
+	const size_t test_values_size = 4;
 
-// 	// WHEN
-// 	test_str1 = test_str2;
-// 	test_str3 = "test_str3";
+	// WHEN
+	size_t expected_size = 0;	
+	
+	// THEN
+	for (int i = 0; i < test_values_size; ++i) {
+		ASSERT_NO_THROW(test_list.push_back(test_values[i]));
+		++expected_size;
+		ASSERT_EQ(expected_size, test_list.size());
+	}
 
-// 	// THEN
-// 	ASSERT_STREQ(test_str1.c_str(), "test_str2");
-// 	ASSERT_STREQ(test_str1.c_str(), test_str2.c_str());
-// 	ASSERT_STREQ(test_str3.c_str(), "test_str3");
-// }
+	for (int i = test_values_size - 1; i > 0; --i) {
+		int val = 0;
+		ASSERT_NO_THROW(val = test_list.pop_back());
+		--expected_size;
+		ASSERT_EQ(expected_size, test_list.size());
+		ASSERT_EQ(val, test_values[i]);
+	}
+}
 
-// TEST(ut_String, String_size_sanity) {
-// 	// GIVEN
-// 	String test_str1;
-// 	String test_str2("test_str2");
-// 	String test_str3('a');
-
-// 	// THEN
-// 	ASSERT_EQ(test_str1.size(), 0UL);
-// 	ASSERT_EQ(test_str2.size(), 9UL);
-// 	ASSERT_EQ(test_str3.size(), 1UL);
-// }
-
-// TEST(ut_String, String_AddOperator_sanity) {
-// 	// GIVEN
-// 	String test_str1('a');
-// 	String test_str2("bc");
-// 	String test_str3;
-// 	String res;
-
-// 	// THEN
-// 	res = test_str1 + test_str2;
-// 	ASSERT_STREQ(res.c_str(), "abc");
-// 	res = test_str2 + test_str1;
-// 	ASSERT_STREQ(res.c_str(), "bca");
-// 	res = test_str2 + test_str3;
-// 	ASSERT_STREQ(res.c_str(), "bc");
-// 	res = test_str3 + test_str2;
-// 	ASSERT_STREQ(res.c_str(), "bc");
-// }
+TEST(ut_List, dtor_LEAKTEST) {
+	// GIVEN
+	List<int> test_list;
+	int test_values[] = { 0, 1, 2, 3 };
+	const size_t test_values_size = 4;
+	
+	// THEN
+	for (int i = 0; i < test_values_size; ++i) {
+		ASSERT_NO_THROW(test_list.push_back(test_values[i]));
+	}
+}
