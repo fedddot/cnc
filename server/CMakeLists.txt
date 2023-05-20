@@ -10,7 +10,6 @@ set(AVR_MCU_SPEED 16000000UL)
 
 project(cnc_server)
 
-set(DEV_PATH ${CMAKE_SOURCE_DIR}/../..)
 set(TOOLCHAIN_PATH ${DEV_PATH}/tools/avr8-gnu-toolchain)
 set(CNC_PATH ${DEV_PATH}/cnc)
 
@@ -48,26 +47,27 @@ add_definitions("-pedantic")
 add_definitions("-pedantic-errors")
 add_definitions("-std=c++11")
 
-add_subdirectory(${CNC_PATH}/common ${CMAKE_BINARY_DIR}/common)
-add_subdirectory(${CNC_PATH}/data ${CMAKE_BINARY_DIR}/data)
-# add_subdirectory(${CNC_PATH}/json ${CMAKE_BINARY_DIR}/json)
-
 include_directories(
 	${CMAKE_CURRENT_LIST_DIR}/include
-	${CNC_PATH}/data/include
 )
 
-add_library(
-	string
-	STATIC
-	${CMAKE_CURRENT_LIST_DIR}/src/string.cpp
-)
+# add_library(
+# 	array
+# 	STATIC
+# 	${CMAKE_CURRENT_LIST_DIR}/src/array.cpp
+# )
 
-add_library(
-	features
-	STATIC
-	${CMAKE_CURRENT_LIST_DIR}/src/features.cpp
-)
+# add_library(
+# 	string
+# 	STATIC
+# 	${CMAKE_CURRENT_LIST_DIR}/src/string.cpp
+# )
+
+# add_library(
+# 	features
+# 	STATIC
+# 	${CMAKE_CURRENT_LIST_DIR}/src/features.cpp
+# )
 
 # add_library(
 # 	mcu_resource_manager
