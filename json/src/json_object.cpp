@@ -99,7 +99,7 @@ List<char>::Iter JsonObject::parse(const data::List<char>::Iter& start) {
 		}
 
 		iter = new_value.get()->parse(iter);
-		push_back(Pair<String, SharedPtr<IJsonValue>>(field_name, new_value));
+		value.push_back(Pair<String, SharedPtr<IJsonValue>>(field_name, new_value));
 		
 		iter = skipChars(iter, skip_chars);
 		if (iter.isEndIter()) {

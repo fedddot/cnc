@@ -46,7 +46,7 @@ List<char>::Iter JsonArray::parse(const data::List<char>::Iter& start) {
 
 	JsonArray value;
 	while (!iter.isEndIter()) {
-		iter = skipChars(start, skip_chars);
+		iter = skipChars(iter, skip_chars);
 		if (iter.isEndIter()) {
 			return iter;
 		}
@@ -73,9 +73,9 @@ List<char>::Iter JsonArray::parse(const data::List<char>::Iter& start) {
 		}
 
 		iter = new_value.get()->parse(iter);
-		push_back(new_value);
+		value.push_back(new_value);
 
-		iter = skipChars(start, skip_chars);
+		iter = skipChars(iter, skip_chars);
 		if (iter.isEndIter()) {
 			return iter;
 		}

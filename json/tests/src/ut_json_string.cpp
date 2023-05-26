@@ -1,11 +1,14 @@
-#include <string.h>
 #include "gtest/gtest.h"
 #include "gtest/gtest-matchers.h"
 #include "gmock/gmock-more-matchers.h"
+
 #include "json_string.hpp"
+#include "list.hpp"
+#include "test_utils.hpp"
 
 using namespace json;
 using namespace testing;
+using namespace data;
 
 TEST(ut_JsonString, JsonString_Ctors_sanity) {
 	// GIVEN
@@ -20,23 +23,36 @@ TEST(ut_JsonString, JsonString_Ctors_sanity) {
 TEST(ut_JsonString, JsonString_parse_sanity) {
 	// GIVEN
 	JsonString json_str;
-	const char * const test_str1 = "\"param1\"";
-	const char * const test_str2 = " \"param2\"C  ";
-	const char * const test_str3 = " param3\"C  ";
-	const char *output = nullptr;
+
+	String valid_str1("\"test_string1\"");
+	String valid_str2("  \"test_string2 \"e");
+	String invalid_str("\"test_string3");
 
 	// THEN
-	ASSERT_NO_THROW(output = json_str.parse(test_str1));
-	ASSERT_THAT(output, Eq(test_str1 + strlen(test_str1)));
-	ASSERT_THAT(*output, Eq('\0'));
-	ASSERT_STREQ(json_str.getJsonString().c_str(), "\"param1\"");
+	{
+		List<char> data = strToList(valid_str1);
+		List<char>::Iter iter = data.begin();
+		ASSERT_NO_THROW(iter = json_str.parse(iter));
+		ASSERT_TRUE(iter == data.end());
+		ASSERT_STREQ("\"test_string1\"", json_str.getJsonString().c_str());
+	}
 
-	ASSERT_NO_THROW(output = json_str.parse(test_str2));
-	ASSERT_THAT(output, Eq(test_str2 + strlen(test_str2) - 3));
-	ASSERT_THAT(*output, Eq('C'));
-	ASSERT_STREQ(json_str.getJsonString().c_str(), "\"param2\"");
+	// THEN
+	{
+		List<char> data = strToList(valid_str2);
+		List<char>::Iter iter = data.begin();
+		ASSERT_NO_THROW(iter = json_str.parse(iter));
+		ASSERT_FALSE(iter == data.end());
+		ASSERT_STREQ("\"test_string2 \"", json_str.getJsonString().c_str());
+		ASSERT_EQ('e', iter.get());
+	}
 
-	ASSERT_NO_THROW(output = json_str.parse(test_str3));
-	ASSERT_THAT(output, IsNull());
-	ASSERT_STREQ(json_str.getJsonString().c_str(), "\"param2\"");
+	// THEN
+	{
+		List<char> data = strToList(invalid_str);
+		List<char>::Iter iter = data.begin();
+		ASSERT_NO_THROW(iter = json_str.parse(iter));
+		ASSERT_TRUE(iter == data.end());
+		ASSERT_STREQ("\"test_string2 \"", json_str.getJsonString().c_str());
+	}
 }
