@@ -30,11 +30,12 @@ namespace data {
 		};
 
 		List();
-		List(const List& other) = delete;
-		List& operator=(const List& other) = delete;
+		List(const List& other);
+		virtual List& operator=(const List& other);
 		virtual ~List() noexcept;
 
 		inline virtual Iter begin();
+		inline virtual Iter last();
 		inline virtual Iter end();
 
 		inline virtual void flush();
@@ -65,6 +66,29 @@ namespace data {
 	}
 
 	template <class T>
+	List<T>::List(const List& other): m_head(new Node) {
+		auto other_casted = const_cast<List&>(other);
+		auto iter = other_casted.begin();
+		auto iter_end = other_casted.end();
+		while (iter != iter_end) {
+			push_back(iter.get());
+			++iter;
+		}
+	}
+
+	template <class T>
+	typename List<T>::List& List<T>::operator=(const List& other) {
+		flush();
+		auto other_casted = const_cast<List&>(other);
+		auto iter = other_casted.begin();
+		auto iter_end = other_casted.end();
+		while (iter != iter_end) {
+			push_back(iter.get());
+			++iter;
+		}
+	}
+
+	template <class T>
 	List<T>::~List() noexcept {
 		flush();
 		delete m_head;
@@ -87,6 +111,18 @@ namespace data {
 	inline typename List<T>::Iter List<T>::end() {
 		auto iter = begin();
 		while (!(iter.isEndIter())) {
+			++iter;
+		}
+		return iter;
+	}
+
+	template <class T>
+	inline typename List<T>::Iter List<T>::last() {
+		if (empty()) {
+			// handle it
+		}
+		auto iter = begin();
+		while (!(iter.isLastIter())) {
 			++iter;
 		}
 		return iter;
@@ -120,10 +156,7 @@ namespace data {
 		if (empty()) {
 			// TODO: handle it
 		}
-		auto iter = begin();
-		while (!iter.isLastIter()) {
-			++iter;
-		}
+		auto iter = last();
 		T value(iter.get());
 		iter.erase();
 		return value;
