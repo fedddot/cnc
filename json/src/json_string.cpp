@@ -1,13 +1,13 @@
-#include <stdexcept>
-#include <sstream>
-
 #include "json_string.hpp"
 #include "json_types.hpp"
 #include "json_utils.hpp"
 
-using namespace json;
+#include "string.hpp"
 
-JsonString::JsonString(const std::string& value) : m_value(value) {
+using namespace json;
+using namespace data;
+
+JsonString::JsonString(const String& value) : String(value) {
 
 }
 
@@ -15,31 +15,35 @@ JsonString::JsonValueType JsonString::getType() const {
 	return JsonValueType::STRING;
 }
 
-std::string JsonString::getJsonString() const {
-	std::stringstream output_string_stream;
-	
-	output_string_stream << (char)(JsonSpecialChar::STRING_START) << m_value << (char)(JsonSpecialChar::STRING_END);
-	return output_string_stream.str();
+String JsonString::getJsonString() const {
+	return String((char)(JsonSpecialChar::STRING_START)) + *this + String((char)(JsonSpecialChar::STRING_END));
 }
 
-const char *JsonString::parse(const char * const from) {
-	if (nullptr == from) {
-		throw std::invalid_argument("nullptr reveived");
+List<char>::Iter JsonString::parse(const List<char>::Iter& start) {
+	List<char> skip_chars;
+	skip_chars.push_front('\t');
+	skip_chars.push_front('\n');
+	skip_chars.push_front((char)(JsonSpecialChar::SPACE));
+	
+	List<char>::Iter iter = skipChars(start, skip_chars);
+	if (iter.isEndIter()) {
+		return iter;
 	}
-	const char *iter = skipChars(from, (char)(JsonSpecialChar::SPACE));
-	if ((char)(JsonSpecialChar::STRING_START) != *iter) {
-		throw std::invalid_argument("invalid string start");
+
+	if ((char)(JsonSpecialChar::STRING_START) != iter.get()) {
+		return iter;
 	}
 	++iter;
-	std::stringstream value_stream;
-	while (!('\0' == *iter)) {
-		if ((char)(JsonSpecialChar::STRING_END) == *iter) {
-			m_value = value_stream.str();
+
+	String value("");
+	while (!iter.isEndIter()) {
+		if ((char)(JsonSpecialChar::STRING_END) == iter.get()) {
+			*this = value;
 			++iter;
 			return iter;
 		}
-		value_stream << *iter;
+		value += iter.get();
 		++iter;
 	}
-	throw std::invalid_argument("invalid string end");
+	return iter;
 }

@@ -1,11 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
-
-project(json)
-
-set(CMAKE_COLOR_MAKEFILE ON)
-
 include_directories(
-	${CMAKE_SOURCE_DIR}/include
 	${CMAKE_CURRENT_LIST_DIR}/include
 )
 

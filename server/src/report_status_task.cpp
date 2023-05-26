@@ -1,4 +1,4 @@
-#include <iostream>
+// #include <iostream>
 #include "report_status_task.hpp"
 
 using namespace onboard;
@@ -12,5 +12,5 @@ ReportStatusTask::McuTaskType ReportStatusTask::getType() const {
 }
 
 void ReportStatusTask::execute() {
-	std::cout << m_status << std::endl;
+	// std::cout << m_status << std::endl;
 }

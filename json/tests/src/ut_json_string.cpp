@@ -1,49 +1,58 @@
-#include <stdexcept>
 #include "gtest/gtest.h"
 #include "gtest/gtest-matchers.h"
 #include "gmock/gmock-more-matchers.h"
+
 #include "json_string.hpp"
+#include "list.hpp"
+#include "test_utils.hpp"
 
 using namespace json;
 using namespace testing;
+using namespace data;
 
-TEST(SanityTests, JsonStringMethodParse) {
-	// Given
-	JsonString json_str;
-	const char * const test_str1 = "\"param1\"";
-	const char * const test_str2 = " \"param2\"C  ";
-	const char *output = nullptr;
+TEST(ut_JsonString, JsonString_Ctors_sanity) {
+	// GIVEN
+	JsonString json_str1;
+	JsonString json_str2("abc");
 
-	// Then
-	ASSERT_NO_THROW(output = json_str.parse(test_str1));
-	ASSERT_THAT(output, NotNull());
-	ASSERT_THAT(*output, Eq('\0'));
-	ASSERT_STREQ(json_str.getJsonString().c_str(), "\"param1\"");
-
-	ASSERT_NO_THROW(output = json_str.parse(test_str2));
-	ASSERT_THAT(output, NotNull());
-	ASSERT_THAT(*output, Eq('C'));
-	ASSERT_STREQ(json_str.getJsonString().c_str(), "\"param2\"");
+	// THEN
+	ASSERT_STREQ(json_str1.getJsonString().c_str(), "\"\"");
+	ASSERT_STREQ(json_str2.getJsonString().c_str(), "\"abc\"");
 }
 
-TEST(NegativeTests, JsonStringMethodParse) {
-	// Given
+TEST(ut_JsonString, JsonString_parse_sanity) {
+	// GIVEN
 	JsonString json_str;
-	const char * const test_str1 = "param1";
-	const char * const test_str2 = "param2\"C  ";
-	const char * const test_str3 = " \"param3  ";
-	const char *output = nullptr;
 
-	// Then
-	ASSERT_THROW(output = json_str.parse(nullptr), std::invalid_argument);
-	ASSERT_THAT(output, IsNull());
-	ASSERT_STREQ(json_str.getJsonString().c_str(), "\"\"");
+	String valid_str1("\"test_string1\"");
+	String valid_str2("  \"test_string2 \"e");
+	String invalid_str("\"test_string3");
 
-	ASSERT_THROW(output = json_str.parse(test_str1), std::invalid_argument);
-	ASSERT_THAT(output, IsNull());
-	ASSERT_STREQ(json_str.getJsonString().c_str(), "\"\"");
+	// THEN
+	{
+		List<char> data = strToList(valid_str1);
+		List<char>::Iter iter = data.begin();
+		ASSERT_NO_THROW(iter = json_str.parse(iter));
+		ASSERT_TRUE(iter == data.end());
+		ASSERT_STREQ("\"test_string1\"", json_str.getJsonString().c_str());
+	}
 
-	ASSERT_THROW(output = json_str.parse(test_str2), std::invalid_argument);
-	ASSERT_THAT(output, IsNull());
-	ASSERT_STREQ(json_str.getJsonString().c_str(), "\"\"");
+	// THEN
+	{
+		List<char> data = strToList(valid_str2);
+		List<char>::Iter iter = data.begin();
+		ASSERT_NO_THROW(iter = json_str.parse(iter));
+		ASSERT_FALSE(iter == data.end());
+		ASSERT_STREQ("\"test_string2 \"", json_str.getJsonString().c_str());
+		ASSERT_EQ('e', iter.get());
+	}
+
+	// THEN
+	{
+		List<char> data = strToList(invalid_str);
+		List<char>::Iter iter = data.begin();
+		ASSERT_NO_THROW(iter = json_str.parse(iter));
+		ASSERT_TRUE(iter == data.end());
+		ASSERT_STREQ("\"test_string2 \"", json_str.getJsonString().c_str());
+	}
 }
