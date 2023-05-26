@@ -9,9 +9,10 @@ namespace data {
 		String(const char * const str = "");
 		String(const char& chr);
 		String(const String& other);
-		String& operator=(const String& other);
 		virtual ~String() noexcept;
-		
+		virtual String& operator=(const String& other);
+		virtual String& operator+=(const String& other);
+		virtual String& operator+=(const char& chr);
 		virtual const char *c_str() const;
 		virtual size_t size() const;
 	private:
@@ -19,8 +20,11 @@ namespace data {
 		static char *copyString(const char * const str);
 	}; // String
 
-	String operator+(const String& left, const String& right);
-
+	String operator+(const String& left, const String& right) {
+		String result(left);
+		result += right;
+		return result;
+	}
 } // namespace data
 
 #endif // __STRING_HPP__
