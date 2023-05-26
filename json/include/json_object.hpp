@@ -1,33 +1,18 @@
 #ifndef	__JSON_OBJECT_HPP__
 #define	__JSON_OBJECT_HPP__
 
-#include <string>
-#include <cstddef>
-#include <map>
-#include <memory>
-
 #include "ijson_value.hpp"
+#include "shared_ptr.hpp"
+#include "string.hpp"
+#include "pair.hpp"
 
 namespace json {
-	class JsonObject: public IJsonValue {
+	class JsonObject: public IJsonValue, public data::List<data::Pair<data::String, data::SharedPtr<IJsonValue>>> {
 	public:
 		virtual JsonValueType getType() const override;
-		virtual std::string getJsonString() const override;
-		virtual const char *parse(const char * const from) override;
-		void addObject(const std::string& key, const std::shared_ptr<IJsonValue>& value);
-		
-		inline std::shared_ptr<IJsonValue> get(const std::string name) const;
-	private:
-		std::map<std::string, std::shared_ptr<IJsonValue>> m_values;
+		virtual data::String getJsonString() const override;
+		virtual data::List<char>::Iter parse(const data::List<char>::Iter& start) override;
 	}; // JsonObject
-
-	inline std::shared_ptr<IJsonValue> JsonObject::get(const std::string name) const {
-		auto it = m_values.find(name);
-		if (m_values.end() != it) {
-			return it->second;
-		}		
-		return std::shared_ptr<IJsonValue>(nullptr);
-	}
 }
 
 #endif // __JSON_OBJECT_HPP__
