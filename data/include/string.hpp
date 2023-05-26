@@ -20,11 +20,9 @@ namespace data {
 		static char *copyString(const char * const str);
 	}; // String
 
-	String operator+(const String& left, const String& right) {
-		String result(left);
-		result += right;
-		return result;
-	}
+	String operator+(const String& left, const String& right);
+	bool operator==(const String& left, const String& right);
+	
 } // namespace data
 
 #endif // __STRING_HPP__
