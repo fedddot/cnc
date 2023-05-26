@@ -1,20 +1,18 @@
 #ifndef	__MESSAGE_PARSER_HPP__
 #define	__MESSAGE_PARSER_HPP__
 
-#include <vector>
-
-#include "message.hpp"
+#include <stddef.h>
+#include "list.hpp"
 #include "ilistener.hpp"
 
 namespace message
 {
-	class MessageParser: public common::IListener<const char&>
+	class MessageParser: public common::IListener<char>
 	{
 	public:
-		MessageParser(const std::vector<char>& start_signature, const std::size_t& length_field_size);
-		// virtual ~MessageParser() noexcept override = default;
-		virtual void setMessageListener(common::IListener<const Message&> *message_listener_ptr);
-		virtual void onEvent(const char& event) override;
+		MessageParser(const data::List<char>& start_signature, const size_t& length_field_size);
+		virtual void setMessageListener(common::IListener<const data::List<char>&> *message_listener_ptr);
+		virtual void onEvent(char event) override;
 	private:
 		enum ParserState {
 			MATCHING_SIGNATURE,
@@ -22,16 +20,16 @@ namespace message
 			READING_MSG_DATA
 		};
 
-		std::vector<char> m_start_signature;
-		std::size_t m_length_field_size;
-		common::IListener<const Message&> *m_message_listener_ptr;
+		data::List<char> m_start_signature;
+		size_t m_length_field_size;
+		common::IListener<const data::List<char>&> *m_message_listener_ptr;
 
 		ParserState m_state;
 
-		std::size_t m_start_signature_size;
-		std::vector<char> m_reading_buff;
+		size_t m_start_signature_size;
+		data::List<char> m_reading_buff;
 
-		std::size_t m_msg_size;
+		size_t m_msg_size;
 
 		void handleMatchingSignature(const char& event);
 		void handleReadingMsgLength(const char& event);
@@ -39,8 +37,8 @@ namespace message
 
 		void resetParserState(void);
 
-		static std::size_t parseMessageSize(const std::vector<char>& buff);
-		static Message parseMessage(const std::vector<char>& buff);
+		static size_t parseMessageSize(const data::List<char>& buff);
+		static data::List<char> parseMessage(const data::List<char>& buff);
 	}; // MessageParser
 } // message
 
