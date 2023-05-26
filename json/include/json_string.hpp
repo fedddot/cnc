@@ -4,23 +4,17 @@
 #include <stddef.h>
 
 #include "ijson_value.hpp"
+#include "list.hpp"
 #include "string.hpp"
 
 namespace json {
-	class JsonString: public IJsonValue {
+	class JsonString: public IJsonValue, public data::String {
 	public:
 		JsonString(const data::String& value = "");
 		virtual JsonValueType getType() const override;
 		virtual data::String getJsonString() const override;
-		virtual const char *parse(const char * const from) override;
-		inline data::String get() const;
-	private:
-		data::String m_value;
+		virtual data::List<char>::Iter parse(const data::List<char>::Iter& start) override;
 	};
-
-	inline data::String JsonString::get() const {
-		return m_value;
-	}
 }
 
 #endif // __JSON_STRING_HPP__

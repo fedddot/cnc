@@ -5,8 +5,9 @@
 #include "string.hpp"
 
 using namespace json;
+using namespace data;
 
-JsonString::JsonString(const data::String& value) : m_value(value) {
+JsonString::JsonString(const String& value) : String(value) {
 
 }
 
@@ -14,29 +15,35 @@ JsonString::JsonValueType JsonString::getType() const {
 	return JsonValueType::STRING;
 }
 
-data::String JsonString::getJsonString() const {
-	data::String output_string(data::String((char)(JsonSpecialChar::STRING_START)) + m_value + data::String((char)(JsonSpecialChar::STRING_END)));
-	return output_string;
+String JsonString::getJsonString() const {
+	return String((char)(JsonSpecialChar::STRING_START)) + *this + String((char)(JsonSpecialChar::STRING_END));
 }
 
-const char *JsonString::parse(const char * const from) {
-	if (nullptr == from) {
-		return nullptr;
+List<char>::Iter JsonString::parse(const List<char>::Iter& start) {
+	List<char> skip_chars;
+	skip_chars.push_front('\t');
+	skip_chars.push_front('\n');
+	skip_chars.push_front((char)(JsonSpecialChar::SPACE));
+	
+	List<char>::Iter iter = skipChars(start, skip_chars);
+	if (iter.isEndIter()) {
+		return iter;
 	}
-	const char *iter = skipChars(from, (char)(JsonSpecialChar::SPACE));
-	if ((char)(JsonSpecialChar::STRING_START) != *iter) {
-		return nullptr;
+
+	if ((char)(JsonSpecialChar::STRING_START) != iter.get()) {
+		return iter;
 	}
 	++iter;
-	data::String value("");
-	while (!('\0' == *iter)) {
-		if ((char)(JsonSpecialChar::STRING_END) == *iter) {
-			m_value = value;
+
+	String value("");
+	while (!iter.isEndIter()) {
+		if ((char)(JsonSpecialChar::STRING_END) == iter.get()) {
+			*this = value;
 			++iter;
 			return iter;
 		}
-		value = value + data::String((char)(*iter));
+		value += iter.get();
 		++iter;
 	}
-	throw nullptr;
+	return iter;
 }
