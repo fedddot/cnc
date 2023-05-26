@@ -1,7 +1,12 @@
 #include <string.h>
 #include "string.hpp"
+#include "exception.hpp"
+#include "exception_handler.hpp"
 
 using namespace data;
+
+static const String invalidPointerMsg("String class: invalid pointer received");
+static const String failedCopyMsg("String class: failed to copy string");
 
 String::String(const char * const str) : m_string(copyString(str)) {
 
@@ -31,11 +36,8 @@ String& String::operator+=(const String& other) {
 	const size_t left_size = size();
 	const size_t right_size = other.size();
 	char *buff = new char[left_size + right_size + 1UL];
-	if (nullptr == strcpy(buff, c_str())) {
-		// TODO: take action
-	}
-	if (nullptr == strcpy(buff + left_size, other.c_str())) {
-		// TODO: take action
+	if ((nullptr == strcpy(buff, c_str())) || (nullptr == strcpy(buff + left_size, other.c_str()))) {
+		except::ExceptionHandler::getInstance()->onEvent(except::Exception(failedCopyMsg));
 	}
 	*(buff + left_size + right_size) = '\0';
 	delete m_string;
@@ -48,7 +50,7 @@ String& String::operator+=(const char& chr) {
 	const size_t right_size = 1UL;
 	char *buff = new char[left_size + right_size + 1UL];
 	if (nullptr == strcpy(buff, c_str())) {
-		// TODO: take action
+		except::ExceptionHandler::getInstance()->onEvent(except::Exception(failedCopyMsg));
 	}
 	*(buff + left_size) = chr;
 	*(buff + left_size + right_size) = '\0';
@@ -58,7 +60,7 @@ String& String::operator+=(const char& chr) {
 }
 
 const char *String::c_str() const {
-	return (const char *)m_string;
+	return m_string;
 }
 
 size_t String::size() const {
@@ -67,12 +69,13 @@ size_t String::size() const {
 
 char *String::copyString(const char * const str) {
 	if (nullptr == str) {
-		return nullptr;
+		except::ExceptionHandler::getInstance()->onEvent(except::Exception(invalidPointerMsg));
 	}
 	char *buff = new char[strlen(str) + 1UL];
 	if (nullptr == strcpy(buff, str)) {
 		delete[] buff;
-		return nullptr;
+		buff = nullptr;
+		except::ExceptionHandler::getInstance()->onEvent(except::Exception(failedCopyMsg));
 	}
 	return buff;
 }
