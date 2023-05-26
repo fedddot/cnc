@@ -86,6 +86,7 @@ namespace data {
 			push_back(iter.get());
 			++iter;
 		}
+		return *this;
 	}
 
 	template <class T>
