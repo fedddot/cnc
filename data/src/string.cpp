@@ -77,12 +77,12 @@ char *String::copyString(const char * const str) {
 	return buff;
 }
 
-String operator+(const String& left, const String& right) {
+String data::operator+(const String& left, const String& right) {
 	String result(left);
 	result += right;
 	return result;
 }
 
-bool operator==(const String& left, const String& right) {
+bool data::operator==(const String& left, const String& right) {
 	return (0 == strcmp(left.c_str(), right.c_str()));
 }
