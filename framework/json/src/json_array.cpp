@@ -7,6 +7,7 @@
 
 using namespace json;
 using namespace data;
+using namespace memory;
 
 JsonArray::JsonValueType JsonArray::getType() const {
 	return JsonValueType::ARRAY;

@@ -6,6 +6,7 @@
 
 using namespace json;
 using namespace data;
+using namespace memory;
 
 JsonObject::JsonValueType JsonObject::getType() const {
 	return JsonValueType::OBJECT;
