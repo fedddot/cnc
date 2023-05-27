@@ -14,7 +14,7 @@ include_directories(
 	${CMAKE_SOURCE_DIR}/framework/data/include
 	${CMAKE_SOURCE_DIR}/framework/json/include
 	${CMAKE_SOURCE_DIR}/framework/memory/include
-	${CMAKE_SOURCE_DIR}/framework/message_parser/include
+	${CMAKE_SOURCE_DIR}/framework/system/include
 	${GOOGLE_TESTS_PATH}/googletest/include
 )
 	

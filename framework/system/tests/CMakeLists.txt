@@ -9,13 +9,13 @@ add_library(
 )
 
 add_executable(
-	message_parser_tests_exec
-	${CMAKE_CURRENT_LIST_DIR}/src/message_parser_tests.cpp
+	system_tests_exec
+	${CMAKE_CURRENT_LIST_DIR}/src/system_tests.cpp
 	${CMAKE_CURRENT_LIST_DIR}/src/ut_message_parser.cpp
 )
 
 target_link_libraries(
-	message_parser_tests_exec
+	system_tests_exec
 	PRIVATE
 	ilistener_char
 	ilistener_const_list_char_ref
