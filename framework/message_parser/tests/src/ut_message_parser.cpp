@@ -44,13 +44,13 @@ TEST(SanityTests, MessageParserOnEvent) {
 	parser.onEvent('a');
 	parser.onEvent('a');
 	parser.onEvent('a');
-	for (auto it = signature.begin(); ~(it.isEndIter()); ++it) {
+	for (auto it = signature.begin(); !(it.isEndIter()); ++it) {
 		parser.onEvent(it.get());
 	}
-	for (auto it = size.begin(); ~(it.isEndIter()); ++it) {
+	for (auto it = size.begin(); !(it.isEndIter()); ++it) {
 		parser.onEvent(it.get());
 	}
-	for (auto it = message.begin(); ~(it.isEndIter()); ++it) {
+	for (auto it = message.begin(); !(it.isEndIter()); ++it) {
 		parser.onEvent(it.get());
 	}
 }
