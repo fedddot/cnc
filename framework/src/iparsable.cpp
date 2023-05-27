@@ -1,5 +1,7 @@
 #include "iparsable.hpp"
 
-common::IParsable::~IParsable() noexcept {
+using namespace common;
+
+IParsable::~IParsable() noexcept {
 
 }
