@@ -7,6 +7,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/except)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/json)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/memory)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/message_parser)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/system)
 
 add_library(iparsable OBJECT ${CMAKE_CURRENT_SOURCE_DIR}/src/iparsable.cpp)
 add_library(itask OBJECT ${CMAKE_CURRENT_SOURCE_DIR}/src/itask.cpp)
