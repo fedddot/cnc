@@ -3,9 +3,7 @@
 #include "exception_handler.hpp"
 
 using namespace data;
-
-static const String invalidPointerMsg("inv_ptr");
-static const String failedCopyMsg("cpy_fld");
+using namespace except;
 
 String::String(const char * const str) : m_string(strDup(str)) {
 
@@ -41,7 +39,7 @@ String String::operator+(const String& other) const {
 
 char *String::strDup(const char * const str) {
 	if (nullptr == str) {
-		except::ExceptionHandler::getInstance()->onEvent(except::Exception(invalidPointerMsg));
+		ExceptionHandler::getInstance()->onEvent(Exception(Exception::ExceptionType::BAD_ARGUMENT));
 	}
 	size_t str_size = strLen(str);
 	char *buff = new char[str_size + 1UL];
@@ -52,7 +50,7 @@ char *String::strDup(const char * const str) {
 
 char *String::strCpy(char * const dst, const char * const src) {
 	if ((nullptr == dst) || (nullptr == src)){
-		except::ExceptionHandler::getInstance()->onEvent(except::Exception(invalidPointerMsg));
+		ExceptionHandler::getInstance()->onEvent(Exception(Exception::ExceptionType::BAD_ARGUMENT));
 	}
 	const char *src_char_iter = src;
 	char *dst_char_iter = dst;
@@ -66,7 +64,7 @@ char *String::strCpy(char * const dst, const char * const src) {
 
 size_t String::strLen(const char * const str) {
 	if (nullptr == str) {
-		except::ExceptionHandler::getInstance()->onEvent(except::Exception(invalidPointerMsg));
+		ExceptionHandler::getInstance()->onEvent(Exception(Exception::ExceptionType::BAD_ARGUMENT));
 	}
 	const char *str_char_iter = str;
 	while ('\0' != *str_char_iter) {
@@ -77,7 +75,7 @@ size_t String::strLen(const char * const str) {
 
 int String::strCmp(const char * const one, const char * const other) {
 	if ((nullptr == one) || (nullptr == other)){
-		except::ExceptionHandler::getInstance()->onEvent(except::Exception(invalidPointerMsg));
+		ExceptionHandler::getInstance()->onEvent(Exception(Exception::ExceptionType::BAD_ARGUMENT));
 	}
 	const char *src_char_iter = one;
 	const char *dst_char_iter = other;
