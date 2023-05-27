@@ -7,6 +7,10 @@ add_executable(
 target_link_libraries(
 	tests_memory_exec
 	PRIVATE
+	string
+	exception_handler_linux
+	exception
+	ilistener_const_exception_ref
 	gtest
 	gmock
 )
