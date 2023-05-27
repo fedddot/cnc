@@ -12,7 +12,7 @@ namespace common {
 		Dispatcher() = default;
 		Dispatcher(const Dispatcher<Event>& other) = default;
 		Dispatcher& operator=(const Dispatcher<Event>& other) = default;
-		~Dispatcher() noexcept = default;
+		virtual ~Dispatcher() noexcept override = default;
 		
 		virtual void onEvent(const Event& event) override;
 		virtual void subscribe(const memory::SharedPtr<IListener<Event>>& listener);
