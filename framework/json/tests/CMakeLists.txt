@@ -13,13 +13,16 @@ add_executable(
 target_link_libraries(
 	json_tests_exec
 	PUBLIC
+	exception_handler_linux
+	exception
+	ilistener_const_exception_ref
+	string
 	ijson_value
 	json_string
 	json_object
 	json_array
 	json_utils
 	iparsable
-	string
 	gtest
 	gmock
 )
