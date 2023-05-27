@@ -4,11 +4,11 @@
 #include "exception_handler.hpp"
 #include "message_parser.hpp"
 
-using namespace system;
+using namespace cnc_system;
 using namespace data;
 using namespace except;
 
-MessageParser::MessageParser(const List<char>& start_signature, const size_t& length_field_size) : m_start_signature(start_signature), m_start_signature_size(m_start_signature.size()), m_length_field_size(length_field_size), m_message_listener_ptr(nullptr) {
+MessageParser::MessageParser(const List<char>& start_signature, const size_t& length_field_size) : m_start_signature(start_signature), m_start_signature_size(start_signature.size()), m_length_field_size(length_field_size), m_message_listener_ptr(nullptr) {
 	if (m_start_signature_size < 1) {
 		ExceptionHandler::getInstance()->onEvent(Exception("invalid start signature size"));
 	}
