@@ -5,8 +5,8 @@
 
 using namespace data;
 
-static const String invalidPointerMsg("String class: invalid pointer received");
-static const String failedCopyMsg("String class: failed to copy string");
+static const String invalidPointerMsg("inv_ptr");
+static const String failedCopyMsg("cpy_fld");
 
 String::String(const char * const str) : m_string(copyString(str)) {
 
