@@ -2,8 +2,9 @@
 #include "ilistener.hpp"
 
 using namespace common;
+using namespace except;
 
 template <>
-IListener<const except::Exception&>::~IListener() noexcept {
+IListener<const Exception&>::~IListener() noexcept {
 
 }
