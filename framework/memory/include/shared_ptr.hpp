@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-namespace data {
+namespace memory {
 	template <class T>
 	class SharedPtr {
 	public:
@@ -17,7 +17,7 @@ namespace data {
 	private:
 		T *m_object_ptr;
 		size_t *m_reference_counter;
-	}; // SharedPtr
+	}; // class SharedPtr
 
 	template <class T>
 	SharedPtr<T>::SharedPtr(T *object_ptr): m_object_ptr(object_ptr), m_reference_counter(new size_t(1UL)) {
@@ -65,6 +65,6 @@ namespace data {
 	const T *SharedPtr<T>::get() const {
 		return m_object_ptr;
 	}
-}
+} // namespace memory
 
 #endif // __SHARED_PTR_HPP__
