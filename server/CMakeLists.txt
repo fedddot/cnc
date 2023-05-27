@@ -39,13 +39,15 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
    set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
 endif(CMAKE_BUILD_TYPE MATCHES Debug)
 
-add_definitions("-DF_CPU=${AVR_MCU_SPEED}")
-add_definitions("-mmcu=${AVR_MCU}")
-add_definitions("-Wall")
-add_definitions("-Werror")
-add_definitions("-pedantic")
-add_definitions("-pedantic-errors")
-add_definitions("-std=c++11")
+add_definitions(
+	-DF_CPU=${AVR_MCU_SPEED}
+	-mmcu=${AVR_MCU}
+	-Wall
+	-Werror
+	-pedantic
+	-pedantic-errors
+	-std=c++11
+)
 
 include_directories(
 	${CMAKE_CURRENT_LIST_DIR}/include
@@ -63,17 +65,17 @@ include_directories(
 # 	${CMAKE_CURRENT_LIST_DIR}/src/string.cpp
 # )
 
-# add_library(
-# 	features
-# 	STATIC
-# 	${CMAKE_CURRENT_LIST_DIR}/src/features.cpp
-# )
+add_library(
+	features
+	STATIC
+	${CMAKE_CURRENT_LIST_DIR}/src/features.cpp
+)
 
-# add_library(
-# 	mcu_resource_manager
-# 	STATIC
-# 	${CMAKE_CURRENT_LIST_DIR}/src/mcu_resource_manager.cpp
-# )
+add_library(
+	mcu_resource_manager
+	STATIC
+	${CMAKE_CURRENT_LIST_DIR}/src/mcu_resource_manager.cpp
+)
 
 # add_library(
 # 	task_factory
