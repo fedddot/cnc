@@ -7,7 +7,7 @@ namespace system {
 	class ISender {
 	public:
 		virtual ~ISender() noexcept = 0;
-		virtual void send(const data::List<char>& data) = 0;
+		virtual void send(const data::List<char>& message) = 0;
 	}; // ISender
 } // common
 
