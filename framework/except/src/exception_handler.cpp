@@ -2,8 +2,9 @@
 #include "exception_handler.hpp"
 
 using namespace except;
+using namespace memory;
 
 ExceptionHandler *ExceptionHandler::getInstance() {
-	static data::SharedPtr<ExceptionHandler> instance(new ExceptionHandler);
+	static SharedPtr<ExceptionHandler> instance(new ExceptionHandler);
 	return instance.get();
 }

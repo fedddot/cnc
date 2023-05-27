@@ -7,7 +7,7 @@
 #include "shared_ptr.hpp"
 
 namespace json {
-	class JsonArray: public IJsonValue, public data::List<data::SharedPtr<IJsonValue>> {
+	class JsonArray: public IJsonValue, public data::List<memory::SharedPtr<IJsonValue>> {
 	public:
 		virtual JsonValueType getType() const override;
 		virtual data::String getJsonString() const override;
