@@ -8,6 +8,7 @@
 #include "string.hpp"
 
 using namespace data;
+using namespace memory;
 using namespace testing;
 
 TEST(ut_SharedPtr, SharedPtr_Ctors_sanity) {
