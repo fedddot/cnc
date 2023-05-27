@@ -5,10 +5,8 @@
 #include "list.hpp"
 #include "ilistener.hpp"
 
-namespace message
-{
-	class MessageParser: public common::IListener<char>
-	{
+namespace message {
+	class MessageParser: public common::IListener<char> {
 	public:
 		MessageParser(const data::List<char>& start_signature, const size_t& length_field_size);
 		virtual void setMessageListener(common::IListener<const data::List<char>&> *message_listener_ptr);
@@ -39,7 +37,7 @@ namespace message
 
 		static size_t parseMessageSize(const data::List<char>& buff);
 		static data::List<char> parseMessage(const data::List<char>& buff);
-	}; // MessageParser
-} // message
+	}; // class MessageParser
+} // namespace message
 
 #endif // __MESSAGE_PARSER_HPP__
