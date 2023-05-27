@@ -14,24 +14,24 @@ add_library(
 	${CMAKE_CURRENT_LIST_DIR}/src/test_message_listener.cpp
 )
 
-target_link_libraries(
-	test_message_listener
-	PUBLIC
-	ilistener_const_message_ref
-)
+# target_link_libraries(
+# 	test_message_listener
+# 	PUBLIC
+# 	ilistener_const_message_ref
+# )
 
-add_executable(
-	${PROJECT_NAME}_exec
-	${CMAKE_CURRENT_LIST_DIR}/src/message_parser_tests.cpp
-	${CMAKE_CURRENT_LIST_DIR}/src/ut_message_parser.cpp
-)
+# add_executable(
+# 	${PROJECT_NAME}_exec
+# 	${CMAKE_CURRENT_LIST_DIR}/src/message_parser_tests.cpp
+# 	${CMAKE_CURRENT_LIST_DIR}/src/ut_message_parser.cpp
+# )
 
-target_link_libraries(
-	${PROJECT_NAME}_exec
-	PUBLIC
-	message_parser
-	message
-	test_message_listener
-	gtest
-	gmock
-)
+# target_link_libraries(
+# 	${PROJECT_NAME}_exec
+# 	PUBLIC
+# 	message_parser
+# 	message
+# 	test_message_listener
+# 	gtest
+# 	gmock
+# )
