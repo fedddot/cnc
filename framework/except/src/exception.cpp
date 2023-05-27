@@ -2,10 +2,10 @@
 
 using namespace except;
 
-Exception::Exception(const data::String& what): m_what(what) {
+Exception::Exception(const ExceptionType& what): m_what(what) {
 
 }
 
-data::String Exception::what() const {
+Exception::ExceptionType Exception::what() const {
 	return m_what;
 }

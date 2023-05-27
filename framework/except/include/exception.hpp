@@ -1,17 +1,19 @@
 #ifndef	__EXCEPTION_HPP__
 #define	__EXCEPTION_HPP__
 
-#include "string.hpp"
-
 namespace except {
-
 	class Exception {
 	public:
-		Exception(const data::String& what = "");
+		enum class ExceptionType: int {
+			BAD_ALLOC,
+			BAD_ARGUMENT,
+			OTHER
+		};
+		Exception(const ExceptionType& what);
 		virtual ~Exception() noexcept = default;
-		virtual data::String what() const;
+		virtual ExceptionType what() const;
 	private:
-		data::String m_what;
+		ExceptionType m_what;
 	}; // class Exception
 } // namespace except
 
