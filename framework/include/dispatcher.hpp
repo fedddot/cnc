@@ -10,30 +10,27 @@ namespace common {
 	class Dispatcher: public IListener<Event> {
 	public:
 		Dispatcher() = default;
-		Dispatcher(const Dispatcher<T>& other) = delete;
-		Dispatcher& operator=(const Dispatcher<T>& other) = delete;
+		Dispatcher(const Dispatcher<Event>& other) = default;
+		Dispatcher& operator=(const Dispatcher<Event>& other) = default;
 		~Dispatcher() noexcept = default;
 		
 		virtual void onEvent(const Event& event) override;
-		virtual void subscribe(const data::SharedPtr<IListener<Event>> listener);
+		virtual void subscribe(const memory::SharedPtr<IListener<Event>>& listener);
 	private:
-		data::List<data::SharedPtr<IListener<Event>>> m_listeners;
+		data::List<memory::SharedPtr<IListener<Event>>> m_listeners;
 	};
 
 	template <class Event>
 	void Dispatcher<Event>::onEvent(const Event& event) {
-		// std::for_each(
-		// 	m_listeners.begin(),
-		// 	m_listeners.end(),
-		// 	[&](IListener<Event> *curr_listener) {
-		// 		curr_listener->onEvent(event);
-		// 	}
-		// );
+		auto iter = m_listeners.begin();
+		while (!iter.isEndIter()) {
+			iter.get().get()->onEvent(event);
+		}
 	}
 
 	template <class Event>
-	void Dispatcher<Event>::subscribe(const data::SharedPtr<IListener<Event>> listener) {
-		// m_listeners.insert(const_cast<IListener<Event> *>(listener));
+	void Dispatcher<Event>::subscribe(const memory::SharedPtr<IListener<Event>>& listener) {
+		m_listeners.push_back(listener);
 	}
 }
 
