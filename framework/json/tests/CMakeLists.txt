@@ -12,10 +12,11 @@ add_executable(
 
 target_link_libraries(
 	json_tests_exec
-	PUBLIC
+	PRIVATE
+	ilistener_const_exception_ref
+	exception_handler
 	exception_handler_linux
 	exception
-	ilistener_const_exception_ref
 	string
 	ijson_value
 	json_string
