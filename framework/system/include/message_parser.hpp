@@ -5,10 +5,14 @@
 #include "list.hpp"
 #include "ilistener.hpp"
 
-namespace message {
+namespace system {
 	class MessageParser: public common::IListener<char> {
 	public:
 		MessageParser(const data::List<char>& start_signature, const size_t& length_field_size);
+		MessageParser(const MessageParser& other) = delete;
+		MessageParser& operator=(const MessageParser& other) = delete;
+		virtual ~MessageParser() noexcept;
+		
 		virtual void setMessageListener(common::IListener<const data::List<char>&> *message_listener_ptr);
 		virtual void onEvent(char event) override;
 	private:
