@@ -1,11 +1,5 @@
-cmake_minimum_required(VERSION 3.10)
-
-project(json_tests)
-
-set(CMAKE_COLOR_MAKEFILE ON)
-
 include_directories(
-	include
+	${CMAKE_CURRENT_LIST_DIR}/include
 )
 
 add_executable(

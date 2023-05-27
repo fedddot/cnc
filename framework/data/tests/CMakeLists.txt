@@ -12,4 +12,6 @@ target_link_libraries(
 	string
 	gtest
 	gmock
+	exception_handler
+	exception_handler_linux
 )

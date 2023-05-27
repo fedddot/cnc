@@ -38,13 +38,15 @@ namespace data {
 		inline virtual Iter last();
 		inline virtual Iter end();
 
-		inline virtual void flush();
+		inline virtual void clear();
 		inline virtual void push_front(const T& value);
 		inline virtual T pop_front();
 		inline virtual void push_back(const T& value);
 		inline virtual T pop_back();
 		inline virtual size_t size() const;
 		inline virtual bool empty() const;
+
+		inline bool operator==(const List& other) const;
 
 	private:
 		class Node {
@@ -78,7 +80,7 @@ namespace data {
 
 	template <class T>
 	typename List<T>::List& List<T>::operator=(const List& other) {
-		flush();
+		clear();
 		auto other_casted = const_cast<List *>(&other);
 		auto iter = other_casted->begin();
 		auto iter_end = other_casted->end();
@@ -91,12 +93,12 @@ namespace data {
 
 	template <class T>
 	List<T>::~List() noexcept {
-		flush();
+		clear();
 		delete m_head;
 	}
 
 	template <class T>
-	inline void List<T>::flush() {
+	inline void List<T>::clear() {
 		while (!empty()) {
 			auto iter = begin();
 			iter.erase();
@@ -179,6 +181,23 @@ namespace data {
 	bool List<T>::empty() const {
 		auto iter = const_cast<List<T> *>(this)->begin();
 		return iter.isEndIter();
+	}
+
+	template <class T>
+	inline bool List<T>::operator==(const List& other) const {
+		if (size() != other.size()) {
+			return false;
+		}
+		auto this_iter = const_cast<List&>(*this).begin();
+		auto other_iter = const_cast<List&>(other).begin();
+		while (!(this_iter.isEndIter()) && !(other_iter.isEndIter())) {
+			if (this_iter.get() != other_iter.get()) {
+				return false;
+			}
+			++this_iter;
+			++other_iter;
+		}
+		return true;
 	}
 } // namespace data
 
