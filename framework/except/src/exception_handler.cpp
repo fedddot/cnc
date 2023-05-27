@@ -1,10 +1,17 @@
-#include "shared_ptr.hpp"
 #include "exception_handler.hpp"
 
 using namespace except;
-using namespace memory;
+
+ExceptionHandler *ExceptionHandler::instance_ptr = nullptr;
 
 ExceptionHandler *ExceptionHandler::getInstance() {
-	static SharedPtr<ExceptionHandler> instance(new ExceptionHandler);
-	return instance.get();
+	if (nullptr == instance_ptr) {
+		instance_ptr = new ExceptionHandler;
+	}
+	return instance_ptr;
+}
+
+void ExceptionHandler::deleteInstance() {
+	delete instance_ptr;
+	instance_ptr = nullptr;
 }

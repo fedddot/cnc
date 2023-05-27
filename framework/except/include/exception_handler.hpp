@@ -10,8 +10,10 @@ namespace except {
 	public:
 		virtual void onEvent(const Exception& event) override;
 		static ExceptionHandler *getInstance();
+		static void deleteInstance();
 	private:
 		ExceptionHandler() = default;
+		static ExceptionHandler *instance_ptr;
 	}; // class IException
 } // namespace except
 
