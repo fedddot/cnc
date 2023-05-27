@@ -5,13 +5,12 @@
 #include "list.hpp"
 #include "ilistener.hpp"
 
-namespace system {
+namespace cnc_system {
 	class MessageParser: public common::IListener<char> {
 	public:
 		MessageParser(const data::List<char>& start_signature, const size_t& length_field_size);
 		MessageParser(const MessageParser& other) = delete;
 		MessageParser& operator=(const MessageParser& other) = delete;
-		virtual ~MessageParser() noexcept;
 		
 		virtual void setMessageListener(common::IListener<const data::List<char>&> *message_listener_ptr);
 		virtual void onEvent(char event) override;
@@ -23,12 +22,12 @@ namespace system {
 		};
 
 		data::List<char> m_start_signature;
+		size_t m_start_signature_size;
 		size_t m_length_field_size;
 		common::IListener<const data::List<char>&> *m_message_listener_ptr;
 
 		ParserState m_state;
 
-		size_t m_start_signature_size;
 		data::List<char> m_reading_buff;
 
 		size_t m_msg_size;

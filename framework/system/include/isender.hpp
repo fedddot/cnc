@@ -3,7 +3,7 @@
 
 #include "list.hpp"
 
-namespace system {
+namespace cnc_system {
 	class ISender {
 	public:
 		virtual ~ISender() noexcept = 0;
