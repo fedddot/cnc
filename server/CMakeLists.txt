@@ -1,117 +1,56 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.20)
 
-set(AVR_UPLOADTOOL avrdude)
-set(AVR_PROGRAMMER usbASP)
-set(AVR_UPLOADTOOL_PORT usb)
-set(AVR_MCU atmega328p)
-set(AVR_H_FUSE 0xd9)
-set(AVR_L_FUSE 0xc3)
-set(AVR_MCU_SPEED 16000000UL)
+set(CNC_PATH ${CMAKE_SOURCE_DIR}/..)
+set(DEV_PATH ${CNC_PATH}/..)
+set(FRAMEWORK_PATH ${CNC_PATH}/framework)
+set(GOOGLE_TESTS_PATH ${DEV_PATH}/tools/googletest)
+set(PICO_SDK_PATH ${DEV_PATH}/pico-sdk)
 
-project(cnc_server)
+set(PICO_PLATFORM rp2040)
 
-set(TOOLCHAIN_PATH ${DEV_PATH}/tools/avr8-gnu-toolchain)
-set(CNC_PATH ${DEV_PATH}/cnc)
+include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+
+project(cnc_server C CXX ASM)
+
+pico_sdk_init()
 
 set(CMAKE_COLOR_MAKEFILE ON)
-set(CMAKE_FIND_ROOT_PATH ${TOOLCHAIN_PATH})
-set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-set(CMAKE_SYSTEM_INCLUDE_PATH ${TOOLCHAIN_PATH}/avr/include)
-set(CMAKE_SYSTEM_LIBRARY_PATH ${TOOLCHAIN_PATH}/avr/lib)
-set(CMAKE_C_COMPILER ${TOOLCHAIN_PATH}/bin/avr-gcc)
-set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PATH}/bin/avr-g++)
 
-message(STATUS "Set CMAKE_FIND_ROOT_PATH to ${CMAKE_FIND_ROOT_PATH}")
-message(STATUS "Set CMAKE_SYSTEM_INCLUDE_PATH to ${CMAKE_SYSTEM_INCLUDE_PATH}")
-message(STATUS "Set CMAKE_SYSTEM_LIBRARY_PATH to ${CMAKE_SYSTEM_LIBRARY_PATH}")
-message(STATUS "Set CMAKE_C_COMPILER to ${CMAKE_C_COMPILER}")
-message(STATUS "Set CMAKE_CXX_COMPILER to ${CMAKE_CXX_COMPILER}")
-
-if(CMAKE_BUILD_TYPE MATCHES Release)
-   set(CMAKE_C_FLAGS_RELEASE "-Os")
-   set(CMAKE_CXX_FLAGS_RELEASE "-Os")
-endif(CMAKE_BUILD_TYPE MATCHES Release)
-
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-   set(CMAKE_C_FLAGS_DEBUG "-O0 -g")
-   set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
-endif(CMAKE_BUILD_TYPE MATCHES Debug)
-
-add_definitions(
-	-DF_CPU=${AVR_MCU_SPEED}
-	-mmcu=${AVR_MCU}
-	-Wall
-	-Werror
-	-pedantic
-	-pedantic-errors
-	-std=c++11
-)
+add_subdirectory(${FRAMEWORK_PATH} ${CMAKE_SOURCE_DIR}/build/framework)
 
 include_directories(
-	${CMAKE_CURRENT_LIST_DIR}/include
+	${CMAKE_SOURCE_DIR}/include
+	${FRAMEWORK_PATH}/include
+	${FRAMEWORK_PATH}/json/include
+	${FRAMEWORK_PATH}/system/include
+
+	${PICO_SDK_PATH}/src/boards/include/boards
+	${PICO_SDK_PATH}/src/common/pico_stdlib/include
+	${PICO_SDK_PATH}/src/common/pico_time/include
+	${PICO_SDK_PATH}/src/rp2_common/pico_stdio/include
+	${PICO_SDK_PATH}/src/rp2_common/hardware_timer/include
+	${PICO_SDK_PATH}/src/rp2040/hardware_structs/include
 )
 
-# add_library(
-# 	array
-# 	STATIC
-# 	${CMAKE_CURRENT_LIST_DIR}/src/array.cpp
-# )
+add_library(uart_message_manager OBJECT ${CMAKE_SOURCE_DIR}/src/uart_message_manager.cpp)
 
-# add_library(
-# 	string
-# 	STATIC
-# 	${CMAKE_CURRENT_LIST_DIR}/src/string.cpp
-# )
-
-add_library(
-	features
-	STATIC
-	${CMAKE_CURRENT_LIST_DIR}/src/features.cpp
+add_executable(
+	cnc_firmware
+	${CMAKE_SOURCE_DIR}/src/cnc_firmware.cpp
 )
 
-add_library(
-	mcu_resource_manager
-	STATIC
-	${CMAKE_CURRENT_LIST_DIR}/src/mcu_resource_manager.cpp
+target_link_libraries(
+	cnc_firmware
+	iparsable
+	json_object
+	json_array
+	json_string
+	uart_message_manager
+	ilistener_char
+	isender
+	message_parser
+	message_manager
+	pico_stdlib
 )
 
-# add_library(
-# 	task_factory
-# 	STATIC
-# 	${CMAKE_CURRENT_LIST_DIR}/src/task_factory.cpp
-# )
-
-# add_library(
-# 	report_status_task
-# 	STATIC
-# 	${CMAKE_CURRENT_LIST_DIR}/src/report_status_task.cpp
-# )
-# target_link_libraries(
-# 	report_status_task
-# 	itask
-# )
-
-# add_executable(
-# 	cnc_firmware
-# 	${CMAKE_CURRENT_LIST_DIR}/src/cnc_firmware.cpp
-# )
-
-# target_link_libraries(
-# 	cnc_firmware
-# 	mcu_resource_manager
-# 	task_factory
-	
-# 	message_parser
-# 	message
-# 	ijson_value
-# 	json_object
-# 	json_string
-# 	json_array
-# 	json_utils
-# 	ilistener_const_char_ref
-# 	ilistener_const_message_ref
-# 	iparsable
-# 	report_status_task
-# )
+pico_add_extra_outputs(cnc_firmware)

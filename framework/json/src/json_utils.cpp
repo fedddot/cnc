@@ -1,13 +1,12 @@
-#include "list.hpp"
+#include <vector>
 #include "json_utils.hpp"
 
 using namespace json;
-using namespace data;
 
-List<char>::Iter json::skipChars(const List<char>::Iter& from, const List<char>& chars_list) {
-	List<char>::Iter iter(from);
-	while (!iter.isEndIter()) {
-		if (!isCharInList(iter.get(), chars_list)) {
+std::vector<char>::iterator json::skipChars(const std::vector<char>::iterator& begin, const std::vector<char>::iterator& end, const std::vector<char>& chars_to_skip) {
+	std::vector<char>::iterator iter(begin);
+	while (end != iter) {
+		if (!isCharInList(*iter, chars_to_skip)) {
 			return iter;
 		}
 		++iter;
@@ -15,13 +14,32 @@ List<char>::Iter json::skipChars(const List<char>::Iter& from, const List<char>&
 	return iter;
 }
 
-bool json::isCharInList(const char& chr, const List<char>& list) {
-	List<char>::Iter iter(const_cast<List<char>&>(list).begin());
-	while (!iter.isEndIter()) {
-		if (chr == iter.get()) {
+bool json::isCharInList(char chr, const std::vector<char>& list_of_chars) {
+	auto iter = list_of_chars.begin();
+	while (list_of_chars.end() != iter) {
+		if (chr == *iter) {
 			return true;
 		}
 		++iter;
 	}
 	return false;
+}
+
+std::vector<char> json::stringToVector(const std::string& str) {
+	std::vector<char> output_vector;
+	auto iter = str.begin();
+	while (str.end() != iter) {
+		output_vector.push_back(*iter);
+		++iter;
+	}
+	return output_vector;
+}
+std::string json::vectorToString(const std::vector<char>& vctr) {
+	std::string output_string;
+	auto iter = vctr.begin();
+	while (vctr.end() != iter) {
+		output_string += *iter;
+		++iter;
+	}
+	return output_string;
 }

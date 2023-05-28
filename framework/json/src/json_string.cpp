@@ -1,13 +1,12 @@
+#include <string>
+
 #include "json_string.hpp"
 #include "json_types.hpp"
 #include "json_utils.hpp"
 
-#include "string.hpp"
-
 using namespace json;
-using namespace data;
 
-JsonString::JsonString(const String& value) : String(value) {
+JsonString::JsonString(const std::string& value): std::string(value) {
 
 }
 
@@ -15,34 +14,37 @@ JsonString::JsonValueType JsonString::getType() const {
 	return JsonValueType::STRING;
 }
 
-String JsonString::getJsonString() const {
-	return String((char)(JsonSpecialChar::STRING_START)) + *this + String((char)(JsonSpecialChar::STRING_END));
+std::string JsonString::getJsonString() const {
+	std::string result("");
+	result += (char)(JsonSpecialChar::STRING_START) + *this + (char)(JsonSpecialChar::STRING_END);
+	return result;
 }
 
-List<char>::Iter JsonString::parse(const List<char>::Iter& start) {
-	List<char> skip_chars;
-	skip_chars.push_front('\t');
-	skip_chars.push_front('\n');
-	skip_chars.push_front((char)(JsonSpecialChar::SPACE));
+std::vector<char>::iterator JsonString::parse(const std::vector<char>::iterator& begin, const std::vector<char>::iterator& end) {
+	std::vector<char> skip_chars_list = {
+		(char)(JsonSpecialChar::SPACE),
+		(char)(JsonSpecialChar::TAB),
+		(char)(JsonSpecialChar::NEW_LINE)
+	};
 	
-	List<char>::Iter iter = skipChars(start, skip_chars);
-	if (iter.isEndIter()) {
+	auto iter = skipChars(begin, end, skip_chars_list);
+	if (iter == end) {
 		return iter;
 	}
 
-	if ((char)(JsonSpecialChar::STRING_START) != iter.get()) {
+	if ((char)(JsonSpecialChar::STRING_START) != *iter) {
 		return iter;
 	}
 	++iter;
 
-	String value("");
-	while (!iter.isEndIter()) {
-		if ((char)(JsonSpecialChar::STRING_END) == iter.get()) {
+	std::string value("");
+	while (end != iter) {
+		if ((char)(JsonSpecialChar::STRING_END) == *iter) {
 			*this = value;
 			++iter;
 			return iter;
 		}
-		value += iter.get();
+		value += *iter;
 		++iter;
 	}
 	return iter;

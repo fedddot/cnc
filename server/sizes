@@ -1,0 +1,11 @@
+BEFORE:
+File: ./build/framework/data/CMakeFiles/string.dir/src/string.cpp.o
+  Size: 5372            Blocks: 16         IO Block: 4096   regular file
+Device: 10305h/66309d   Inode: 4005146     Links: 1
+Access: (0664/-rw-rw-r--)  Uid: ( 1000/    idan)   Gid: ( 1000/    idan)
+Access: 2023-05-27 21:31:14.903278510 +0300
+Modify: 2023-05-27 21:31:14.687276736 +0300
+Change: 2023-05-27 21:31:14.687276736 +0300
+ Birth: 2023-05-27 21:31:14.687276736 +0300
+
+AFTER:

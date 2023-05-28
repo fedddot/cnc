@@ -1,13 +1,7 @@
 #ifndef	__JSON_TYPES_HPP__
 #define	__JSON_TYPES_HPP__
 
-#include <string>
-#include <cstddef>
-
-#include "ijson_value.hpp"
-
 namespace json {
-
 	enum class JsonSpecialChar : char {
 		STRING_START = '\"',
 		STRING_END = '\"',
@@ -17,9 +11,10 @@ namespace json {
 		OBJECT_END = '}',
 		DELIMITER = ',',
 		SEMICOLON = ':',
-		SPACE = ' '
+		SPACE = ' ',
+		TAB = '\t',
+		NEW_LINE = '\n'
 	};
-
 }
 
 #endif // __JSON_TYPES_HPP__

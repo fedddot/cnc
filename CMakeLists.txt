@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.13)
 
 project(cnc)
 
@@ -14,9 +14,9 @@ include_directories(
 	${CMAKE_SOURCE_DIR}/framework/data/include
 	${CMAKE_SOURCE_DIR}/framework/json/include
 	${CMAKE_SOURCE_DIR}/framework/memory/include
+	${CMAKE_SOURCE_DIR}/framework/system/include
 	${GOOGLE_TESTS_PATH}/googletest/include
 )
 	
 add_subdirectory(${GOOGLE_TESTS_PATH} ${CMAKE_BINARY_DIR}/gtest/build)
 add_subdirectory(${CMAKE_SOURCE_DIR}/framework)
-# add_subdirectory(${CMAKE_SOURCE_DIR}/server)

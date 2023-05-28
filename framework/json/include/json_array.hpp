@@ -2,16 +2,16 @@
 #define	__JSON_ARRAY_HPP__
 
 #include "ijson_value.hpp"
-#include "list.hpp"
-#include "string.hpp"
-#include "shared_ptr.hpp"
+#include <vector>
+#include <string>
+#include <memory>
 
 namespace json {
-	class JsonArray: public IJsonValue, public data::List<memory::SharedPtr<IJsonValue>> {
+	class JsonArray: public IJsonValue, public std::vector<std::shared_ptr<IJsonValue>> {
 	public:
 		virtual JsonValueType getType() const override;
-		virtual data::String getJsonString() const override;
-		virtual data::List<char>::Iter parse(const data::List<char>::Iter& start) override;
+		virtual std::string getJsonString() const override;
+		virtual std::vector<char>::iterator parse(const std::vector<char>::iterator& begin, const std::vector<char>::iterator& end) override;
 	}; // class JsonArray
 } // namespace json
 
