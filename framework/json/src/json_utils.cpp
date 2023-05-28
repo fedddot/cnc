@@ -1,13 +1,12 @@
-#include "list.hpp"
+#include <vector>
 #include "json_utils.hpp"
 
 using namespace json;
-using namespace data;
 
-List<char>::Iter json::skipChars(const List<char>::Iter& from, const List<char>& chars_list) {
-	List<char>::Iter iter(from);
-	while (!iter.isEndIter()) {
-		if (!isCharInList(iter.get(), chars_list)) {
+std::vector<char>::iterator json::skipChars(const std::vector<char>::iterator& begin, const std::vector<char>::iterator& end, const std::vector<char>& chars_to_skip) {
+	std::vector<char>::iterator iter(begin);
+	while (end != iter) {
+		if (!isCharInList(*iter, chars_to_skip)) {
 			return iter;
 		}
 		++iter;
@@ -15,10 +14,10 @@ List<char>::Iter json::skipChars(const List<char>::Iter& from, const List<char>&
 	return iter;
 }
 
-bool json::isCharInList(const char& chr, const List<char>& list) {
-	List<char>::Iter iter(const_cast<List<char>&>(list).begin());
-	while (!iter.isEndIter()) {
-		if (chr == iter.get()) {
+bool json::isCharInList(char chr, const std::vector<char>& list_of_chars) {
+	auto iter = list_of_chars.begin();
+	while (list_of_chars.end() != iter) {
+		if (chr == *iter) {
 			return true;
 		}
 		++iter;
