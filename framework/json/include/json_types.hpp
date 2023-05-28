@@ -11,7 +11,9 @@ namespace json {
 		OBJECT_END = '}',
 		DELIMITER = ',',
 		SEMICOLON = ':',
-		SPACE = ' '
+		SPACE = ' ',
+		TAB = '\t',
+		NEW_LINE = '\n'
 	};
 }
 

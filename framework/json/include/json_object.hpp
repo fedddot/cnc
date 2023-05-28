@@ -2,16 +2,17 @@
 #define	__JSON_OBJECT_HPP__
 
 #include "ijson_value.hpp"
-#include "shared_ptr.hpp"
-#include "string.hpp"
-#include "pair.hpp"
+#include <map>
+#include <vector>
+#include <string>
+#include <memory>
 
 namespace json {
-	class JsonObject: public IJsonValue, public data::List<data::Pair<data::String, memory::SharedPtr<IJsonValue>>> {
+	class JsonObject: public IJsonValue, public std::map<std::string, std::shared_ptr<IJsonValue>> {
 	public:
 		virtual JsonValueType getType() const override;
-		virtual data::String getJsonString() const override;
-		virtual data::List<char>::Iter parse(const data::List<char>::Iter& start) override;
+		virtual std::string getJsonString() const override;
+		virtual std::vector<char>::iterator parse(const std::vector<char>::iterator& begin, const std::vector<char>::iterator& end) override;
 	}; // class JsonObject
 } // namespace json
 

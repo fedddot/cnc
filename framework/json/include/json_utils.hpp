@@ -1,11 +1,11 @@
 #ifndef	__JSON_UTILS_HPP__
 #define	__JSON_UTILS_HPP__
 
-#include "list.hpp"
+#include <vector>
 
 namespace json {
-	data::List<char>::Iter skipChars(const data::List<char>::Iter& from, const data::List<char>& chars_list);
-	bool isCharInList(const char& chr, const data::List<char>& list);
+	std::vector<char>::iterator skipChars(const std::vector<char>::iterator& begin, const std::vector<char>::iterator& end, const std::vector<char>& chars_to_skip);
+	bool isCharInList(char chr, const std::vector<char>& list_of_chars);
 }
 
 #endif // __JSON_UTILS_HPP__
