@@ -1,42 +1,15 @@
-#include "json_string.hpp"
+#include <cstddef>
+#include <vector>
+#include <stdio.h>
 
+#include "uart_message_manager.hpp"
+#include "json_utils.hpp"
+
+#define BAUD_RATE 115200
+
+using namespace cnc_system;
 using namespace json;
 
-#include <stdlib.h>
-#include <stddef.h>
-
-void *operator new(size_t size) {
-	void *dataPtr = malloc(size);
-	if (nullptr == dataPtr) {
-		// TODO: report a problem into the log
-	}
-	return dataPtr;
-}
-
-void *operator new[](size_t size) {
-	void *dataPtr = malloc(size);
-	if (nullptr == dataPtr) {
-		// TODO: report a problem into the log
-	}
-	return dataPtr;
-}
-
-void operator delete(void *ptr) noexcept {
-	if (nullptr != ptr) {
-		free(ptr);
-	}
-}
-
-void operator delete[](void *ptr) noexcept {
-	if (nullptr != ptr) {
-		free(ptr);
-	}
-}
-
-char *__heap_end = (char *)0x08FF;
-
-int main(void) {
-	JsonString test_str("ahaha");	
-
-	return 0;	
+int main() {
+    UartMessageManager msg_manager(stringToVector("sign"), 2, BAUD_RATE);
 }
