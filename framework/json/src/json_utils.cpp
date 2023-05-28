@@ -24,3 +24,22 @@ bool json::isCharInList(char chr, const std::vector<char>& list_of_chars) {
 	}
 	return false;
 }
+
+std::vector<char> json::stringToVector(const std::string& str) {
+	std::vector<char> output_vector;
+	auto iter = str.begin();
+	while (str.end() != iter) {
+		output_vector.push_back(*iter);
+		++iter;
+	}
+	return output_vector;
+}
+std::string json::vectorToString(const std::vector<char>& vctr) {
+	std::string output_string;
+	auto iter = vctr.begin();
+	while (vctr.end() != iter) {
+		output_string += *iter;
+		++iter;
+	}
+	return output_string;
+}
