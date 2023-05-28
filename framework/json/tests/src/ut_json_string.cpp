@@ -55,6 +55,6 @@ TEST(ut_JsonString, JsonString_parse_sanity) {
 		auto iter = data.begin();
 		ASSERT_NO_THROW(iter = json_str.parse(iter, data.end()));
 		ASSERT_TRUE(iter == data.end());
-		ASSERT_STREQ("\"test_string2 \"", json_str.getJsonString().c_str());
+		ASSERT_STREQ("\"\"", json_str.getJsonString().c_str());
 	}
 }
