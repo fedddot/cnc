@@ -9,7 +9,7 @@
 #include "message_parser.hpp"
 
 namespace cnc_system {
-	class MessageManager: public MessageParser, public ISender {
+	class MessageManager: public MessageParser, public common::ISender {
 	public:
 		MessageManager(const std::vector<char>& start_signature, const std::size_t& length_field_size);
 		MessageManager(const MessageManager& other) = delete;
