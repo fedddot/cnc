@@ -1,8 +1,8 @@
 #ifndef	__DISPATCHER_HPP__
 #define	__DISPATCHER_HPP__
 
-#include "list.hpp"
-#include "shared_ptr.hpp"
+#include <list>
+#include <vector>
 #include "ilistener.hpp"
 
 namespace common {
@@ -15,21 +15,22 @@ namespace common {
 		virtual ~Dispatcher() noexcept override = default;
 		
 		virtual void onEvent(const Event& event) override;
-		virtual void subscribe(const memory::SharedPtr<IListener<Event>>& listener);
+		virtual void subscribe(const std::shared_ptr<IListener<Event>>& listener);
 	private:
-		data::List<memory::SharedPtr<IListener<Event>>> m_listeners;
+		std::vector<std::shared_ptr<IListener<Event>>> m_listeners;
 	};
 
 	template <class Event>
 	void Dispatcher<Event>::onEvent(const Event& event) {
 		auto iter = m_listeners.begin();
-		while (!iter.isEndIter()) {
+		while (m_listeners.end() != iter) {
 			iter.get().get()->onEvent(event);
+			++iter;
 		}
 	}
 
 	template <class Event>
-	void Dispatcher<Event>::subscribe(const memory::SharedPtr<IListener<Event>>& listener) {
+	void Dispatcher<Event>::subscribe(const std::shared_ptr<IListener<Event>>& listener) {
 		m_listeners.push_back(listener);
 	}
 }
