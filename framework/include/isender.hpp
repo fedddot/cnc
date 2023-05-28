@@ -8,7 +8,7 @@ namespace common {
 	public:
 		virtual ~ISender() noexcept = 0;
 		virtual void send(const std::vector<char>& message) = 0;
-	}; // ISender
-} // common
+	}; // class ISender
+} // namespace common
 
 #endif // __ISENDER_HPP__
