@@ -1,26 +1,27 @@
+#include <vector>
+#include <string>
+#include <memory>
+
 #include "json_object.hpp"
 #include "json_string.hpp"
 #include "json_array.hpp"
 #include "json_types.hpp"
 #include "json_utils.hpp"
-#include "string.hpp"
 
 using namespace json;
-using namespace data;
-using namespace memory;
 
 JsonArray::JsonValueType JsonArray::getType() const {
 	return JsonValueType::ARRAY;
 }
 
-String JsonArray::getJsonString() const {
-	String output_string("");
+std::string JsonArray::getJsonString() const {
+	std::string output_string("");
 	output_string += (char)(JsonSpecialChar::ARRAY_START);
-	Iter iter = const_cast<JsonArray *>(this)->begin();
-	while (!iter.isEndIter()) {
-		output_string += iter.get().get()->getJsonString();
+	auto iter = begin();
+	while (end() != iter) {
+		output_string += (*iter)->getJsonString();
 		++iter;
-		if (!iter.isEndIter()) {
+		if (end() != iter) {
 			output_string += (char)(JsonSpecialChar::DELIMITER);
 			output_string += (char)(JsonSpecialChar::SPACE);
 		}
@@ -29,59 +30,60 @@ String JsonArray::getJsonString() const {
 	return output_string;
 }
 
-List<char>::Iter JsonArray::parse(const data::List<char>::Iter& start) {
-	List<char> skip_chars;
-	skip_chars.push_front('\t');
-	skip_chars.push_front('\n');
-	skip_chars.push_front((char)(JsonSpecialChar::SPACE));
+std::vector<char>::iterator JsonArray::parse(const std::vector<char>::iterator& begin, const std::vector<char>::iterator& end) {
+	std::vector<char> skip_chars_list = {
+		(char)(JsonSpecialChar::SPACE),
+		(char)(JsonSpecialChar::TAB),
+		(char)(JsonSpecialChar::NEW_LINE)
+	};
 	
-	List<char>::Iter iter = skipChars(start, skip_chars);
-	if (iter.isEndIter()) {
+	auto iter = skipChars(begin, end, skip_chars_list);
+	if (iter == end) {
 		return iter;
 	}
 
-	if ((char)(JsonSpecialChar::ARRAY_START) != iter.get()) {
+	if ((char)(JsonSpecialChar::ARRAY_START) != *iter) {
 		return iter;
 	}
 	++iter;
 
 	JsonArray value;
-	while (!iter.isEndIter()) {
-		iter = skipChars(iter, skip_chars);
-		if (iter.isEndIter()) {
+	while (end != iter) {
+		iter = skipChars(iter, end, skip_chars_list);
+		if (iter == end) {
 			return iter;
 		}
 
-		if ((char)(JsonSpecialChar::ARRAY_END) == iter.get()) {
+		if ((char)(JsonSpecialChar::ARRAY_END) == *iter) {
 			*this = value;
 			++iter;
 			return iter;
 		}
 		
-		SharedPtr<IJsonValue> new_value(nullptr);
-		switch (iter.get()) {
+		std::shared_ptr<IJsonValue> new_value(nullptr);
+		switch (*iter) {
 		case ((char)(JsonSpecialChar::STRING_START)):
-			new_value = SharedPtr<IJsonValue>(new JsonString());
+			new_value = std::shared_ptr<IJsonValue>(new JsonString());
 			break;
 		case ((char)(JsonSpecialChar::OBJECT_START)):
-			new_value = SharedPtr<IJsonValue>(new JsonObject());
+			new_value = std::shared_ptr<IJsonValue>(new JsonObject());
 			break;
 		case ((char)(JsonSpecialChar::ARRAY_START)):
-			new_value = SharedPtr<IJsonValue>(new JsonArray());
+			new_value = std::shared_ptr<IJsonValue>(new JsonArray());
 			break;		
 		default:
 			return iter;
 		}
 
-		iter = new_value.get()->parse(iter);
+		iter = new_value->parse(iter, end);
 		value.push_back(new_value);
 
-		iter = skipChars(iter, skip_chars);
-		if (iter.isEndIter()) {
+		iter = skipChars(iter, end, skip_chars_list);
+		if (iter == end) {
 			return iter;
 		}
 
-		switch (iter.get()) {
+		switch (*iter) {
 		case ((char)(JsonSpecialChar::DELIMITER)):
 			++iter;
 			break;

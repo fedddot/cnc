@@ -34,7 +34,7 @@ std::vector<char>::iterator JsonString::parse(const std::vector<char>::iterator&
 	++iter;
 
 	std::string value("");
-	while (iter == end) {
+	while (end != iter) {
 		if ((char)(JsonSpecialChar::STRING_END) == *iter) {
 			*this = value;
 			++iter;

@@ -10,7 +10,7 @@ namespace json {
 	class JsonArray: public IJsonValue, public std::vector<std::shared_ptr<IJsonValue>> {
 	public:
 		virtual JsonValueType getType() const override;
-		virtual data::String getJsonString() const override;
+		virtual std::string getJsonString() const override;
 		virtual std::vector<char>::iterator parse(const std::vector<char>::iterator& begin, const std::vector<char>::iterator& end) override;
 	}; // class JsonArray
 } // namespace json
