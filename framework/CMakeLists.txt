@@ -1,16 +1,10 @@
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/include
-	${CMAKE_CURRENT_SOURCE_DIR}/data/include
-	${CMAKE_CURRENT_SOURCE_DIR}/except/include
 	${CMAKE_CURRENT_SOURCE_DIR}/json/include
-	${CMAKE_CURRENT_SOURCE_DIR}/memory/include
 	${CMAKE_CURRENT_SOURCE_DIR}/system/include
 )
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/except)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/json)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/memory)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/system)
 
 add_library(iparsable OBJECT ${CMAKE_CURRENT_SOURCE_DIR}/src/iparsable.cpp)

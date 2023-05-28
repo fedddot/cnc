@@ -1,8 +1,8 @@
 #ifndef	__IJSON_VALUE_HPP__
 #define	__IJSON_VALUE_HPP__
 
+#include <string>
 #include "iparsable.hpp"
-#include "string.hpp"
 
 namespace json {
 	class IJsonValue: public common::IParsable {
@@ -13,7 +13,7 @@ namespace json {
 			OBJECT
 		};
 		virtual JsonValueType getType() const = 0;
-		virtual data::String getJsonString() const = 0;
+		virtual std::string getJsonString() const = 0;
 	}; // IJsonValue
 } // namespace json
 
