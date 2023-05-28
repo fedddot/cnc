@@ -1,13 +1,13 @@
 #ifndef	__ISENDER_HPP__
 #define	__ISENDER_HPP__
 
-#include "list.hpp"
+#include <vector>
 
-namespace cnc_system {
+namespace common {
 	class ISender {
 	public:
 		virtual ~ISender() noexcept = 0;
-		virtual void send(const data::List<char>& message) = 0;
+		virtual void send(const std::vector<char>& message) = 0;
 	}; // ISender
 } // common
 

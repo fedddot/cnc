@@ -1,18 +1,18 @@
 #ifndef	__MESSAGE_PARSER_HPP__
 #define	__MESSAGE_PARSER_HPP__
 
-#include <stddef.h>
-#include "list.hpp"
+#include <cstddef>
+#include <vector>
 #include "ilistener.hpp"
 
 namespace cnc_system {
 	class MessageParser: public common::IListener<char> {
 	public:
-		MessageParser(const data::List<char>& start_signature, const size_t& length_field_size);
+		MessageParser(const std::vector<char>& start_signature, const std::size_t& length_field_size);
 		MessageParser(const MessageParser& other) = delete;
 		MessageParser& operator=(const MessageParser& other) = delete;
 		
-		virtual void setMessageListener(common::IListener<const data::List<char>&> *message_listener_ptr);
+		virtual void setMessageListener(common::IListener<const std::vector<char>&> *message_listener_ptr);
 		virtual void onEvent(char event) override;
 	private:
 		enum ParserState {
@@ -21,16 +21,16 @@ namespace cnc_system {
 			READING_MSG_DATA
 		};
 
-		data::List<char> m_start_signature;
-		size_t m_start_signature_size;
-		size_t m_length_field_size;
-		common::IListener<const data::List<char>&> *m_message_listener_ptr;
+		std::vector<char> m_start_signature;
+		std::size_t m_start_signature_size;
+		std::size_t m_length_field_size;
+		common::IListener<const std::vector<char>&> *m_message_listener_ptr;
 
 		ParserState m_state;
 
-		data::List<char> m_reading_buff;
+		std::vector<char> m_reading_buff;
 
-		size_t m_msg_size;
+		std::size_t m_msg_size;
 
 		void handleMatchingSignature(const char& event);
 		void handleReadingMsgLength(const char& event);
@@ -38,8 +38,8 @@ namespace cnc_system {
 
 		void resetParserState(void);
 
-		static size_t parseMessageSize(const data::List<char>& buff);
-		static data::List<char> parseMessage(const data::List<char>& buff);
+		static std::size_t parseMessageSize(const std::vector<char>& buff);
+		static std::vector<char> parseMessage(const std::vector<char>& buff);
 	}; // class MessageParser
 } // namespace message
 

@@ -1,6 +1,6 @@
 #include "isender.hpp"
 
-using namespace cnc_system;
+using namespace common;
 
 ISender::~ISender() noexcept {
 
