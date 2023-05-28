@@ -7,17 +7,11 @@ add_executable(
 	src/json_tests.cpp
 	src/ut_json_string.cpp
 	src/ut_json_object.cpp
-	src/test_utils.cpp
 )
 
 target_link_libraries(
 	json_tests_exec
 	PRIVATE
-	ilistener_const_exception_ref
-	exception_handler
-	exception_handler_linux
-	exception
-	string
 	json_string
 	json_object
 	json_array
