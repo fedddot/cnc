@@ -18,7 +18,6 @@ target_link_libraries(
 	exception_handler_linux
 	exception
 	string
-	ijson_value
 	json_string
 	json_object
 	json_array

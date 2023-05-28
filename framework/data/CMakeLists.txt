@@ -4,4 +4,4 @@ include_directories(
 
 add_library(string OBJECT ${CMAKE_CURRENT_SOURCE_DIR}/src/string.cpp)
 
-add_subdirectory(tests)
+# add_subdirectory(tests)

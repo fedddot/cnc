@@ -1,6 +1,14 @@
+#include "json_object.hpp"
 #include "json_string.hpp"
+#include "uart_message_manager.hpp"
+#include "list.hpp"
+#include "pair.hpp"
+#include "shared_ptr.hpp"
 
+using namespace data;
 using namespace json;
+using namespace cnc_system;
+using namespace memory;
 
 #include <stdlib.h>
 #include <stddef.h>
@@ -33,10 +41,11 @@ void operator delete[](void *ptr) noexcept {
 	}
 }
 
-char *__heap_end = (char *)0x08FF;
-
 int main(void) {
-	JsonString test_str("ahaha");	
+	JsonObject msg;
+	msg.push_back(Pair<String, SharedPtr<IJsonValue>>("msg", SharedPtr<IJsonValue>(new JsonString("Hi from the Controller!"))));
+	String msg_str(msg.getJsonString());
+	
 
 	return 0;	
 }

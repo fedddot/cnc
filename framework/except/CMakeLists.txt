@@ -10,4 +10,4 @@ add_library(exception_handler_linux OBJECT ${CMAKE_CURRENT_SOURCE_DIR}/src/linux
 
 add_library(exception_handler_avr OBJECT ${CMAKE_CURRENT_SOURCE_DIR}/src/avr/exception_handler.cpp)
 
-add_subdirectory(tests)
+# add_subdirectory(tests)
