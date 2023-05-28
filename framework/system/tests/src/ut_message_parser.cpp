@@ -1,56 +1,40 @@
 #include <stdexcept>
 #include <iostream>
+#include <string>
+#include <vector>
 #include "gtest/gtest.h"
 #include "gtest/gtest-matchers.h"
 #include "gmock/gmock-more-matchers.h"
 
 #include "message_parser.hpp"
 #include "test_message_listener.hpp"
-#include "list.hpp"
-#include "string.hpp"
+#include "json_utils.hpp"
 
 using namespace testing;
-using namespace data;
-using namespace message;
-
-static List<char> strToList(const String& str) {
-	List<char> result;
-	const char *char_iter = str.c_str();
-	while ('\0' != *char_iter) {
-		result.push_back(*char_iter);
-		++char_iter;
-	}
-	return result;
-}
+using namespace cnc_system;
 
 TEST(SanityTests, MessageParserOnEvent) {
 	TestMessageListener listener;
 
-	List<char> signature;
-	signature.push_back(1);
-	signature.push_back(2);
-	signature.push_back(3);
-	signature.push_back(4);
+	std::vector<char> signature = json::stringToVector("sign");
 
-	String msg_str("Hey Parser!");
-	List<char> message(strToList(msg_str));
+	std::string msg_str("Hey Parser!");
+	std::vector<char> message(json::stringToVector(msg_str));
 
-	List<char> size;
-	size.push_back(0);
-	size.push_back(msg_str.size());
+	std::vector<char> size = {0, static_cast<char>(message.size())};
 
 	MessageParser parser(signature, size.size());
 	parser.setMessageListener(&listener);
 	parser.onEvent('a');
 	parser.onEvent('a');
 	parser.onEvent('a');
-	for (auto it = signature.begin(); !(it.isEndIter()); ++it) {
-		parser.onEvent(it.get());
+	for (auto it = signature.begin(); it != signature.end(); ++it) {
+		parser.onEvent(*it);
 	}
-	for (auto it = size.begin(); !(it.isEndIter()); ++it) {
-		parser.onEvent(it.get());
+	for (auto it = size.begin(); it != size.end(); ++it) {
+		parser.onEvent(*it);
 	}
-	for (auto it = message.begin(); !(it.isEndIter()); ++it) {
-		parser.onEvent(it.get());
+	for (auto it = message.begin(); it != message.end(); ++it) {
+		parser.onEvent(*it);
 	}
 }

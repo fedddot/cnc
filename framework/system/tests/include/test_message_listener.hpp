@@ -1,14 +1,14 @@
 #ifndef	__TEST_MESSAGE_LISTENER_HPP__
 #define	__TEST_MESSAGE_LISTENER_HPP__
 
-#include "list.hpp"
+#include <vector>
 #include "ilistener.hpp"
 
 namespace testing {
-	class TestMessageListener: public common::IListener<const data::List<char>&> {
+	class TestMessageListener: public common::IListener<const std::vector<char>&> {
 public:
 	TestMessageListener() = default;
-	virtual void onEvent(const data::List<char>& event) override;
+	virtual void onEvent(const std::vector<char>& event) override;
 }; // TestMessageListener
 
 } // testing

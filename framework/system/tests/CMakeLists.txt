@@ -18,12 +18,8 @@ target_link_libraries(
 	system_tests_exec
 	PRIVATE
 	ilistener_char
-	ilistener_const_list_char_ref
-	ilistener_const_exception_ref
-	exception_handler
-	exception_handler_linux
-	exception
-	string
+	ilistener_const_vector_char_ref
+	json_utils
 	message_parser
 	test_message_listener
 	gtest

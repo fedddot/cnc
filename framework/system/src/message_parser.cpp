@@ -1,24 +1,24 @@
-#include "list.hpp"
-#include "string.hpp"
-#include "exception.hpp"
-#include "exception_handler.hpp"
+#include <stdexcept>
+#include <cstddef>
+#include <vector>
+#include <string>
 #include "message_parser.hpp"
 
 using namespace cnc_system;
-using namespace data;
-using namespace except;
 
-MessageParser::MessageParser(const List<char>& start_signature, const size_t& length_field_size) : m_start_signature(start_signature), m_start_signature_size(start_signature.size()), m_length_field_size(length_field_size), m_message_listener_ptr(nullptr) {
+static const std::invalid_argument s_invalid_argument_exp("invalid argument");
+
+MessageParser::MessageParser(const std::vector<char>& start_signature, const std::size_t& length_field_size) : m_start_signature(start_signature), m_start_signature_size(start_signature.size()), m_length_field_size(length_field_size), m_message_listener_ptr(nullptr) {
 	if (m_start_signature_size < 1) {
-		ExceptionHandler::getInstance()->onEvent(Exception("invalid start signature size"));
+		throw s_invalid_argument_exp;
 	}
 	if ((m_length_field_size < 1) || (m_length_field_size > sizeof(size_t))) {
-		ExceptionHandler::getInstance()->onEvent(Exception("invalid length field size"));
+		throw s_invalid_argument_exp;
 	}
 	resetParserState();
 }
 
-void MessageParser::setMessageListener(common::IListener<const data::List<char>&> *message_listener_ptr) {
+void MessageParser::setMessageListener(common::IListener<const std::vector<char>&> *message_listener_ptr) {
 	m_message_listener_ptr = message_listener_ptr;
 }
 
@@ -49,7 +49,7 @@ void MessageParser::handleMatchingSignature(const char& event) {
 		m_reading_buff.clear();
 		return;
 	}
-	m_reading_buff.pop_front();
+	m_reading_buff.erase(m_reading_buff.begin());
 }
 
 void MessageParser::handleReadingMsgLength(const char& event) {
@@ -82,12 +82,12 @@ void MessageParser::resetParserState(void) {
 	m_reading_buff.clear();
 }
 
-size_t MessageParser::parseMessageSize(const List<char>& buff) {
-	static const size_t bits_in_byte = 8UL;
-	size_t msg_size = 0;
-	for (auto iter = const_cast<List<char>&>(buff).begin(); !(iter.isEndIter()); ++iter) {
+std::size_t MessageParser::parseMessageSize(const std::vector<char>& buff) {
+	static const std::size_t bits_in_byte = 8UL;
+	std::size_t msg_size = 0;
+	for (auto iter = buff.begin(); buff.end() != iter; ++iter) {
 		msg_size <<= bits_in_byte;
-		msg_size |= (size_t)(iter.get());
+		msg_size |= (std::size_t)(*iter);
 	}
 	return msg_size;
 }

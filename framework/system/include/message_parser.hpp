@@ -39,7 +39,6 @@ namespace cnc_system {
 		void resetParserState(void);
 
 		static std::size_t parseMessageSize(const std::vector<char>& buff);
-		static std::vector<char> parseMessage(const std::vector<char>& buff);
 	}; // class MessageParser
 } // namespace message
 
