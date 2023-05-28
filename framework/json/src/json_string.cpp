@@ -6,6 +6,10 @@
 
 using namespace json;
 
+JsonString::JsonString(const std::string& value): std::string(value) {
+
+}
+
 JsonString::JsonValueType JsonString::getType() const {
 	return JsonValueType::STRING;
 }

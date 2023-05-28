@@ -11,6 +11,7 @@
 namespace json {
 	class JsonString: public IJsonValue, public std::string {
 	public:
+		JsonString(const std::string& value = "");
 		virtual JsonValueType getType() const override;
 		virtual std::string getJsonString() const override;
 		virtual std::vector<char>::iterator parse(const std::vector<char>::iterator& begin, const std::vector<char>::iterator& end) override;
