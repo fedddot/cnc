@@ -3,5 +3,6 @@ build/
 .vscode/
 !*.cpp
 !*.hpp
+!*.cmake
 !CMakeLists.txt
 !.gitignore
