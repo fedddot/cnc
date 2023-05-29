@@ -11,9 +11,10 @@ namespace cnc_system {
 		MessageParser(const std::vector<char>& start_signature, const std::size_t& length_field_size);
 		MessageParser(const MessageParser& other) = delete;
 		MessageParser& operator=(const MessageParser& other) = delete;
-		
-		virtual void setMessageListener(common::IListener<const std::vector<char>&> *message_listener_ptr);
 		virtual void onEvent(char event) override;
+		void setMessageListener(common::IListener<const std::vector<char>&> *message_listener_ptr);
+		inline const std::vector<char> getStartSignature() const;
+		inline std::size_t getLengthFieldSize() const;
 	private:
 		enum ParserState {
 			MATCHING_SIGNATURE,
@@ -40,6 +41,14 @@ namespace cnc_system {
 
 		static std::size_t parseMessageSize(const std::vector<char>& buff);
 	}; // class MessageParser
+
+	inline const std::vector<char> MessageParser::getStartSignature() const {
+		return m_start_signature;
+	}
+
+	inline std::size_t MessageParser::getLengthFieldSize() const {
+		return m_length_field_size;
+	}
 } // namespace message
 
 #endif // __MESSAGE_PARSER_HPP__

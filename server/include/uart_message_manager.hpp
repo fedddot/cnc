@@ -13,10 +13,9 @@ namespace cnc_system {
 		UartMessageManager& operator=(const UartMessageManager& other) = delete;
 		virtual ~UartMessageManager() noexcept override;
 		virtual void send(const std::vector<char>& message) override;
-		virtual void setMessageListener(common::IListener<const std::vector<char>&> *message_listener_ptr);
-		virtual void onEvent(char event);
 	private:
 		std::size_t m_baud_rate;
+		static std::vector<char> sizeToVector(const std::size_t& msg_size, const std::size_t& length_field_size);
 	}; // class UartMessageManager
 } // namespace cnc_system
 
