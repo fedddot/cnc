@@ -15,6 +15,7 @@ namespace cnc_system {
 		void setMessageListener(common::IListener<const std::vector<char>&> *message_listener_ptr);
 		inline const std::vector<char> getStartSignature() const;
 		inline std::size_t getLengthFieldSize() const;
+		std::vector<char> sizeToVector(const std::size_t& msg_size) const;
 	private:
 		enum ParserState {
 			MATCHING_SIGNATURE,

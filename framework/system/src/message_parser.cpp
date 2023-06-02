@@ -91,3 +91,15 @@ std::size_t MessageParser::parseMessageSize(const std::vector<char>& buff) {
 	}
 	return msg_size;
 }
+
+std::vector<char> MessageParser::sizeToVector(const std::size_t& msg_size) const {
+	static const std::size_t bits_in_byte(8UL);
+	static const std::size_t mask(0xFF);
+	std::size_t size(msg_size);
+	std::vector<char> output;
+	for (std::size_t shift = 0; shift < m_length_field_size; ++shift) {
+		char block = static_cast<char>(size >> ((m_length_field_size - shift - 1) * bits_in_byte)) & mask;
+		output.push_back(block);
+	}
+	return output;
+}
