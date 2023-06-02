@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 
 set(CNC_PATH ${CMAKE_SOURCE_DIR}/..)
-set(DEV_PATH ${CNC_PATH}/..)
 set(FRAMEWORK_PATH ${CNC_PATH}/framework)
+set(DEV_PATH ${CNC_PATH}/..)
 
 include(pico_sdk_import.cmake)
 
@@ -17,7 +17,6 @@ set(CMAKE_COLOR_MAKEFILE ON)
 
 add_subdirectory(${FRAMEWORK_PATH} ${CMAKE_SOURCE_DIR}/build/framework)
 
-# after defining all INTERFACE targets in the Framework delete redundant include_directories
 include_directories(
 	${CMAKE_SOURCE_DIR}/include
 	${FRAMEWORK_PATH}/include
@@ -52,8 +51,5 @@ target_link_libraries(
 	
 	pico_stdlib
 )
-
-pico_enable_stdio_usb(cnc_firmware 1)
-pico_enable_stdio_uart(cnc_firmware 0)
 
 pico_add_extra_outputs(cnc_firmware)
