@@ -6,41 +6,48 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/uart.h"
+#include "hardware/irq.h"
 
 using namespace cnc_system;
 
+static UartMessageManager *currentMessageManager = nullptr;
+static int chars_rxed = 0;
+
+void on_uart_rx() {
+	if (nullptr == currentMessageManager) {
+		return;
+	}
+    while (uart_is_readable(uart0)) {
+		currentMessageManager->onEvent((char)uart_getc(uart0));
+	}
+}
+
 UartMessageManager::UartMessageManager(const std::vector<char>& start_signature, const std::size_t& length_field_size, const std::size_t& baud_rate): MessageManager(start_signature, length_field_size), m_baud_rate(baud_rate) {
 	uart_init(uart0, (uint)m_baud_rate);
+    irq_set_exclusive_handler(UART0_IRQ, on_uart_rx);
+    irq_set_enabled(UART0_IRQ, true);
+    uart_set_irq_enables(uart0, true, false);
+	currentMessageManager = this;
 }
 
 UartMessageManager::~UartMessageManager() noexcept {
+	irq_remove_handler(UART0_IRQ, on_uart_rx);
+    irq_set_enabled(UART0_IRQ, false);
+    uart_set_irq_enables(uart0, false, false);
 	uart_deinit(uart0);
+	currentMessageManager = nullptr;
 }
 
 void UartMessageManager::send(const std::vector<char>& message) {
 	auto start_signature = getStartSignature();
 	for (auto iter = start_signature.begin(); start_signature.end() != iter; ++iter) {
 		uart_putc_raw(uart0, *iter);
-	}
-	
-	std::vector<char> size_encoded = sizeToVector(message.size(), getLengthFieldSize());
+	}	
+	std::vector<char> size_encoded = sizeToVector(message.size());
 	for (auto iter = size_encoded.begin(); size_encoded.end() != iter; ++iter) {
 		uart_putc_raw(uart0, *iter);
 	}
-
 	for (auto iter = message.begin(); message.end() != iter; ++iter) {
 		uart_putc_raw(uart0, *iter);
 	}
-}
-
-std::vector<char> UartMessageManager::sizeToVector(const std::size_t& msg_size, const std::size_t& length_field_size) {
-	static const std::size_t bits_in_byte(8UL);
-	static const std::size_t mask(0xFF);
-	std::size_t size(msg_size);
-	std::vector<char> output;
-	for (std::size_t shift = 0; shift < length_field_size; ++shift) {
-		char block = static_cast<char>(size >> ((length_field_size - shift - 1) * bits_in_byte)) & mask;
-		output.push_back(block);
-	}
-	return output;
 }

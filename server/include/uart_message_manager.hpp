@@ -15,7 +15,7 @@ namespace cnc_system {
 		virtual void send(const std::vector<char>& message) override;
 	private:
 		std::size_t m_baud_rate;
-		static std::vector<char> sizeToVector(const std::size_t& msg_size, const std::size_t& length_field_size);
+		
 	}; // class UartMessageManager
 } // namespace cnc_system
 
