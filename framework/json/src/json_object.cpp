@@ -102,7 +102,7 @@ std::vector<char>::iterator JsonObject::parse(const std::vector<char>::iterator&
 		}
 
 		iter = new_value->parse(iter, end);
-		(*this)[field_name] = new_value;
+		value[field_name] = new_value;
 		
 		iter = skipChars(iter, end, skip_chars_list);
 		if (iter == end) {

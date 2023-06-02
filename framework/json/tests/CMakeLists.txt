@@ -12,9 +12,7 @@ add_executable(
 target_link_libraries(
 	json_tests_exec
 	PRIVATE
-	json_string
-	json_object
-	json_array
+	json_objects
 	json_utils
 	iparsable
 	gtest

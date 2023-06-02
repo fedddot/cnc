@@ -25,6 +25,7 @@ TEST(SanityTests, JsonObjectMethodParse) {
 		auto iter = data.begin();
 		ASSERT_NO_THROW(iter = json_obj.parse(iter, data.end()));
 		ASSERT_TRUE(iter == data.end());
+		ASSERT_NE(json_obj.end(), json_obj.find("name1"));
 	}
 
 	// THEN
