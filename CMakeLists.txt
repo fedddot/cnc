@@ -20,3 +20,4 @@ include_directories(
 	
 add_subdirectory(${GOOGLE_TESTS_PATH} ${CMAKE_BINARY_DIR}/gtest/build)
 add_subdirectory(${CMAKE_SOURCE_DIR}/framework)
+add_subdirectory(client)

@@ -43,6 +43,7 @@ target_link_libraries(
 	iparsable
 	isender
 	ilistener_char
+	ilistener_const_vector_char_ref
 	json_objects
 	json_utils
 	message_parser

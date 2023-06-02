@@ -1,0 +1,17 @@
+add_executable(
+	client
+	${CMAKE_CURRENT_LIST_DIR}/src/client.cpp
+)
+target_link_libraries(
+	client
+	message_manager
+	message_parser
+	iparsable
+	isender
+	itask
+	ilistener_const_vector_char_ref
+	ilistener_char
+	json_objects
+	json_headers
+	json_utils
+)
