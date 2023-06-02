@@ -32,7 +32,6 @@ public:
 		gpio_set_dir(m_led_pin, GPIO_OUT);
 	}
 	virtual void onEvent(const std::vector<char>& event) override {
-		m_msg_manager.send(stringToVector("-------HERE-------\n"));
 		JsonObject object;
 		std::vector<char>& non_const_event = const_cast<std::vector<char>&>(event);
 		object.parse(non_const_event.begin(), non_const_event.end());

@@ -39,12 +39,14 @@ public:
 
 		tcsetattr(m_uart_fd, TCSANOW, &settings);
 
+		m_isRunning = true;
 		m_reading_thread = std::thread(
 			[&]() {
 				while (m_isRunning) {
 					char ch = '\0';
-					read(m_uart_fd, &ch, 1);
-					onEvent(ch);
+					if (1 == read(m_uart_fd, &ch, 1)) {
+						onEvent(ch);
+					}
 				}
 			}
 		);
