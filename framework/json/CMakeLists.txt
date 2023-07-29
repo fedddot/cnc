@@ -6,3 +6,11 @@ target_include_directories(
 	${CMAKE_CURRENT_LIST_DIR}/include
 	${CMAKE_CURRENT_LIST_DIR}/../include
 )
+
+add_library(json_common INTERFACE)
+target_sources(json_common INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/json_common.cpp)
+target_include_directories(
+	json_common 
+	INTERFACE 
+	${CMAKE_CURRENT_LIST_DIR}/include
+)
