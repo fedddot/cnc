@@ -12,7 +12,7 @@ namespace json {
 	public:
 		virtual std::shared_ptr<data::IData> parse(std::istream& data_stream) override;
 	private:
-		std::shared_ptr<data::IData> parseString(std::istream& data_stream);
+		static std::shared_ptr<data::IData> parseString(std::istream& data_stream);
 
 		static char peekChar(std::istream& data_stream);
 		static char popChar(std::istream& data_stream);

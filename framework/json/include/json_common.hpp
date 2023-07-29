@@ -36,6 +36,22 @@ namespace json {
 	inline const char *JsonParserExceptionUnexpectedCharacter::what() const noexcept {
 		return m_msg.c_str();
 	}
+
+	class JsonParserExceptionUnexpectedEof: public std::exception {
+	public:
+		JsonParserExceptionUnexpectedEof(const std::string& where, char expected);
+		JsonParserExceptionUnexpectedEof(const JsonParserExceptionUnexpectedEof& other) = default;
+		JsonParserExceptionUnexpectedEof& operator=(const JsonParserExceptionUnexpectedEof& other) = default;
+		virtual const char* what() const noexcept override;
+	private:
+		std::string m_where;
+		char m_expected;
+		std::string m_msg;
+	};
+
+	inline const char *JsonParserExceptionUnexpectedEof::what() const noexcept {
+		return m_msg.c_str();
+	}
 }
 
 #endif // __JSON_COMMON_HPP__

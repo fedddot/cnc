@@ -2,24 +2,28 @@
 #define	__STRING_HPP__
 
 #include <string>
-#include "idata.hpp"
+#include "value.hpp"
 
 namespace data {
-	class String: public IData, public std::string {
+	class String: public Value, public std::string {
 	public:
 		String() = default;
+		String(const String& other) = default;
 		String& operator=(const String& other) = default;
+
+		String(const std::string& other);
+		String& operator=(const std::string& other);
 
 		String(const IData& other);
 		String& operator=(const IData& other);
 
-		virtual inline DataType getDataType() const override;
+		virtual inline ValueType getValueType() const override;
 	private:
 		typedef std::string UnderlyingClass;
 	}; // String
 
-	inline String::DataType String::getDataType() const {
-		return DataType::VALUE;
+	inline String::ValueType String::getValueType() const {
+		return ValueType::STRING;
 	}
 } // namespace data
 

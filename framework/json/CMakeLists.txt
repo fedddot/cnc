@@ -4,7 +4,7 @@ target_include_directories(
 	json_parser 
 	INTERFACE 
 	${CMAKE_CURRENT_LIST_DIR}/include
-	${CMAKE_CURRENT_LIST_DIR}/../include
+	${CMAKE_SOURCE_DIR}/data/include
 )
 
 add_library(json_common INTERFACE)
@@ -14,3 +14,7 @@ target_include_directories(
 	INTERFACE 
 	${CMAKE_CURRENT_LIST_DIR}/include
 )
+
+# delete it
+add_library(json_test STATIC)
+target_link_libraries(json_test PRIVATE json_parser json_common)
