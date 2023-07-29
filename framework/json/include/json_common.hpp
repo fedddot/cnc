@@ -1,5 +1,5 @@
-#ifndef	__JSON_TYPES_HPP__
-#define	__JSON_TYPES_HPP__
+#ifndef	__JSON_COMMON_HPP__
+#define	__JSON_COMMON_HPP__
 
 namespace json {
 	enum class JsonSpecialChar : char {
@@ -17,4 +17,4 @@ namespace json {
 	};
 }
 
-#endif // __JSON_TYPES_HPP__
+#endif // __JSON_COMMON_HPP__
