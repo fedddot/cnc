@@ -19,21 +19,21 @@ namespace json {
 		NEW_LINE = '\n'
 	};
 
-	class JsonParserExceptionUnexpectedCharacter: public std::exception {
+	class JsonParserExceptionUnexpectedToken: public std::exception {
 	public:
-		JsonParserExceptionUnexpectedCharacter(const std::string& where, const std::size_t& pos_in_stream, char expected, char received);
-		JsonParserExceptionUnexpectedCharacter(const JsonParserExceptionUnexpectedCharacter& other) = default;
-		JsonParserExceptionUnexpectedCharacter& operator=(const JsonParserExceptionUnexpectedCharacter& other) = default;
+		JsonParserExceptionUnexpectedToken(const std::string& where, const std::size_t& pos_in_stream, const std::string& expected, const std::string& received);
+		JsonParserExceptionUnexpectedToken(const JsonParserExceptionUnexpectedToken& other) = default;
+		JsonParserExceptionUnexpectedToken& operator=(const JsonParserExceptionUnexpectedToken& other) = default;
 		virtual const char* what() const noexcept override;
 	private:
 		std::string m_where;
 		std::size_t m_pos_in_stream;
-		char m_expected;
-		char m_received;
+		std::string m_expected;
+		std::string m_received;
 		std::string m_msg;
 	};
 
-	inline const char *JsonParserExceptionUnexpectedCharacter::what() const noexcept {
+	inline const char *JsonParserExceptionUnexpectedToken::what() const noexcept {
 		return m_msg.c_str();
 	}
 

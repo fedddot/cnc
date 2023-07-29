@@ -1,7 +1,6 @@
 #ifndef	__ARRAY_HPP__
 #define	__ARRAY_HPP__
 
-#include <cstddef>
 #include <vector>
 #include <memory>
 #include "idata.hpp"
@@ -10,35 +9,20 @@
 namespace data {
 	class Array: public Composite, public std::vector<std::shared_ptr<IData>> {
 	public:
-		class Accessor: public IAccessor {
-		public:
-			Accessor(const std::size_t& index);
-			virtual inline AccessorType getType() const override;
-			inline std::size_t getIndex() const;
-		private:
-			const std::size_t m_index;
-		};
-
 		Array() = default;
+		Array(const Array& other) = default;
 		Array& operator=(const Array& other) = default;
 
 		Array(const IData& other);
 		Array& operator=(const IData& other);
 
-		virtual IData& access(const IAccessor& where) override;
-		virtual const IData& access(const IAccessor& where) const override;
+		virtual inline Composite::CompositeType Array::getCompositeType() const override;
 	private:
 		typedef std::vector<std::shared_ptr<IData>> UnderlyingClass;
+	}; // Array
 
-		IData& accessAt(const IAccessor& where);
-	}; // Composite
-
-	inline Array::Accessor::AccessorType Array::Accessor::getType() const {
-		return AccessorType::INDEX;
-	}
-
-	inline std::size_t Array::Accessor::getIndex() const {
-		return m_index;
+	inline Composite::CompositeType Array::getCompositeType() const {
+		return CompositeType::ARRAY;
 	}
 } // namespace data
 
