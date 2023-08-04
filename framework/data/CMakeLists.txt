@@ -21,15 +21,3 @@ target_include_directories(array INTERFACE INTERFACE ${CMAKE_CURRENT_LIST_DIR}/i
 add_library(string INTERFACE)
 target_sources(string INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/string.cpp)
 target_include_directories(string INTERFACE INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-
-add_library(data_test STATIC)
-target_link_libraries(
-	data_test
-	PRIVATE
-	idata
-	idata_parser
-	composite
-	object
-	array
-	string
-)

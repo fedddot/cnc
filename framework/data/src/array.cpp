@@ -1,38 +1,29 @@
 #include <cstddef>
 #include <vector>
 #include <memory>
+#include <algorithm>
 #include <stdexcept>
 #include "idata.hpp"
 #include "array.hpp"
 
 using namespace data;
 
-Array::Accessor::Accessor(const std::size_t& index): m_index(index) {
-
+Array::Array(const Array& other): ContainerType(other) {
+	// TODO: implement here element-wise copying of the members (not just a shallow copy of their ptrs)
 }
 
-Array::Array(const IData& other): UnderlyingClass(dynamic_cast<const UnderlyingClass&>(other)) {
-
-}
-
-Array& Array::operator=(const IData& other) {
-	dynamic_cast<UnderlyingClass&>(*this) = dynamic_cast<const UnderlyingClass&>(other);
+Array& Array::operator=(const Array& other) {
+	// TODO: implement here element-wise copying of the members (not just a shallow copy of their ptrs)
+	static_cast<ContainerType&>(*this) = other;
 	return *this;
 }
 
-IData& Array::accessAt(const IAccessor& where) {
-	auto name = dynamic_cast<const Accessor&>(where);
-	auto member = at(name.getIndex());
-	if (nullptr == member) {
-		throw std::runtime_error("invalid member access");
-	}
-	return *member;
+Array::Array(const IData& other): ContainerType(dynamic_cast<const Array&>(other)) {
+	// TODO: implement here element-wise copying of the members (not just a shallow copy of their ptrs)
 }
 
-IData& Array::access(const IAccessor& where) {
-	return accessAt(where);
-}
-
-const IData& Array::access(const IAccessor& where) const {
-	return const_cast<Array&>(*this).accessAt(where);
+Array& Array::operator=(const IData& other) {
+	// TODO: implement here element-wise copying of the members (not just a shallow copy of their ptrs)
+	*this = dynamic_cast<const Array&>(other);
+	return *this;
 }

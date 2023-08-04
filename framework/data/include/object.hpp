@@ -10,36 +10,25 @@
 namespace data {
 	class Object: public Composite, public std::map<std::string, std::shared_ptr<IData>> {
 	public:
-		class Accessor: public IAccessor {
-		public:
-			Accessor(const std::string& name);
-			virtual inline AccessorType getType() const override;
-			inline std::string getName() const;
-		private:
-			const std::string m_name;
-		};
+		typedef std::map<std::string, std::shared_ptr<IData>> ContainerType;
 
 		Object() = default;
-		Object& operator=(const Object& other) = default;
+		Object(const Object& other);
+		Object& operator=(const Object& other);
 
 		Object(const IData& other);
 		Object& operator=(const IData& other);
 
-		virtual IData& access(const IAccessor& where) override;
-		virtual const IData& access(const IAccessor& where) const override;
-	private:
-		typedef std::map<std::string, std::shared_ptr<IData>> UnderlyingClass;
+		Object(const ContainerType& other);
+		Object& operator=(const ContainerType& other);
 
-		IData& accessAt(const IAccessor& where);
-	}; // Composite
-
-	inline Object::Accessor::AccessorType Object::Accessor::getType() const {
-		return AccessorType::NAME;
+		virtual inline CompositeType getCompositeType() const override;
+	}; // Object
+	
+	inline Object::CompositeType Object::getCompositeType() const {
+		return CompositeType::OBJECT;
 	}
 
-	inline std::string Object::Accessor::getName() const {
-		return m_name;
-	}
 } // namespace data
 
 #endif // __OBJECT_HPP__

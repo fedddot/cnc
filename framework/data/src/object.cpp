@@ -7,32 +7,22 @@
 
 using namespace data;
 
-Object::Accessor::Accessor(const std::string& name): m_name(name) {
-
+Object::Object(const Object& other): ContainerType(other) {
+	// TODO: implement here element-wise copying of the members (not just a shallow copy of their ptrs)
 }
 
-Object::Object(const IData& other): UnderlyingClass(dynamic_cast<const UnderlyingClass&>(other)) {
-
-}
-
-Object& Object::operator=(const IData& other) {
-	dynamic_cast<UnderlyingClass&>(*this) = dynamic_cast<const UnderlyingClass&>(other);
+Object& Object::operator=(const Object& other) {
+	// TODO: implement here element-wise copying of the members (not just a shallow copy of their ptrs)
+	static_cast<ContainerType&>(*this) = other;
 	return *this;
 }
 
-IData& Object::accessAt(const IAccessor& where) {
-	auto name = dynamic_cast<const Accessor&>(where);
-	auto member = at(name.getName());
-	if (nullptr == member) {
-		throw std::runtime_error("invalid member access");
-	}
-	return *member;
+Object::Object(const IData& other): ContainerType(dynamic_cast<const Object&>(other)) {
+	// TODO: implement here element-wise copying of the members (not just a shallow copy of their ptrs)
 }
 
-IData& Object::access(const IAccessor& where) {
-	return accessAt(where);
-}
-
-const IData& Object::access(const IAccessor& where) const {
-	return const_cast<Object&>(*this).accessAt(where);
+Object& Object::operator=(const IData& other) {
+	// TODO: implement here element-wise copying of the members (not just a shallow copy of their ptrs)
+	*this = dynamic_cast<const Object&>(other);
+	return *this;
 }

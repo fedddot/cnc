@@ -1,7 +1,6 @@
 #ifndef	__ARRAY_HPP__
 #define	__ARRAY_HPP__
 
-#include <cstddef>
 #include <vector>
 #include <memory>
 #include "idata.hpp"
@@ -10,35 +9,23 @@
 namespace data {
 	class Array: public Composite, public std::vector<std::shared_ptr<IData>> {
 	public:
-		class Accessor: public IAccessor {
-		public:
-			Accessor(const std::size_t& index);
-			virtual inline AccessorType getType() const override;
-			inline std::size_t getIndex() const;
-		private:
-			const std::size_t m_index;
-		};
+		typedef std::vector<std::shared_ptr<IData>> ContainerType;
 
 		Array() = default;
-		Array& operator=(const Array& other) = default;
+		Array(const Array& other);
+		Array& operator=(const Array& other);
 
 		Array(const IData& other);
 		Array& operator=(const IData& other);
 
-		virtual IData& access(const IAccessor& where) override;
-		virtual const IData& access(const IAccessor& where) const override;
-	private:
-		typedef std::vector<std::shared_ptr<IData>> UnderlyingClass;
+		Array(const ContainerType& other);
+		Array& operator=(const ContainerType& other);
 
-		IData& accessAt(const IAccessor& where);
-	}; // Composite
+		virtual inline CompositeType getCompositeType() const override;
+	}; // Array
 
-	inline Array::Accessor::AccessorType Array::Accessor::getType() const {
-		return AccessorType::INDEX;
-	}
-
-	inline std::size_t Array::Accessor::getIndex() const {
-		return m_index;
+	inline Array::CompositeType Array::getCompositeType() const {
+		return CompositeType::ARRAY;
 	}
 } // namespace data
 
