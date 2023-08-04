@@ -1,20 +1,23 @@
-include_directories(
-	${CMAKE_CURRENT_LIST_DIR}/include
-)
-
 add_executable(
 	json_tests_exec
-	src/json_tests.cpp
-	src/ut_json_string.cpp
-	src/ut_json_object.cpp
+	${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
+	${CMAKE_CURRENT_LIST_DIR}/src/ut_json_parser.cpp
 )
 
 target_link_libraries(
 	json_tests_exec
 	PRIVATE
-	json_objects
-	json_utils
-	iparsable
+	
+	json_parser
+	json_common
+	
+	idata
+	idata_parser
+	
+	array
+	object
+	string
+	
 	gtest
 	gmock
 )

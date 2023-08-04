@@ -5,11 +5,32 @@
 
 using namespace data;
 
-String::String(const IData& other): UnderlyingClass(dynamic_cast<const UnderlyingClass&>(other)) {
+String::String(const String& other): ValueType(other) {
+	// TODO: implement here element-wise copying of the members (not just a shallow copy of their ptrs)
+}
 
+String& String::operator=(const String& other) {
+	// TODO: implement here element-wise copying of the members (not just a shallow copy of their ptrs)
+	static_cast<ValueType&>(*this) = other;
+	return *this;
+}
+
+String::String(const ValueType& other): ValueType(other) {
+	// TODO: implement here element-wise copying of the members (not just a shallow copy of their ptrs)
+}
+
+String& String::operator=(const ValueType& other) {
+	// TODO: implement here element-wise copying of the members (not just a shallow copy of their ptrs)
+	static_cast<ValueType&>(*this) = other;
+	return *this;
+}
+
+String::String(const IData& other): ValueType(dynamic_cast<const String&>(other)) {
+	// TODO: implement here element-wise copying of the members (not just a shallow copy of their ptrs)
 }
 
 String& String::operator=(const IData& other) {
-	dynamic_cast<UnderlyingClass&>(*this) = dynamic_cast<const UnderlyingClass&>(other);
+	// TODO: implement here element-wise copying of the members (not just a shallow copy of their ptrs)
+	*this = dynamic_cast<const String&>(other);
 	return *this;
 }

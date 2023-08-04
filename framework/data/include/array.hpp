@@ -9,19 +9,22 @@
 namespace data {
 	class Array: public Composite, public std::vector<std::shared_ptr<IData>> {
 	public:
+		typedef std::vector<std::shared_ptr<IData>> ContainerType;
+
 		Array() = default;
-		Array(const Array& other) = default;
-		Array& operator=(const Array& other) = default;
+		Array(const Array& other);
+		Array& operator=(const Array& other);
 
 		Array(const IData& other);
 		Array& operator=(const IData& other);
 
-		virtual inline Composite::CompositeType Array::getCompositeType() const override;
-	private:
-		typedef std::vector<std::shared_ptr<IData>> UnderlyingClass;
+		Array(const ContainerType& other);
+		Array& operator=(const ContainerType& other);
+
+		virtual inline CompositeType getCompositeType() const override;
 	}; // Array
 
-	inline Composite::CompositeType Array::getCompositeType() const {
+	inline Array::CompositeType Array::getCompositeType() const {
 		return CompositeType::ARRAY;
 	}
 } // namespace data

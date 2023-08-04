@@ -6,14 +6,14 @@
 namespace data {
 	class Value: public IData {
 	public:
-		enum class ValueType: int {
+		enum class DataValueType: int {
 			STRING,
 			// INT,
 			// REAL
 		};
 		
 		virtual inline DataType getDataType() const override;
-		virtual ValueType getValueType() const = 0;
+		virtual DataValueType getDataValueType() const = 0;
 	}; // Value
 
 	inline Value::DataType Value::getDataType() const {

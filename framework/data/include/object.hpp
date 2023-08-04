@@ -10,19 +10,22 @@
 namespace data {
 	class Object: public Composite, public std::map<std::string, std::shared_ptr<IData>> {
 	public:
+		typedef std::map<std::string, std::shared_ptr<IData>> ContainerType;
+
 		Object() = default;
-		Object(const Object& other) = default;
-		Object& operator=(const Object& other) = default;
+		Object(const Object& other);
+		Object& operator=(const Object& other);
 
 		Object(const IData& other);
 		Object& operator=(const IData& other);
 
+		Object(const ContainerType& other);
+		Object& operator=(const ContainerType& other);
+
 		virtual inline CompositeType getCompositeType() const override;
-	private:
-		typedef std::map<std::string, std::shared_ptr<IData>> UnderlyingClass;
 	}; // Object
 	
-	inline Composite::CompositeType Object::getCompositeType() const {
+	inline Object::CompositeType Object::getCompositeType() const {
 		return CompositeType::OBJECT;
 	}
 

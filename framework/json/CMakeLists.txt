@@ -15,6 +15,4 @@ target_include_directories(
 	${CMAKE_CURRENT_LIST_DIR}/include
 )
 
-# delete it
-add_library(json_test STATIC)
-target_link_libraries(json_test PRIVATE json_parser json_common)
+add_subdirectory(tests EXCLUDE_FROM_ALL)

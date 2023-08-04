@@ -10,8 +10,8 @@ JsonParserExceptionUnexpectedToken::JsonParserExceptionUnexpectedToken(const std
 	m_msg = msg_stream.str();
 }
 
-JsonParserExceptionUnexpectedEof::JsonParserExceptionUnexpectedEof(const std::string& where, char expected) : m_where(where), m_expected(expected), m_msg("") {
+JsonParserExceptionUnexpectedEof::JsonParserExceptionUnexpectedEof(const std::string& where) : m_where(where), m_msg("") {
 	std::stringstream msg_stream;
-	msg_stream << "In \"" << where << "\": unexpected end of file while \'" << expected << "\' expected";
+	msg_stream << "In \"" << where << "\": unexpected end of file";
 	m_msg = msg_stream.str();
 }

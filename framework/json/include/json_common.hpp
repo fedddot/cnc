@@ -39,13 +39,12 @@ namespace json {
 
 	class JsonParserExceptionUnexpectedEof: public std::exception {
 	public:
-		JsonParserExceptionUnexpectedEof(const std::string& where, char expected);
+		JsonParserExceptionUnexpectedEof(const std::string& where);
 		JsonParserExceptionUnexpectedEof(const JsonParserExceptionUnexpectedEof& other) = default;
 		JsonParserExceptionUnexpectedEof& operator=(const JsonParserExceptionUnexpectedEof& other) = default;
 		virtual const char* what() const noexcept override;
 	private:
 		std::string m_where;
-		char m_expected;
 		std::string m_msg;
 	};
 
