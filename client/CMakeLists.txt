@@ -19,11 +19,11 @@ target_include_directories(data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/inclu
 
 add_library(data_receiver INTERFACE)
 target_sources(data_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/data_receiver.cpp)
-target_include_directories(data_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(
-	data_receiver
-	INTERFACE
-	ilistener
+target_link_libraries(data_receiver INTERFACE ilistener)
+target_include_directories(
+	data_receiver 
+	INTERFACE 
+	${CMAKE_CURRENT_LIST_DIR}/include
 )
 
 add_executable(client ${CMAKE_CURRENT_LIST_DIR}/src/client.cpp)

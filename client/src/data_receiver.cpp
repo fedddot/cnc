@@ -58,7 +58,7 @@ void DataReceiver::receive_size(char event) {
 
 void DataReceiver::receive_data(char event) {
 	m_data_buff.push_back(event);
-	if (m_data_buff.size() < m_length_field_size) {
+	if (m_data_buff.size() < m_data_size) {
 		return;
 	}
 	std::vector<char> data(m_data_buff);
@@ -83,7 +83,7 @@ std::size_t DataReceiver::init_length_field_size(const std::size_t& length_field
 
 std::size_t DataReceiver::deserialize_data_length() const {
 
-	return 0;
+	return 10;
 }
 
 DataReceiver::DataReceiverException::DataReceiverException(const std::string& where, const std::string& what, DataReceiver& receiver): m_msg("") {
