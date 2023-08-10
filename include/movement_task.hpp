@@ -4,9 +4,8 @@
 #include <string>
 
 #include "itask.hpp"
-#include "idata_sender.hpp"
 
-namespace task {
+namespace cnc {
 	class MovementTask: public common::ITask {
 	public:
 		typedef double Distance;
@@ -16,14 +15,27 @@ namespace task {
 			AY,
 			AZ
 		};
-		MovementTask(const Distance& distance, const Speed& speed, Axis axis, data::IDataSender<std::string>& sender);
-		virtual void execute() override;
+		MovementTask(const Distance& distance, const Speed& speed, const Axis& axis);
+		virtual void execute() = 0;
+		inline Distance getDistance() const;
+		inline Speed getSpeed() const;
+		inline Axis getAxis() const;
 	private:
 		const Distance m_distance;
 		const Speed m_speed;
 		const Axis m_axis;
 		data::IDataSender<std::string>& m_sender;
 	}; // MovementTask
+
+	inline MovementTask::Distance MovementTask::getDistance() const {
+		return m_distance;
+	}
+	inline MovementTask::Speed MovementTask::getSpeed() const {
+		return m_speed;
+	}
+	inline MovementTask::Axis MovementTask::getAxis() const {
+		return m_axis;
+	}
 } // namespace task
 
 #endif // __MOVEMENT_TASK_HPP__
