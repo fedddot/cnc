@@ -7,7 +7,7 @@
 #include "idata_sender.hpp"
 
 namespace task {
-	class MovementTask: public ITask {
+	class MovementTask: public common::ITask {
 	public:
 		typedef double Distance;
 		typedef double Speed;
