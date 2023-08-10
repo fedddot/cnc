@@ -17,4 +17,8 @@ target_link_libraries(
 	itask
 )
 
+set(IPC_C2S_FILE ${CMAKE_SOURCE_DIR}/c2s.dat)
+set(IPC_S2C_FILE ${CMAKE_SOURCE_DIR}/s2c.dat)
+
 add_subdirectory(client)
+add_subdirectory(server)

@@ -16,6 +16,8 @@ namespace cnc {
 			AZ
 		};
 		MovementTask(const Distance& distance, const Speed& speed, const Axis& axis);
+		MovementTask(const MovementTask& other) = default;
+		MovementTask& operator=(const MovementTask& other) = default;
 		virtual void execute() = 0;
 		inline Distance getDistance() const;
 		inline Speed getSpeed() const;
@@ -24,7 +26,6 @@ namespace cnc {
 		const Distance m_distance;
 		const Speed m_speed;
 		const Axis m_axis;
-		data::IDataSender<std::string>& m_sender;
 	}; // MovementTask
 
 	inline MovementTask::Distance MovementTask::getDistance() const {
@@ -36,6 +37,6 @@ namespace cnc {
 	inline MovementTask::Axis MovementTask::getAxis() const {
 		return m_axis;
 	}
-} // namespace task
+} // namespace cnc
 
 #endif // __MOVEMENT_TASK_HPP__

@@ -3,7 +3,6 @@
 
 #include <vector>
 #include "data_sender.hpp"
-#include "data_receiver.hpp" // delete it
 
 namespace data {
 	class ClientDataSender: public DataSender {
@@ -14,14 +13,7 @@ namespace data {
 		ClientDataSender& operator=(const ClientDataSender& other) = default;
 
 		virtual void send(const std::vector<char>& data) override;
-
-		inline void setDataReceiver(DataReceiver *receiver); // delete it
 	private:
- 		DataReceiver *m_receiver; // delete it
 	}; // ClientDataSender
-
-	inline void ClientDataSender::setDataReceiver(DataReceiver *receiver) { // delete it
-		m_receiver = receiver;
-	}
 } // namespace data
 #endif // __CLIENT_DATA_SENDER_HPP__
