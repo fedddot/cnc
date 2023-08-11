@@ -1,15 +1,23 @@
-add_library(raw_data_receiver INTERFACE)
-target_sources(raw_data_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/raw_data_receiver.cpp)
-target_link_libraries(raw_data_receiver INTERFACE ireceiver)
-target_include_directories(raw_data_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+add_library(data_receiver INTERFACE)
+target_sources(data_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/data_receiver.cpp)
+target_link_libraries(data_receiver INTERFACE ireceiver)
+target_include_directories(data_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
-add_library(raw_data_receiver_test STATIC)
-target_link_libraries(raw_data_receiver_test PRIVATE raw_data_receiver)
+add_library(data_sender INTERFACE)
+target_sources(data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/data_sender.cpp)
+target_link_libraries(data_sender INTERFACE isender)
+target_include_directories(data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
-add_library(raw_data_sender INTERFACE)
-target_sources(raw_data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/raw_data_sender.cpp)
-target_link_libraries(raw_data_sender INTERFACE isender)
-target_include_directories(raw_data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+add_library(communication_manager INTERFACE)
+target_sources(communication_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/communication_manager.cpp)
+target_link_libraries(communication_manager INTERFACE icommunication_manager)
+target_include_directories(communication_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
-add_library(raw_data_sender_test STATIC)
-target_link_libraries(raw_data_sender_test PRIVATE raw_data_sender)
+add_library(communication_test STATIC)
+target_link_libraries(
+	communication_test 
+	PRIVATE 
+	data_receiver 
+	data_sender 
+	communication_manager
+)

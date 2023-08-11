@@ -24,7 +24,7 @@ int main(void) {
 	const std::size_t length_field_size(2UL);
 	const std::size_t length_max(200UL);
 
-	RawDataCommunicationManager comm_manager(header, length_field_size, length_max);
+	CommunicationManager comm_manager(header, length_field_size, length_max);
 	comm_manager.onEvent('c');
 
 	return 0;

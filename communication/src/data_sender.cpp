@@ -5,7 +5,7 @@
 #include <list>
 #include <algorithm>
 
-#include "raw_data_sender.hpp"
+#include "data_sender.hpp"
 
 using namespace communication;
 

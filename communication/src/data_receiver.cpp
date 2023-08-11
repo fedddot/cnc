@@ -9,7 +9,7 @@
 #include "ilistener.hpp"
 #include "ireceiver.hpp"
 
-#include "raw_data_receiver.hpp"
+#include "data_receiver.hpp"
 
 using namespace communication;
 using namespace common;
