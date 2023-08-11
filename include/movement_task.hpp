@@ -18,7 +18,9 @@ namespace cnc {
 		MovementTask(const Distance& distance, const Speed& speed, const Axis& axis);
 		MovementTask(const MovementTask& other) = default;
 		MovementTask& operator=(const MovementTask& other) = default;
+
 		virtual void execute() = 0;
+		
 		inline Distance getDistance() const;
 		inline Speed getSpeed() const;
 		inline Axis getAxis() const;
