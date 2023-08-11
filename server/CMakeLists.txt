@@ -1,55 +1,88 @@
-cmake_minimum_required(VERSION 3.15)
+add_library(server_data_sender INTERFACE)
+target_sources(server_data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_data_sender.cpp)
+target_link_libraries(server_data_sender INTERFACE data_sender)
+target_include_directories(server_data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
-set(CNC_PATH ${CMAKE_SOURCE_DIR}/..)
-set(FRAMEWORK_PATH ${CNC_PATH}/framework)
-set(DEV_PATH ${CNC_PATH}/..)
+add_library(server_task_manager INTERFACE)
+target_sources(server_task_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_task_manager.cpp)
+target_link_libraries(
+	server_task_manager 
+	INTERFACE 
+	ilistener
+	itask
+	task_factory
+	idata
+	string
+	array
+	object
+	json_parser
+	json_common
+)
+target_include_directories(server_task_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
-include(pico_sdk_import.cmake)
-
-project(cnc_server C CXX ASM)
-
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
-
-pico_sdk_init()
-
-set(CMAKE_COLOR_MAKEFILE ON)
-
-add_subdirectory(${FRAMEWORK_PATH} ${CMAKE_SOURCE_DIR}/build/framework)
-
-include_directories(
-	${CMAKE_SOURCE_DIR}/include
-	${FRAMEWORK_PATH}/include
-	${FRAMEWORK_PATH}/json/include
-	${FRAMEWORK_PATH}/system/include
+add_library(server_movement_task INTERFACE)
+target_sources(server_movement_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_movement_task.cpp)
+target_include_directories(server_movement_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(
+	server_movement_task 
+	INTERFACE 
+	movement_task
+	idata
+	object
+	array
+	string
+	json_serializer
 )
 
-add_library(uart_message_manager OBJECT ${CMAKE_SOURCE_DIR}/src/uart_message_manager.cpp)
+add_library(task_factory INTERFACE)
+target_sources(task_factory INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/task_factory.cpp)
+target_include_directories(task_factory INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(
-	uart_message_manager
+	task_factory 
+	INTERFACE 
+	itask
+	idata
+	object
+	array
+	string
+	idata_parser
+	json_parser
+	json_common
+)
+
+add_library(server_movement_task_creator INTERFACE)
+target_sources(server_movement_task_creator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_movement_task_creator.cpp)
+target_include_directories(server_movement_task_creator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(
+	server_movement_task_creator 
+	INTERFACE 
+	itask
+	idata
+	object
+	array
+	string
+	idata_parser
+	json_parser
+	json_common
+)
+
+
+
+
+add_executable(server ${CMAKE_CURRENT_LIST_DIR}/src/server.cpp)
+target_link_libraries(
+	server
 	PRIVATE
-	pico_stdlib_headers
-	pico_stdio_uart_headers
+	server_movement_task
+	server_data_sender
+	data_receiver
+	server_task_manager
+	task_factory
+	server_movement_task_creator
 )
-
-add_executable(
-	cnc_firmware
-	${CMAKE_SOURCE_DIR}/src/cnc_firmware.cpp
+target_compile_definitions(
+	server
+	PRIVATE
+	-DIPC_C2S_FILE=${IPC_C2S_FILE}
+	-DIPC_S2C_FILE=${IPC_S2C_FILE}
 )
-
-target_link_libraries(
-	cnc_firmware
-	iparsable
-	isender
-	ilistener_char
-	ilistener_const_vector_char_ref
-	json_objects
-	json_utils
-	message_parser
-	message_manager
-	uart_message_manager
-	
-	pico_stdlib
-)
-
-pico_add_extra_outputs(cnc_firmware)
