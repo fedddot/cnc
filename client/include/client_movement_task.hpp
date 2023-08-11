@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "movement_task.hpp"
-#include "idata_sender.hpp"
+#include "isender.hpp"
 
 namespace cnc {
 	class ClientMovementTask: public MovementTask {
