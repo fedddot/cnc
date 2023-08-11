@@ -1,18 +1,33 @@
-#ifndef	__SERVER_DATA_SENDER_HPP__
-#define	__SERVER_DATA_SENDER_HPP__
+#ifndef	__TASK_FACTORY_HPP__
+#define	__TASK_FACTORY_HPP__
 
+#include <string>
 #include <vector>
-#include "data_sender.hpp"
+#include <map>
+#include <memory>
 
-namespace data {
-	class ServerDataSender: public DataSender {
+#include "idata.hpp"
+#include "itask.hpp"
+
+namespace cnc {
+	class TaskFactory {
 	public:
-		ServerDataSender(const std::vector<char>& header, const std::size_t& length_field_size);
+		class ITaskCreator {
+		public:
+			virtual std::shared_ptr<common::ITask> create(const data::IData& config_data) = 0;
+		};
+		TaskFactory(const std::string& type_field_name = "type");
+		TaskFactory(const TaskFactory& other) = default;
+		TaskFactory& operator=(const TaskFactory& other) = default;
+		~TaskFactory() noexcept = default;
 
-		ServerDataSender(const ServerDataSender& other) = default;
-		ServerDataSender& operator=(const ServerDataSender& other) = default;
+		std::shared_ptr<common::ITask> create(const data::IData& config_data);
+		void register_creator(const std::string& task_type, const std::shared_ptr<ITaskCreator>& creator);
+	private:
+		const std::string m_type_field_name;
+		std::map<std::string, std::shared_ptr<ITaskCreator>> m_creators;
 
-		virtual void send(const std::vector<char>& data) override;
-	}; // ServerDataSender
+		std::string getType(const data::IData& config_data) const;
+	}; // TaskFactory
 } // namespace data
-#endif // __SERVER_DATA_SENDER_HPP__
+#endif // __TASK_FACTORY_HPP__
