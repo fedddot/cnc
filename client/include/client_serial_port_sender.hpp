@@ -1,11 +1,11 @@
-#ifndef	__CLIENT_DATA_SENDER_HPP__
-#define	__CLIENT_DATA_SENDER_HPP__
+#ifndef	__CLIENT_SERIAL_PORT_SENDER_HPP__
+#define	__CLIENT_SERIAL_PORT_SENDER_HPP__
 
 #include <vector>
-#include "data_sender.hpp"
+#include "serial_port_sender.hpp"
 
 namespace data {
-	class ClientDataSender: public DataSender {
+	class ClientSerialPortSender: public SerialPortSender {
 	public:
 		ClientDataSender(const std::vector<char>& header, const std::size_t& length_field_size);
 
@@ -16,4 +16,4 @@ namespace data {
 	private:
 	}; // ClientDataSender
 } // namespace data
-#endif // __CLIENT_DATA_SENDER_HPP__
+#endif // __CLIENT_SERIAL_PORT_SENDER_HPP__

@@ -6,7 +6,7 @@
 #include <list>
 #include <algorithm>
 
-#include "client_data_sender.hpp"
+#include "client_serial_port_sender.hpp"
 
 #ifndef IPC_C2S_FILE
 #	error "IPC_C2S_FILE path is not defined"

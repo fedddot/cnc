@@ -22,3 +22,4 @@ set(IPC_S2C_FILE ${CMAKE_SOURCE_DIR}/s2c.dat)
 
 add_subdirectory(client)
 add_subdirectory(server)
+add_subdirectory(communication)

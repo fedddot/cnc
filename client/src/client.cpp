@@ -3,13 +3,9 @@
 #include <algorithm>
 #include <iostream>
 
-#include "client_movement_task.hpp"
-#include "client_data_sender.hpp"
+#include "raw_data_communication_manager.hpp"
 
-using namespace cnc;
-using namespace data;
-using namespace common;
-
+using namespace communication;
 
 static inline std::vector<char> strToVector(const std::string& str) {
 	std::vector<char> result;
@@ -26,15 +22,10 @@ static inline std::vector<char> strToVector(const std::string& str) {
 int main(void) {
 	const std::vector<char> header(strToVector("msg_header"));
 	const std::size_t length_field_size(2UL);
+	const std::size_t length_max(200UL);
 
-	ClientDataSender sender(header, length_field_size);
-	
-	double distance(0.01);
-	double speed(3.158);
-	ClientMovementTask::Axis axis(ClientMovementTask::Axis::AX);
-
-	ClientMovementTask task(distance, speed, axis, &sender);
-	task.execute();
+	RawDataCommunicationManager comm_manager(header, length_field_size, length_max);
+	comm_manager.onEvent('c');
 
 	return 0;
 }
