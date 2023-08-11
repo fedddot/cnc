@@ -1,13 +1,11 @@
-#include <vector>
 #include <stdexcept>
+#include <vector>
 #include <memory>
 #include <algorithm>
 
-#include "movement_task.hpp"
-#include "idata_sender.hpp"
 #include "idata.hpp"
+#include "idata_sender.hpp"
 #include "object.hpp"
-#include "array.hpp"
 #include "string.hpp"
 #include "json_serializer.hpp"
 
@@ -21,14 +19,13 @@ ServerMovementTask::ServerMovementTask(const Distance& distance, const Speed& sp
 }
 
 void ServerMovementTask::execute() {
-	Object task_config;
-	task_config["type"] = std::shared_ptr<IData>(new String("movement"));
-	task_config["distance"] = std::shared_ptr<IData>(new String(std::to_string(getDistance())));
-	task_config["speed"] = std::shared_ptr<IData>(new String(std::to_string(getSpeed())));
-	task_config["axis"] = std::shared_ptr<IData>(new String(std::to_string(static_cast<int>(getAxis()))));
+	// TODO: implement it
+	
+	Object task_report;
+	task_report["result"] = std::shared_ptr<IData>(new String("success"));
 
 	JsonSerializer serializer;
-	auto task_config_serial = serializer.serialize(task_config);
+	auto task_config_serial = serializer.serialize(task_report);
 
 	std::vector<char> serial_data;
 	std::for_each(
@@ -38,7 +35,6 @@ void ServerMovementTask::execute() {
 			serial_data.push_back(iter);
 		}
 	);
-	
 	m_sender->send(serial_data);
 }
 
