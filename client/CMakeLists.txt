@@ -18,7 +18,7 @@ target_link_libraries(
 
 add_library(client_data_sender INTERFACE)
 target_sources(client_data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/client_data_sender.cpp)
-target_link_libraries(client_data_sender INTERFACE raw_data_sender)
+target_link_libraries(client_data_sender INTERFACE data_sender)
 target_include_directories(client_data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
 
@@ -29,6 +29,9 @@ target_link_libraries(
 	client
 	PRIVATE	
 	communication_manager
+	client_data_sender
+	data_receiver
+	client_movement_task
 )
 target_compile_definitions(
 	client

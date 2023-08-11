@@ -14,7 +14,7 @@
 namespace communication {
 	class CommunicationManager: public ICommunicationManager<char, const std::vector<char>&> {
 	public:
-		CommunicationManager(std::shared_ptr<IReceiver<char, const std::vector<char>&>>& receiver, std::shared_ptr<ISender<const std::vector<char>&>>& sender);
+		CommunicationManager(const std::shared_ptr<IReceiver<char, const std::vector<char>&>>& receiver, const std::shared_ptr<ISender<const std::vector<char>&>>& sender);
 
 		virtual inline void onEvent(char event) override;
 		virtual inline void set_data_listener(common::IListener<const std::vector<char>&> *data_listener_ptr) override;

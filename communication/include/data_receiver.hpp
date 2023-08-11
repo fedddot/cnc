@@ -9,9 +9,9 @@
 #include "ireceiver.hpp"
 
 namespace communication {
-	class RawDataReceiver: public IReceiver<char, const std::vector<char>&> {
+	class DataReceiver: public IReceiver<char, const std::vector<char>&> {
 	public:
-		RawDataReceiver(const std::vector<char>& header, const std::size_t& length_field_size, const std::size_t& max_data_size);
+		DataReceiver(const std::vector<char>& header, const std::size_t& length_field_size, const std::size_t& max_data_size);
 
 		virtual void onEvent(char event) override;
 		virtual inline void set_data_listener(common::IListener<const std::vector<char>&> *data_listener_ptr) override;
@@ -42,13 +42,13 @@ namespace communication {
 		static std::size_t deserialize_data_length(const std::vector<char>& data);
 		static std::size_t init_length_field_size(const std::size_t& length_field_size);
 		
-	}; // RawDataReceiver
+	}; // DataReceiver
 
-	inline void RawDataReceiver::set_data_listener(common::IListener<const std::vector<char>&> *data_listener_ptr) {
+	inline void DataReceiver::set_data_listener(common::IListener<const std::vector<char>&> *data_listener_ptr) {
 		m_data_listener_ptr = data_listener_ptr;
 	}
 
-	inline common::IListener<const std::vector<char>&> *RawDataReceiver::get_data_listener() {
+	inline common::IListener<const std::vector<char>&> *DataReceiver::get_data_listener() {
 		return m_data_listener_ptr;
 	}
 } // namespace data

@@ -12,6 +12,6 @@
 
 using namespace communication;
 
-CommunicationManager::CommunicationManager(std::shared_ptr<IReceiver<char, const std::vector<char>&>>& receiver, std::shared_ptr<ISender<const std::vector<char>&>>& sender): m_receiver(init_ptr(receiver)), m_sender(init_ptr(sender)) {
+CommunicationManager::CommunicationManager(const std::shared_ptr<IReceiver<char, const std::vector<char>&>>& receiver, const std::shared_ptr<ISender<const std::vector<char>&>>& sender): m_receiver(init_ptr(receiver)), m_sender(init_ptr(sender)) {
 
 }

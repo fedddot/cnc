@@ -14,11 +14,11 @@
 using namespace communication;
 using namespace common;
 
-RawDataReceiver::RawDataReceiver(const std::vector<char>& header, const std::size_t& length_field_size, const std::size_t& max_data_size): m_header(header), m_length_field_size(init_length_field_size(length_field_size)), m_max_data_size(max_data_size), m_state(ReceiverState::RECEIVING_HEADER), m_data_size(0), m_data_buff() {
+DataReceiver::DataReceiver(const std::vector<char>& header, const std::size_t& length_field_size, const std::size_t& max_data_size): m_header(header), m_length_field_size(init_length_field_size(length_field_size)), m_max_data_size(max_data_size), m_state(ReceiverState::RECEIVING_HEADER), m_data_size(0), m_data_buff() {
 
 }
 
-void RawDataReceiver::onEvent(char event) {
+void DataReceiver::onEvent(char event) {
 	switch (m_state) {
 	case ReceiverState::RECEIVING_HEADER:
 		receive_header(event);
@@ -30,11 +30,11 @@ void RawDataReceiver::onEvent(char event) {
 		receive_data(event);
 		break;
 	default:
-		throw std::runtime_error("RawDataReceiver::onEvent: unsupported ReceiverState");
+		throw std::runtime_error("DataReceiver::onEvent: unsupported ReceiverState");
 	}
 }
 
-void RawDataReceiver::receive_header(char event) {
+void DataReceiver::receive_header(char event) {
 	m_data_buff.push_back(event);
 	if (m_data_buff.size() < m_header.size()) {
 		return;
@@ -47,7 +47,7 @@ void RawDataReceiver::receive_header(char event) {
 	m_state = ReceiverState::RECEIVING_SIZE;
 }
 
-void RawDataReceiver::receive_size(char event) {
+void DataReceiver::receive_size(char event) {
 	m_data_buff.push_back(event);
 	if (m_data_buff.size() < m_length_field_size) {
 		return;
@@ -61,7 +61,7 @@ void RawDataReceiver::receive_size(char event) {
 	m_state = ReceiverState::RECEIVING_DATA;
 }
 
-void RawDataReceiver::receive_data(char event) {
+void DataReceiver::receive_data(char event) {
 	m_data_buff.push_back(event);
 	if (m_data_buff.size() < m_data_size) {
 		return;
@@ -73,20 +73,20 @@ void RawDataReceiver::receive_data(char event) {
 	}
 }
 
-void RawDataReceiver::reset_receiver() {
+void DataReceiver::reset_receiver() {
 	m_state = ReceiverState::RECEIVING_HEADER;
 	m_data_size = 0;
 	m_data_buff.clear();
 }
 
-std::size_t RawDataReceiver::init_length_field_size(const std::size_t& length_field_size) {
+std::size_t DataReceiver::init_length_field_size(const std::size_t& length_field_size) {
 	if (length_field_size > sizeof(std::size_t)) {
 		throw std::invalid_argument("received length_field_size is too large");
 	}
 	return length_field_size;
 }
 
-std::size_t RawDataReceiver::deserialize_data_length(const std::vector<char>& data) {
+std::size_t DataReceiver::deserialize_data_length(const std::vector<char>& data) {
 	enum { BITS_IN_BITE = 8 };
 	std::size_t data_length(0UL);
 	std::for_each(
