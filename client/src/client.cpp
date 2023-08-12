@@ -34,7 +34,7 @@ int main(void) {
 			new DataReceiver(header, length_field_size, length_max)
 		), 
 		std::shared_ptr<ISender<const std::vector<char>&>>(
-			new ClientDataSender(header, length_field_size)
+			new ClientDataSender(header, length_field_size, "/dev/pts/2")
 		)
 	);
 

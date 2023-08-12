@@ -20,10 +20,10 @@ std::size_t DataSender::init_length_field_size(const std::size_t& length_field_s
 	return length_field_size;
 }
 
-std::vector<char> DataSender::get_serial_data_length(const std::size_t& data_length) const {
+std::vector<char> DataSender::serialize_data_size(const std::size_t& data_size) const {
 	enum {BITS_IN_BYTE = 8, BYTE_MASK = 0xFF};
 	
-	std::size_t length(data_length);
+	std::size_t length(data_size);
 	std::list<char> data_size_bytewise;
 	while (data_size_bytewise.size() < m_length_field_size) {
 		char curr_char = static_cast<char>(length & static_cast<std::size_t>(BYTE_MASK));

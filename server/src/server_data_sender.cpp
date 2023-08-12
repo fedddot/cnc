@@ -22,7 +22,7 @@ ServerDataSender::ServerDataSender(const std::vector<char>& header, const std::s
 }
 
 void ServerDataSender::send(const std::vector<char>& data) {
-	const std::vector<char> serialized_data_length(get_serial_data_length(data.size()));
+	const std::vector<char> serialized_data_length(serialize_data_size(data.size()));
 	auto header = get_header();
 	
 	// TODO: implement it properly

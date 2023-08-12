@@ -10,7 +10,7 @@ namespace communication {
 		DataSender(const std::vector<char>& header, const std::size_t& length_field_size);
 		inline std::vector<char> get_header() const;
 		inline std::size_t get_length_field_size() const;
-		std::vector<char> get_serial_data_length(const std::size_t& data_length) const;
+		std::vector<char> serialize_data_size(const std::size_t& data_size) const;
 	private:
 		const std::vector<char> m_header;
 		const std::size_t m_length_field_size;
