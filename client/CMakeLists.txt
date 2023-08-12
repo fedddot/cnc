@@ -21,8 +21,10 @@ target_sources(client_data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/client
 target_link_libraries(client_data_sender INTERFACE data_sender)
 target_include_directories(client_data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
-
-
+add_library(client_data_receiver INTERFACE)
+target_sources(client_data_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/client_data_receiver.cpp)
+target_link_libraries(client_data_receiver INTERFACE data_receiver)
+target_include_directories(client_data_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
 add_executable(client ${CMAKE_CURRENT_LIST_DIR}/src/client.cpp)
 target_link_libraries(
@@ -30,12 +32,6 @@ target_link_libraries(
 	PRIVATE	
 	communication_manager
 	client_data_sender
-	data_receiver
+	client_data_receiver
 	client_movement_task
-)
-target_compile_definitions(
-	client
-	PRIVATE
-	-DIPC_C2S_FILE=${IPC_C2S_FILE}
-	-DIPC_S2C_FILE=${IPC_S2C_FILE}
 )
