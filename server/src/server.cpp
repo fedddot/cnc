@@ -1,37 +1,19 @@
 #include <cstddef>
 #include <vector>
+#include <memory>
 #include <algorithm>
 #include <iostream>
-#include <fstream>
-#include <thread>
-#include <cstddef>
+#include <unistd.h>
 
-#include "server_movement_task.hpp"
+#include "communication_manager.hpp"
+#include "server_data_receiver.hpp"
+#include "server_data_sender.hpp"
+#include "server_task_manager.hpp"
 #include "server_movement_task_creator.hpp"
 
-#include "server_data_sender.hpp"
-#include "data_receiver.hpp"
-#include "server_task_manager.hpp"
-
-#include "idata.hpp"
-#include "string.hpp"
-#include "object.hpp"
-#include "array.hpp"
-
-#ifndef IPC_C2S_FILE
-#	error "IPC_C2S_FILE path is not defined"
-#endif
-
-#define STR_IMPL(x) #x
-#define STR(x) STR_IMPL(x)
-
-#define MSG_HEADER			"msg_header"
-#define MSG_LEN_FIELD_SIZE	2UL
-#define MSG_LEN_MAX			200UL
-
 using namespace cnc;
-using namespace data;
 using namespace common;
+using namespace communication;
 
 static inline std::vector<char> strToVector(const std::string& str) {
 	std::vector<char> result;
@@ -46,27 +28,24 @@ static inline std::vector<char> strToVector(const std::string& str) {
 }
 
 int main(void) {
-	// Create sender
-	ServerDataSender sender(strToVector(MSG_HEADER), MSG_LEN_FIELD_SIZE);
+	const std::vector<char> header(strToVector("msg_header"));
+	const std::size_t length_field_size(2UL);
+	const std::size_t length_max(200UL);
+	const std::string port_path("/dev/pts/3");
 
-	// Create task factory and register creators for all tasks
+	ServerDataSender sender(header, length_field_size, port_path);
+	ServerDataReceiver receiver(header, length_field_size, length_max, port_path);
+	CommunicationManager comm_manager(receiver, sender);
+
 	TaskFactory factory;
-	factory.register_creator("movement", std::shared_ptr<TaskFactory::ITaskCreator>(new MovementTaskCreator(&sender)));
+	factory.register_creator("movement", std::shared_ptr<TaskFactory::ITaskCreator>(new MovementTaskCreator(sender)));
 
-	// Create task manager
-	ServerTaskManager task_manager(&factory);
-
-	// Create receiver and subscribe task_manager for received data
-	DataReceiver receiver(strToVector(MSG_HEADER), MSG_LEN_FIELD_SIZE, MSG_LEN_MAX);
+	ServerTaskManager task_manager(factory);
 	receiver.set_data_listener(&task_manager);
 
-
-	
-	// Simulation of task reading. TODO - reimplement it wit UART interrupts
-	std::ifstream data_stream(STR(IPC_C2S_FILE), std::ios_base::openmode::_S_in);
-	int token = 0;
-	while (EOF != (token = data_stream.get())) {
-		receiver.onEvent(static_cast<char>(token));
+	while (true) {
+		sleep(1);
 	}
+
 	return 0;
 }
