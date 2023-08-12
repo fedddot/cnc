@@ -11,6 +11,9 @@ namespace communication {
 	class ClientDataSender: public DataSender {
 	public:
 		ClientDataSender(const std::vector<char>& header, const std::size_t& length_field_size, const std::string& port_path);
+		ClientDataSender(const ClientDataSender& other) = delete;
+		ClientDataSender& operator=(const ClientDataSender& other) = delete;
+
 		virtual void send(const std::vector<char>& data) override;
 		virtual ~ClientDataSender() noexcept override;
 	private:
