@@ -8,14 +8,13 @@
 
 #include "idata.hpp"
 #include "itask.hpp"
+#include "icreator.hpp"
 
 namespace cnc {
 	class TaskFactory {
 	public:
-		class ITaskCreator {
-		public:
-			virtual std::shared_ptr<common::ITask> create(const data::IData& config_data) = 0;
-		};
+		typedef common::ICreator<std::shared_ptr<common::ITask>, const data::IData&> ITaskCreator;
+		
 		TaskFactory(const std::string& type_field_name = "type");
 		TaskFactory(const TaskFactory& other) = default;
 		TaskFactory& operator=(const TaskFactory& other) = default;
