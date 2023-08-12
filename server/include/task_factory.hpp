@@ -11,6 +11,7 @@
 #include "icreator.hpp"
 
 namespace cnc {
+	/// @todo put template class Factory to the Framework
 	class TaskFactory {
 	public:
 		typedef common::ICreator<std::shared_ptr<common::ITask>, const data::IData&> ITaskCreator;

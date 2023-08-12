@@ -10,6 +10,7 @@
 #include "data_receiver.hpp"
 
 namespace communication {
+	/// @todo reimplement it on PICO platform
 	class ServerDataReceiver: public DataReceiver {
 	public:
 		ServerDataReceiver(const std::vector<char>& header, const std::size_t& length_field_size, const std::size_t& max_data_size, const std::string& port_path);

@@ -8,6 +8,7 @@
 #include "data_sender.hpp"
 
 namespace communication {
+	/// @todo reimplement it on PICO platform
 	class ServerDataSender: public DataSender {
 	public:
 		ServerDataSender(const std::vector<char>& header, const std::size_t& length_field_size, const std::string& port_path);
