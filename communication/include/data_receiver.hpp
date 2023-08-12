@@ -12,6 +12,8 @@ namespace communication {
 	class DataReceiver: public IReceiver<char, const std::vector<char>&> {
 	public:
 		DataReceiver(const std::vector<char>& header, const std::size_t& length_field_size, const std::size_t& max_data_size);
+		DataReceiver(const DataReceiver& other) = delete;
+		DataReceiver& operator=(const DataReceiver& other) = delete;	
 
 		virtual void onEvent(char event) override;
 		virtual inline void set_data_listener(common::IListener<const std::vector<char>&> *data_listener_ptr) override;
@@ -19,9 +21,9 @@ namespace communication {
 
 		void reset_receiver();
 	private:
-		const std::vector<char> m_header;
-		const std::size_t m_length_field_size;
-		const std::size_t m_max_data_size;
+		std::vector<char> m_header;
+		std::size_t m_length_field_size;
+		std::size_t m_max_data_size;
 
 		common::IListener<const std::vector<char>&> *m_data_listener_ptr;
 

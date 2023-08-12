@@ -14,7 +14,7 @@
 using namespace communication;
 using namespace common;
 
-DataReceiver::DataReceiver(const std::vector<char>& header, const std::size_t& length_field_size, const std::size_t& max_data_size): m_header(header), m_length_field_size(init_length_field_size(length_field_size)), m_max_data_size(max_data_size), m_state(ReceiverState::RECEIVING_HEADER), m_data_size(0), m_data_buff() {
+DataReceiver::DataReceiver(const std::vector<char>& header, const std::size_t& length_field_size, const std::size_t& max_data_size): m_header(header), m_length_field_size(init_length_field_size(length_field_size)), m_max_data_size(max_data_size), m_data_listener_ptr(nullptr), m_state(ReceiverState::RECEIVING_HEADER), m_data_size(0), m_data_buff() {
 
 }
 
