@@ -76,7 +76,9 @@ void ClientDataSender::config_port(int port_fd) {
 }
 
 void ClientDataSender::close_port(int port_fd) {
-	close(port_fd);
+	if (0 != close(port_fd)) {
+		throw std::runtime_error("failed to close the port");
+	}
 }
 
 std::vector<char> ClientDataSender::wrap_data(const std::vector<char>& data) const {
