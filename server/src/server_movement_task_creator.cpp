@@ -1,16 +1,16 @@
-#include <vector>
 #include <stdexcept>
-#include <memory>
+#include <string>
+#include <vector>
 #include <algorithm>
 
 #include "itask.hpp"
 #include "idata.hpp"
-#include "idata_sender.hpp"
-#include "task_factory.hpp"
+#include "isender.hpp"
+#include "icreator.hpp"
 
-#include "object.hpp"
-#include "array.hpp"
 #include "string.hpp"
+#include "array.hpp"
+#include "object.hpp"
 
 #include "server_movement_task.hpp"
 #include "server_movement_task_creator.hpp"
@@ -19,7 +19,7 @@ using namespace cnc;
 using namespace data;
 using namespace common;
 
-MovementTaskCreator::MovementTaskCreator(IDataSender<const std::vector<char>&> *sender, const std::string& distance_field_name, const std::string& speed_field_name, const std::string& axis_field_name): m_sender(init_sender(sender)), m_distance_field_name(distance_field_name), m_speed_field_name(speed_field_name), m_axis_field_name(axis_field_name) {
+MovementTaskCreator::MovementTaskCreator(communication::ISender<const std::vector<char>&>& sender, const std::string& distance_field_name, const std::string& speed_field_name, const std::string& axis_field_name): m_sender(sender), m_distance_field_name(distance_field_name), m_speed_field_name(speed_field_name), m_axis_field_name(axis_field_name) {
 
 }
 
@@ -33,15 +33,7 @@ std::shared_ptr<ITask> MovementTaskCreator::create(const IData& config_data) {
 	String axis_str(getStringDataField(config_data, m_axis_field_name));
 	MovementTask::Axis axis = static_cast<MovementTask::Axis>(std::stoi(axis_str));
 
-	ServerMovementTask task(distance, speed, axis, m_sender);
-	return std::shared_ptr<ITask>(new ServerMovementTask(task));
-}
-
-IDataSender<const std::vector<char>&> *MovementTaskCreator::init_sender(IDataSender<const std::vector<char>&> *sender) {
-	if (nullptr == sender) {
-		throw std::invalid_argument("sender ptr must not be a nullptr");
-	}
-	return sender;
+	return std::shared_ptr<ITask>(new ServerMovementTask(distance, speed, axis, m_sender));
 }
 
 std::string MovementTaskCreator::getStringDataField(const data::IData& data, const std::string& field_name) {

@@ -3,21 +3,22 @@
 #include <memory>
 #include <algorithm>
 
-#include "movement_task.hpp"
-#include "idata_sender.hpp"
+#include "isender.hpp"
 #include "idata.hpp"
 #include "object.hpp"
 #include "array.hpp"
 #include "string.hpp"
 #include "json_serializer.hpp"
 
+#include "movement_task.hpp"
 #include "client_movement_task.hpp"
 
+using namespace communication;
 using namespace cnc;
 using namespace data;
 using namespace json;
 
-ClientMovementTask::ClientMovementTask(const Distance& distance, const Speed& speed, const Axis& axis, data::IDataSender<const std::vector<char>&> *sender): MovementTask(distance, speed, axis), m_sender(init_sender(sender)) {
+ClientMovementTask::ClientMovementTask(const Distance& distance, const Speed& speed, const Axis& axis, communication::ISender<const std::vector<char>&>& sender): MovementTask(distance, speed, axis), m_sender(sender) {
 }
 
 void ClientMovementTask::execute() {
@@ -39,12 +40,5 @@ void ClientMovementTask::execute() {
 		}
 	);
 	
-	m_sender->send(serial_data);
-}
-
-IDataSender<const std::vector<char>&> *ClientMovementTask::init_sender(IDataSender<const std::vector<char>&> *sender) {
-	if (nullptr == sender) {
-		throw std::invalid_argument("sender must not be initialized with nullptr");
-	}
-	return sender;
+	m_sender.send(serial_data);
 }

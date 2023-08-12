@@ -3,6 +3,11 @@ target_sources(server_data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server
 target_link_libraries(server_data_sender INTERFACE data_sender)
 target_include_directories(server_data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
+add_library(server_data_receiver INTERFACE)
+target_sources(server_data_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_data_receiver.cpp)
+target_link_libraries(server_data_receiver INTERFACE data_receiver)
+target_include_directories(server_data_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+
 add_library(server_task_manager INTERFACE)
 target_sources(server_task_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_task_manager.cpp)
 target_link_libraries(
@@ -41,11 +46,13 @@ target_link_libraries(
 	task_factory 
 	INTERFACE 
 	itask
+	icreator
+	
 	idata
-	object
-	array
 	string
-	idata_parser
+	array
+	object
+
 	json_parser
 	json_common
 )
@@ -57,13 +64,16 @@ target_link_libraries(
 	server_movement_task_creator 
 	INTERFACE 
 	itask
+	icreator
+	
 	idata
-	object
-	array
 	string
-	idata_parser
-	json_parser
-	json_common
+	array
+	object
+
+	isender
+
+	server_movement_task
 )
 
 
@@ -73,11 +83,14 @@ add_executable(server ${CMAKE_CURRENT_LIST_DIR}/src/server.cpp)
 target_link_libraries(
 	server
 	PRIVATE
-	server_movement_task
+	# communication
+	communication_manager
 	server_data_sender
-	data_receiver
+	server_data_receiver
+
+	# tasks
 	server_task_manager
-	task_factory
+	server_movement_task
 	server_movement_task_creator
 )
 target_compile_definitions(
