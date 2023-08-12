@@ -2,6 +2,7 @@
 #include <vector>
 #include <list>
 #include <algorithm>
+#include <memory>
 
 #include <unistd.h>
 #include <fcntl.h>
