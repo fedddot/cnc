@@ -7,7 +7,7 @@
 #include "itask.hpp"
 
 namespace task {
-	class IServerTask: ITask {
+	class IServerTask: public ITask {
 	public:
 		virtual std::shared_ptr<data::IData> report() const = 0;
 	}; // IServerTask

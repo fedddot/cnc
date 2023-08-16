@@ -8,17 +8,22 @@
 #include "isender.hpp"
 #include "idata.hpp"
 #include "ilistener.hpp"
-#include "icnc_task.hpp"
+#include "iserver_task.hpp"
 
-namespace cnc {
+namespace task {
 	class ServerTaskManager: public common::IListener<data::IData> {
 	public:
-		ServerTaskManager(const std::string& task_type_key_field);
+		typedef std::shared_ptr<communication::ISender<data::IData>> ServerSenderSmartPtr;
+		ServerTaskManager(ServerSenderSmartPtr sender_ptr, const std::string& task_type_key_field = "type");
 		virtual void onEvent(const data::IData& event) override;
 	private:
-		common::Factory<std::string, std::shared_ptr<ICncTask>, data::IData> m_task_factory;
-		std::shared_ptr<communication::ISender<data::IData>> m_sender;
+		typedef common::Factory<std::string, std::shared_ptr<IServerTask>, data::IData> TasksFactory;
+		
+		typedef std::shared_ptr<common::ICreator<std::shared_ptr<IServerTask>, data::IData>> ServerTaskCreatorSmartPtr;
+
+		ServerSenderSmartPtr m_sender;
 		std::string m_task_type_key_field;
+		TasksFactory m_task_factory;
 
 		void init_creators();
 		std::string get_task_type(const data::IData& event);

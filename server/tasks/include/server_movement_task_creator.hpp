@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "iserver_task.hpp"
 #include "idata.hpp"

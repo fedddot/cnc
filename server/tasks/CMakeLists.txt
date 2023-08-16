@@ -1,6 +1,6 @@
 add_library(iserver_task INTERFACE)
 target_include_directories(iserver_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(iserver_task INTERFACE itask idata)
+target_link_libraries(iserver_task INTERFACE idata)
 
 add_library(server_movement_task INTERFACE)
 target_sources(server_movement_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_movement_task.cpp)

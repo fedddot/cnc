@@ -13,17 +13,23 @@
 #include "array.hpp"
 #include "string.hpp"
 
+#include "server_sender.hpp"
+
 #include "server_movement_task.hpp"
 #include "server_movement_task_creator.hpp"
 
 
 #include "server_task_manager.hpp"
 
-using namespace cnc;
+using namespace task;
 using namespace data;
 using namespace common;
+using namespace communication;
 
-ServerTaskManager::ServerTaskManager(const std::string& task_type_key_field): m_task_type_key_field(task_type_key_field), m_sender(nullptr) {
+ServerTaskManager::ServerTaskManager(ServerSenderSmartPtr sender_ptr, const std::string& task_type_key_field): m_sender(sender_ptr), m_task_type_key_field(task_type_key_field) {
+	if (nullptr == sender_ptr) {
+		throw std::invalid_argument("nullptr received as sender_ptr");
+	}
 	init_creators();
 }
 
@@ -32,15 +38,15 @@ void ServerTaskManager::onEvent(const data::IData& event) {
 		const std::string task_type = get_task_type(event);
 		auto task_ptr = m_task_factory.create(task_type, event);
 		task_ptr->execute();
-		auto task_result = task_ptr->getResult();
-		report_task_result(*task_result);
+		auto task_report = task_ptr->report();
+		report_task_result(*task_report);
 	} catch (const std::exception& e) {
 		report_exception("onEvent", e.what());
 	}
 }
 
 void ServerTaskManager::init_creators() {
-	m_task_factory.register_creator("movement", std::shared_ptr<ICreator<std::shared_ptr<ICncTask>, IData>>(new MovementTaskCreator("distance", "speed", "axis")));
+	m_task_factory.register_creator("movement", ServerTaskCreatorSmartPtr(new MovementTaskCreator("distance", "speed", "axis")));
 }
 
 std::string ServerTaskManager::get_task_type(const data::IData& event) {
