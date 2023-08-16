@@ -1,29 +1,25 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <algorithm>
 
-#include "itask.hpp"
+#include "iserver_task.hpp"
 #include "idata.hpp"
-#include "isender.hpp"
-#include "icreator.hpp"
-
 #include "string.hpp"
-#include "array.hpp"
 #include "object.hpp"
 
+#include "icreator.hpp"
 #include "server_movement_task.hpp"
 #include "server_movement_task_creator.hpp"
 
-using namespace cnc;
+using namespace task;
 using namespace data;
 using namespace common;
 
-MovementTaskCreator::MovementTaskCreator(communication::ISender<const std::vector<char>&>& sender, const std::string& distance_field_name, const std::string& speed_field_name, const std::string& axis_field_name): m_sender(sender), m_distance_field_name(distance_field_name), m_speed_field_name(speed_field_name), m_axis_field_name(axis_field_name) {
+MovementTaskCreator::MovementTaskCreator(const std::string& distance_field_name, const std::string& speed_field_name, const std::string& axis_field_name): m_distance_field_name(distance_field_name), m_speed_field_name(speed_field_name), m_axis_field_name(axis_field_name) {
 
 }
 
-std::shared_ptr<ITask> MovementTaskCreator::create(const IData& config_data) {
+std::shared_ptr<IServerTask> MovementTaskCreator::create(const IData& config_data) {
 	String distance_str(getStringDataField(config_data, m_distance_field_name));
 	double distance = std::stod(distance_str);
 
@@ -33,7 +29,7 @@ std::shared_ptr<ITask> MovementTaskCreator::create(const IData& config_data) {
 	String axis_str(getStringDataField(config_data, m_axis_field_name));
 	MovementTask::Axis axis = static_cast<MovementTask::Axis>(std::stoi(axis_str));
 
-	return std::shared_ptr<ITask>(new ServerMovementTask(distance, speed, axis, m_sender));
+	return std::shared_ptr<IServerTask>(new ServerMovementTask(distance, speed, axis));
 }
 
 std::string MovementTaskCreator::getStringDataField(const data::IData& data, const std::string& field_name) {

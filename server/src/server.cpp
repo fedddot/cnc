@@ -6,8 +6,8 @@
 #include <unistd.h>
 
 #include "communication_manager.hpp"
-#include "server_data_receiver.hpp"
-#include "server_data_sender.hpp"
+#include "server_receiver.hpp"
+#include "server_sender.hpp"
 #include "server_task_manager.hpp"
 #include "server_movement_task_creator.hpp"
 

@@ -1,39 +1,28 @@
 #include <stdexcept>
-#include <vector>
 #include <memory>
-#include <algorithm>
 
 #include "idata.hpp"
-#include "isender.hpp"
 #include "object.hpp"
 #include "string.hpp"
-#include "json_serializer.hpp"
-
+#include "isender.hpp"
+#include "movement_task.hpp"
+#include "server_sender.hpp"
 #include "server_movement_task.hpp"
 
-using namespace cnc;
+using namespace task;
 using namespace data;
-using namespace json;
+using namespace communication;
 
-ServerMovementTask::ServerMovementTask(const Distance& distance, const Speed& speed, const Axis& axis, communication::ISender<const std::vector<char>&>& sender): MovementTask(distance, speed, axis), m_sender(sender) {
+ServerMovementTask::ServerMovementTask(const Distance& distance, const Speed& speed, const Axis& axis): MovementTask(distance, speed, axis), m_report(createReport("not executed")) {
+
 }
-#include <iostream>
+
 void ServerMovementTask::execute() {
-	std::cout << "ServerMovementTask is being executed" << std::endl;
+	m_report = createReport("success");
+}
 
-	Object task_report;
-	task_report["result"] = std::shared_ptr<IData>(new String("success"));
-
-	JsonSerializer serializer;
-	auto task_config_serial = serializer.serialize(task_report);
-
-	std::vector<char> serial_data;
-	std::for_each(
-		task_config_serial.begin(),
-		task_config_serial.end(),
-		[&](const auto& iter) {
-			serial_data.push_back(iter);
-		}
-	);
-	m_sender.send(serial_data);
+std::shared_ptr<data::IData> ServerMovementTask::createReport(const std::string& result) const {
+	Object report;
+	report.insert({"result", std::shared_ptr<data::IData>(new String(result))});
+	return std::shared_ptr<data::IData>(new Object(report));
 }

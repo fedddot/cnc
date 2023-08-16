@@ -4,22 +4,19 @@
 #include <string>
 #include <vector>
 
-#include "itask.hpp"
+#include "iserver_task.hpp"
 #include "idata.hpp"
-#include "isender.hpp"
 #include "icreator.hpp"
 
-namespace cnc {
-	class MovementTaskCreator: public common::ICreator<std::shared_ptr<common::ITask>, const data::IData&> {
+namespace task {
+	class MovementTaskCreator: public common::ICreator<std::shared_ptr<IServerTask>, data::IData> {
 	public:
-		MovementTaskCreator(communication::ISender<const std::vector<char>&>& sender, const std::string& distance_field_name = "distance", const std::string& speed_field_name = "speed", const std::string& axis_field_name = "axis");
+		MovementTaskCreator(const std::string& distance_field_name = "distance", const std::string& speed_field_name = "speed", const std::string& axis_field_name = "axis");
 		MovementTaskCreator(const MovementTaskCreator& other) = delete;
 		MovementTaskCreator& operator=(const MovementTaskCreator& other) = delete;
 
-		virtual std::shared_ptr<common::ITask> create(const data::IData& config_data) override;
+		virtual std::shared_ptr<IServerTask> create(const data::IData& config_data) override;
 	private:
-		communication::ISender<const std::vector<char>&>& m_sender;
-
 		const std::string m_distance_field_name;
 		const std::string m_speed_field_name;
 		const std::string m_axis_field_name;

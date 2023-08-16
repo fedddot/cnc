@@ -1,9 +1,15 @@
-add_library(server_data_sender INTERFACE)
-target_sources(server_data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_data_sender.cpp)
-target_link_libraries(server_data_sender INTERFACE data_sender)
-target_include_directories(server_data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+add_library(server_sender INTERFACE)
+target_sources(server_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_sender.cpp)
+target_link_libraries(server_sender INTERFACE byte_sender idata iserializer json_serializer)
+target_include_directories(server_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
-add_library(server_data_receiver INTERFACE)
-target_sources(server_data_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_data_receiver.cpp)
-target_link_libraries(server_data_receiver INTERFACE data_receiver)
-target_include_directories(server_data_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+add_library(server_receiver INTERFACE)
+target_sources(server_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_receiver.cpp)
+target_link_libraries(server_receiver INTERFACE byte_receiver idata iparser json_parser)
+target_include_directories(server_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+
+add_library(server_sender_test STATIC)
+target_link_libraries(server_sender_test PRIVATE server_sender)
+
+add_library(server_receiver_test STATIC)
+target_link_libraries(server_receiver_test PRIVATE server_receiver)

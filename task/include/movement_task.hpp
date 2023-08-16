@@ -3,10 +3,10 @@
 
 #include <string>
 
-#include "itask.hpp"
+#include "icnc_task.hpp"
 
 namespace cnc {
-	class MovementTask: public common::ITask {
+	class MovementTask: public ICncTask {
 	public:
 		typedef double Distance;
 		typedef double Speed;
@@ -20,6 +20,7 @@ namespace cnc {
 		MovementTask& operator=(const MovementTask& other) = default;
 
 		virtual void execute() = 0;
+		virtual std::shared_ptr<data::IData> getResult() const = 0;
 		
 		inline Distance getDistance() const;
 		inline Speed getSpeed() const;
