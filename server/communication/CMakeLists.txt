@@ -1,6 +1,6 @@
 add_library(server_sender INTERFACE)
 target_sources(server_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_sender.cpp)
-target_link_libraries(server_sender INTERFACE byte_sender idata iserializer json_serializer)
+target_link_libraries(server_sender INTERFACE byte_sender idata iserializer json_serializer hardware_uart pico_stdlib)
 target_include_directories(server_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
 add_library(server_receiver INTERFACE)

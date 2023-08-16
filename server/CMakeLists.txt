@@ -39,10 +39,9 @@ target_link_libraries(
 	PRIVATE
 	server_task_manager
 	server_sender
-
-	hardware_uart
-	pico_stdlib
 )
+
+pico_add_extra_outputs(server)
 
 set(FRAMEWORK_DIR ${CMAKE_SOURCE_DIR}/../../framework)
 add_subdirectory(communication)
