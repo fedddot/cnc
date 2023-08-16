@@ -1,6 +1,16 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(cnc_server)
+include(pico_sdk_import.cmake)
+
+project(cnc_server C CXX ASM)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
+set(PICO_CXX_ENABLE_EXCEPTIONS 1)
+set(PICO_CXX_ENABLE_RTTI 1)
+
+pico_sdk_init()
 
 add_library(server_task_manager INTERFACE)
 target_sources(server_task_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_task_manager.cpp)
@@ -29,6 +39,7 @@ target_link_libraries(
 	PRIVATE
 	server_task_manager
 	server_sender
+	pico_stdlib
 )
 
 set(FRAMEWORK_DIR ${CMAKE_SOURCE_DIR}/../../framework)
