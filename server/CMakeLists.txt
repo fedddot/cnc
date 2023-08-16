@@ -39,6 +39,8 @@ target_link_libraries(
 	PRIVATE
 	server_task_manager
 	server_sender
+
+	hardware_uart
 	pico_stdlib
 )
 
