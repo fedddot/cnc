@@ -46,7 +46,6 @@ int main(void) {
 
 	while (true) {
 		sleep_ms(1000);
-		// uart_handler.send(msg);
 	}	
 
 	return 0;
