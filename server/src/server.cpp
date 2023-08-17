@@ -2,28 +2,29 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
-#include <iostream>
-#include <unistd.h>
 
-#include "communication_manager.hpp"
-#include "server_data_receiver.hpp"
-#include "server_data_sender.hpp"
+#include <stdio.h>
+#include "hardware/rtc.h"
+#include "pico/stdlib.h"
+#include "pico/util/datetime.h"
+
+#include "server_sender.hpp"
+#include "server_receiver.hpp"
 #include "server_task_manager.hpp"
-#include "server_movement_task_creator.hpp"
 
-using namespace cnc;
-using namespace common;
+#include "idata.hpp"
+#include "string.hpp"
+#include "object.hpp"
+
+#include "uart_handler.hpp"
+
+using namespace task;
+using namespace data;
 using namespace communication;
 
 static inline std::vector<char> strToVector(const std::string& str) {
 	std::vector<char> result;
-	std::for_each(
-		str.begin(),
-		str.end(), 
-		[&](const auto& iter) { 
-			result.push_back(iter); 
-		}
-	);
+	result.insert(result.end(), str.begin(), str.end());
 	return result;
 }
 
@@ -31,21 +32,21 @@ int main(void) {
 	const std::vector<char> header(strToVector("msg_header"));
 	const std::size_t length_field_size(2UL);
 	const std::size_t length_max(200UL);
-	const std::string port_path("/dev/pts/3");
 
-	ServerDataSender sender(header, length_field_size, port_path);
-	ServerDataReceiver receiver(header, length_field_size, length_max, port_path);
-	CommunicationManager comm_manager(receiver, sender);
+	UartHandler uart_handler(115200);
+	
+	ServerTaskManager task_manager(ServerTaskManager::ServerSenderSmartPtr(new ServerDataSender(header, length_field_size, uart_handler)), "type");
 
-	TaskFactory factory;
-	factory.register_creator("movement", std::shared_ptr<TaskFactory::ITaskCreator>(new MovementTaskCreator(sender)));
+	ServerDataReceiver receiver(header, length_field_size, length_max);
+	uart_handler.set_byte_listener(&receiver);
 
-	ServerTaskManager task_manager(factory);
 	receiver.set_data_listener(&task_manager);
 
+	uart_handler.start();
+
 	while (true) {
-		sleep(1);
-	}
+		sleep_ms(1000);
+	}	
 
 	return 0;
 }

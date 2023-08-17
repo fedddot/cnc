@@ -5,13 +5,16 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "communication_manager.hpp"
-#include "client_data_receiver.hpp"
-#include "client_data_sender.hpp"
-#include "client_movement_task.hpp"
+#include "client_receiver.hpp"
+#include "client_sender.hpp"
+#include "object.hpp"
+#include "string.hpp"
+#include "json_serializer.hpp"
+// #include "client_movement_task.hpp"
 
-using namespace cnc;
 using namespace common;
+using namespace data;
+using namespace json;
 using namespace communication;
 
 static inline std::vector<char> strToVector(const std::string& str) {
@@ -26,19 +29,17 @@ static inline std::vector<char> strToVector(const std::string& str) {
 	return result;
 }
 
-class MsgListener: public IListener<const std::vector<char>&> {
+class MsgListener: public IListener<IData> {
 public:
-	virtual void onEvent(const std::vector<char>& event);
+	virtual void onEvent(const IData& event);
 };
 
-void MsgListener::onEvent(const std::vector<char>& event) {
-	std::for_each(
-		event.begin(),
-		event.end(),
-		[&](const auto& iter) {
-			std::cout << iter;
-		}
-	);
+void MsgListener::onEvent(const IData& event) {
+	JsonSerializer serializer;
+	auto serial_data = serializer.serialize(event);
+	for (auto iter = serial_data.begin(); serial_data.end() != iter; ++iter) {
+		std::cout << *iter;
+	}
 	std::cout << std::endl;
 }
 
@@ -46,20 +47,20 @@ int main(void) {
 	const std::vector<char> header(strToVector("msg_header"));
 	const std::size_t length_field_size(2UL);
 	const std::size_t length_max(200UL);
-	const std::string port_path("/dev/pts/5");
+	const std::string port_path("/dev/ttyUSB0");
 
-	ClientDataSender sender(header, length_field_size, port_path);
-	ClientDataReceiver receiver(header, length_field_size, length_max, port_path);
+	ClientSender sender(header, length_field_size, port_path);
+	ClientReceiver receiver(header, length_field_size, length_max, port_path);
 	MsgListener listener;
 	receiver.set_data_listener(&listener);
 
-	CommunicationManager comm_manager(receiver, sender);
-
-	ClientMovementTask task(0.155, 0.183, ClientMovementTask::Axis::AX, comm_manager);
-
-	task.execute();
-
+	Object task_conf;
+	task_conf["type"] = std::shared_ptr<IData>(new String("movement"));
+	task_conf["axis"] = std::shared_ptr<IData>(new String("1"));
+	task_conf["distance"] = std::shared_ptr<IData>(new String("2.14"));
+	task_conf["speed"] = std::shared_ptr<IData>(new String("8.74"));
 	while (true) {
+		sender.send(task_conf);
 		sleep(1);
 	}
 

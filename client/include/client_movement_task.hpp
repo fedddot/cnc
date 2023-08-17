@@ -6,7 +6,7 @@
 #include "movement_task.hpp"
 #include "isender.hpp"
 
-namespace cnc {
+namespace task {
 	class ClientMovementTask: public MovementTask {
 	public:
 		ClientMovementTask(const Distance& distance, const Speed& speed, const Axis& axis, communication::ISender<const std::vector<char>&>& sender);

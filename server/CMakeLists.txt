@@ -1,101 +1,52 @@
-add_library(server_data_sender INTERFACE)
-target_sources(server_data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_data_sender.cpp)
-target_link_libraries(server_data_sender INTERFACE data_sender)
-target_include_directories(server_data_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+cmake_minimum_required(VERSION 3.12)
 
-add_library(server_data_receiver INTERFACE)
-target_sources(server_data_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_data_receiver.cpp)
-target_link_libraries(server_data_receiver INTERFACE data_receiver)
-target_include_directories(server_data_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+include(pico_sdk_import.cmake)
+
+project(cnc_server C CXX ASM)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
+set(PICO_CXX_ENABLE_EXCEPTIONS 1)
+set(PICO_CXX_ENABLE_RTTI 1)
+
+pico_sdk_init()
 
 add_library(server_task_manager INTERFACE)
 target_sources(server_task_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_task_manager.cpp)
+target_include_directories(server_task_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(
 	server_task_manager 
 	INTERFACE 
-	ilistener
+	ilistener 
+	isender 
+	idata 
+	iserver_task 
+	server_sender 
+	server_receiver
+	factory 
+	icreator 
 	itask
-	task_factory
-	idata
-	string
-	array
-	object
-	json_parser
-	json_common
-)
-target_include_directories(server_task_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-
-add_library(server_movement_task INTERFACE)
-target_sources(server_movement_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_movement_task.cpp)
-target_include_directories(server_movement_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(
-	server_movement_task 
-	INTERFACE 
-	movement_task
-	idata
-	object
-	array
-	string
-	json_serializer
-)
-
-add_library(task_factory INTERFACE)
-target_sources(task_factory INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/task_factory.cpp)
-target_include_directories(task_factory INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(
-	task_factory 
-	INTERFACE 
-	itask
-	icreator
-	
-	idata
-	string
-	array
-	object
-
-	json_parser
-	json_common
-)
-
-add_library(server_movement_task_creator INTERFACE)
-target_sources(server_movement_task_creator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_movement_task_creator.cpp)
-target_include_directories(server_movement_task_creator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(
-	server_movement_task_creator 
-	INTERFACE 
-	itask
-	icreator
-	
-	idata
-	string
-	array
-	object
-
-	isender
-
+	server_movement_task_creator
 	server_movement_task
+	uart_handler
+	hardware_rtc
 )
 
-
-
+add_library(server_task_manager_test STATIC)
+target_link_libraries(server_task_manager_test PRIVATE server_task_manager)
 
 add_executable(server ${CMAKE_CURRENT_LIST_DIR}/src/server.cpp)
 target_link_libraries(
 	server
 	PRIVATE
-	# communication
-	communication_manager
-	server_data_sender
-	server_data_receiver
-
-	# tasks
 	server_task_manager
-	server_movement_task
-	server_movement_task_creator
+	server_sender
 )
-target_compile_definitions(
-	server
-	PRIVATE
-	-DIPC_C2S_FILE=${IPC_C2S_FILE}
-	-DIPC_S2C_FILE=${IPC_S2C_FILE}
-)
+
+pico_add_extra_outputs(server)
+
+set(FRAMEWORK_DIR ${CMAKE_SOURCE_DIR}/../../framework)
+add_subdirectory(communication)
+add_subdirectory(tasks)
+add_subdirectory(${FRAMEWORK_DIR} ${CMAKE_BINARY_DIR}/framework)
