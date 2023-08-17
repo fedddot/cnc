@@ -23,11 +23,14 @@ target_link_libraries(
 	idata 
 	iserver_task 
 	server_sender 
+	server_receiver
 	factory 
 	icreator 
 	itask
 	server_movement_task_creator
 	server_movement_task
+	uart_handler
+	hardware_rtc
 )
 
 add_library(server_task_manager_test STATIC)

@@ -1,10 +1,6 @@
 #include <stdexcept>
-#include <iostream>
-#include <sstream>
 #include <vector>
-#include <memory>
-#include <list>
-#include <algorithm>
+#include <cstddef>
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -13,26 +9,30 @@
 
 #include <poll.h>
 
-#include "client_data_receiver.hpp"
+#include "json_parser.hpp"
+#include "byte_receiver.hpp"
+#include "client_receiver.hpp"
 
 #define POLLING_TIMEOUT 2
 
 using namespace communication;
+using namespace data;
+using namespace json;
 
-ClientDataReceiver::ClientDataReceiver(const std::vector<char>& header, const std::size_t& length_field_size, const std::size_t& max_data_size, const std::string& port_path): DataReceiver(header, length_field_size, max_data_size), m_port_path(port_path), m_port_fd(open_port(port_path)), m_polling_timeout(POLLING_TIMEOUT) {
+ClientReceiver::ClientReceiver(const std::vector<char>& header, const std::size_t& length_field_size, const std::size_t& max_data_size, const std::string& port_path): ByteReceiver(header, length_field_size, max_data_size, ByteReceiver::ParserSmartPointer(new JsonParser)), m_port_path(port_path), m_port_fd(open_port(port_path)), m_polling_timeout(POLLING_TIMEOUT) {
 	config_port(m_port_fd);
 	m_polling_thread_run_permission.store(true, std::memory_order_release);
-	m_polling_thread = std::thread(&ClientDataReceiver::poll_fd, this);
+	m_polling_thread = std::thread(&ClientReceiver::poll_fd, this);
 }
 
-ClientDataReceiver::~ClientDataReceiver() noexcept {
+ClientReceiver::~ClientReceiver() noexcept {
 	m_polling_thread_run_permission.store(false, std::memory_order_release);
 	m_polling_thread.join();
 	close_port(m_port_fd);
 	m_port_fd = BAD_FD;
 }
 
-int ClientDataReceiver::open_port(const std::string& port_path) {
+int ClientReceiver::open_port(const std::string& port_path) {
 	int port_fd = open(port_path.c_str(), O_RDONLY);
 	if (BAD_FD == port_fd) {
 		throw std::runtime_error("failed to open port " + port_path);
@@ -40,7 +40,7 @@ int ClientDataReceiver::open_port(const std::string& port_path) {
 	return port_fd;
 }
 
-void ClientDataReceiver::config_port(int port_fd) {
+void ClientReceiver::config_port(int port_fd) {
 	if (BAD_FD == port_fd) {
 		throw std::invalid_argument("bad FD received");
 	}
@@ -74,7 +74,7 @@ void ClientDataReceiver::config_port(int port_fd) {
 	tty_config.c_oflag &= ~ONLCR; // Prevent conversion of newline to carriage return/line feed
 
 	// Baud rate
-	if (0 != cfsetispeed(&tty_config, B9600)) {
+	if (0 != cfsetispeed(&tty_config, B115200)) {
 		throw std::runtime_error("failed to set baud rate");
 	}
 
@@ -86,13 +86,13 @@ void ClientDataReceiver::config_port(int port_fd) {
 	// <<TODO>>: Do I need to do some kind of flush in order to apply the settings?
 }
 
-void ClientDataReceiver::close_port(int port_fd) {
+void ClientReceiver::close_port(int port_fd) {
 	if (0 != close(port_fd)) {
 		throw std::runtime_error("failed to close the port");
 	}
 }
 
-void ClientDataReceiver::poll_fd() {
+void ClientReceiver::poll_fd() {
 	while (m_polling_thread_run_permission.load(std::memory_order_acquire)) {
 		const short event_code = POLLIN;
 		pollfd events {

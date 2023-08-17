@@ -8,8 +8,17 @@ target_sources(server_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_re
 target_link_libraries(server_receiver INTERFACE byte_receiver idata iparser json_parser)
 target_include_directories(server_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
+add_library(uart_handler INTERFACE)
+target_sources(uart_handler INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/uart_handler.cpp)
+target_link_libraries(uart_handler INTERFACE ilistener isender pico_stdlib hardware_uart)
+target_include_directories(uart_handler INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+
+
 add_library(server_sender_test STATIC)
 target_link_libraries(server_sender_test PRIVATE server_sender)
 
 add_library(server_receiver_test STATIC)
 target_link_libraries(server_receiver_test PRIVATE server_receiver)
+
+add_library(uart_handler_test STATIC)
+target_link_libraries(uart_handler_test PRIVATE uart_handler)

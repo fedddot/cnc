@@ -1,30 +1,32 @@
 #include <stdexcept>
-#include <iostream>
-#include <sstream>
 #include <vector>
-#include <memory>
-#include <list>
-#include <algorithm>
+#include <cstddef>
 
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <termios.h>
 
-#include "client_data_sender.hpp"
+#include "idata.hpp"
+#include "iserializer.hpp"
+#include "json_serializer.hpp"
+#include "byte_sender.hpp"
+#include "client_sender.hpp"
 
 using namespace communication;
+using namespace data;
+using namespace json;
 
-ClientDataSender::ClientDataSender(const std::vector<char>& header, const std::size_t& length_field_size, const std::string& port_path): DataSender(header, length_field_size), m_port_path(port_path), m_port_fd(open_port(port_path)) {
+ClientSender::ClientSender(const std::vector<char>& header, const std::size_t& length_field_size, const std::string& port_path): ByteSender(header, length_field_size, ByteSender::SerializerSmartPtr(new JsonSerializer)), m_port_path(port_path), m_port_fd(open_port(port_path)) {
 	config_port(m_port_fd);
 }
 
-ClientDataSender::~ClientDataSender() noexcept {
+ClientSender::~ClientSender() noexcept {
 	close_port(m_port_fd);
 	m_port_fd = BAD_FD;
 }
 
-int ClientDataSender::open_port(const std::string& port_path) {
+int ClientSender::open_port(const std::string& port_path) {
 	int port_fd = open(port_path.c_str(), O_RDWR | O_NONBLOCK | O_NDELAY);
 	if (BAD_FD == port_fd) {
 		throw std::runtime_error("failed to open port " + port_path);
@@ -32,7 +34,7 @@ int ClientDataSender::open_port(const std::string& port_path) {
 	return port_fd;
 }
 
-void ClientDataSender::config_port(int port_fd) {
+void ClientSender::config_port(int port_fd) {
 	if (BAD_FD == port_fd) {
 		throw std::invalid_argument("bad FD received");
 	}
@@ -65,7 +67,7 @@ void ClientDataSender::config_port(int port_fd) {
 	tty_config.c_cc[VMIN] = 0;
 
 	// Baud rate
-	if (0 != cfsetospeed(&tty_config, B9600)) {
+	if (0 != cfsetospeed(&tty_config, B115200)) {
 		throw std::runtime_error("failed to set baud rate");
 	}
 
@@ -75,46 +77,14 @@ void ClientDataSender::config_port(int port_fd) {
 	}
 }
 
-void ClientDataSender::close_port(int port_fd) {
+void ClientSender::close_port(int port_fd) {
 	if (0 != close(port_fd)) {
 		throw std::runtime_error("failed to close the port");
 	}
 }
 
-std::vector<char> ClientDataSender::wrap_data(const std::vector<char>& data) const {
-	std::vector<char> wrapped_data;
-
-	auto header = get_header();
-	std::for_each(
-		header.begin(),
-		header.end(),
-		[&](const auto& iter) {
-			wrapped_data.push_back(iter);
-		}
-	);
-
-	auto data_size = serialize_data_size(data.size());
-	std::for_each(
-		data_size.begin(),
-		data_size.end(),
-		[&](const auto& iter) {
-			wrapped_data.push_back(iter);
-		}
-	);
-
-	std::for_each(
-		data.begin(),
-		data.end(),
-		[&](const auto& iter) {
-			wrapped_data.push_back(iter);
-		}
-	);
-	
-	return wrapped_data;
-}
-
-void ClientDataSender::send(const std::vector<char>& data) {
-	auto wrapped_data = wrap_data(data);
+void ClientSender::send(const IData& data) {
+	auto wrapped_data = prepare_data(data);
 	std::unique_ptr<char> data_buffer(new char[wrapped_data.size()]);
 	for (std::size_t i = 0; i < wrapped_data.size(); ++i) {
 		(data_buffer.get())[i] = wrapped_data[i];
