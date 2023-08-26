@@ -1,5 +1,8 @@
 #include <stdexcept>
 #include <memory>
+#include <stdio.h>
+
+#include "pico/stdlib.h"
 
 #include "idata.hpp"
 #include "object.hpp"
