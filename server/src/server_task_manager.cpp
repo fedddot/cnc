@@ -37,9 +37,7 @@ void ServerTaskManager::onEvent(const data::IData& event) {
 	try {
 		const std::string task_type = get_task_type(event);
 		auto task_ptr = m_task_factory.create(task_type, event);
-		task_ptr->execute();
-		auto task_report = task_ptr->report();
-		report_task_result(*task_report);
+		m_tasks.push_back(task_ptr);
 	} catch (const std::exception& e) {
 		report_exception("onEvent", e.what());
 	}
@@ -72,4 +70,19 @@ void ServerTaskManager::report_exception(const std::string& where, const std::st
 
 void ServerTaskManager::report_task_result(const data::IData& task_result) {
 	m_sender->send(task_result);
+}
+
+std::shared_ptr<IServerTask> ServerTaskManager::dequeue_task() {
+	auto iter = m_tasks.begin();
+	if (m_tasks.end() == iter) {
+		report_exception("dequeue_task", "there is no task pending");
+		return nullptr;
+	}
+	std::shared_ptr<IServerTask> result(*iter);
+	m_tasks.erase(iter);
+	return result;
+}
+
+bool ServerTaskManager::is_task_pending() const {
+	return !(m_tasks.empty());
 }
