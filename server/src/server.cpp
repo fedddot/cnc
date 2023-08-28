@@ -45,7 +45,14 @@ int main(void) {
 	uart_handler.start();
 
 	while (true) {
-		sleep_ms(1000);
+		if (!task_manager.is_task_pending()) {
+			continue;
+		}
+		auto task_ptr = task_manager.dequeue_task();
+		task_ptr->execute();
+		auto task_report = task_ptr->report();
+		task_manager.accessSender().send(*task_report);
+		// sleep_ms(1000);
 	}	
 
 	return 0;
