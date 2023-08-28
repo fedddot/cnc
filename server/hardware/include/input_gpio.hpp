@@ -8,7 +8,7 @@ namespace hardware {
 	class InputGpio: public Gpio {
 	public:
 		InputGpio(const std::size_t& pin_number);
-		virtual Direction get_direction() const override;
+		Value read_value() const;
 	}; // InputGpio
 } // namespace hardware
 #endif // __INPUT_GPIO_HPP__

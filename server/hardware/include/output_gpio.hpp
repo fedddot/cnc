@@ -8,7 +8,6 @@ namespace hardware {
 	class OutputGpio: public Gpio {
 	public:
 		OutputGpio(const std::size_t& pin_number);
-		virtual Direction get_direction() const override;
 		void write_value(const Value& val);
 	}; // OutputGpio
 } // namespace hardware

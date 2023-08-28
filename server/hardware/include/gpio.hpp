@@ -2,36 +2,38 @@
 #define	__GPIO_HPP__
 
 #include <vector>
-#include <cstddef>
 
 namespace hardware {
 	class Gpio {
 	public:
-		enum { BAD_PIN_NUMBER = static_cast<std::size_t>(-1) };
-
 		enum class Direction: int {
 			IN = 0,
 			OUT = 1
 		};
-
 		enum class Value: int {
 			LOW,
 			HIGH
 		};
+		typedef unsigned int PinNumber;
 
-		Gpio(const std::size_t& pin_number);
+		Gpio(PinNumber pin_number, Direction direction);
 		virtual ~Gpio() noexcept;
-		inline std::size_t get_pin_number() const;
-		Value read_value() const;
-		
-		virtual Direction get_direction() const = 0;
+		inline PinNumber get_pin_number() const;
+		inline Direction get_direction() const;
 	private:
-		std::size_t m_pin_number;
-		static std::vector<std::size_t> s_aquired_pins_numbers;
+		enum : unsigned int { MIN_PIN_NUMBER = 0, MAX_PIN_NUMBER = 26 };
+		PinNumber m_pin_number;
+		Direction m_direction;
+		static std::vector<PinNumber> s_aquired_pin_numbers;
+		static PinNumber aquirePinNumber(PinNumber desired_pin_number);
 	}; // Gpio
 
-	inline std::size_t Gpio::get_pin_number() const {
+	inline Gpio::PinNumber Gpio::get_pin_number() const {
 		return m_pin_number;
+	}
+
+	inline Gpio::Direction Gpio::get_direction() const {
+		return m_direction;
 	}
 } // namespace hardware
 #endif // __GPIO_HPP__

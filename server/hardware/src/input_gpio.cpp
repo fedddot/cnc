@@ -5,16 +5,17 @@
 
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
+
 #include "input_gpio.hpp"
 
 using namespace hardware;
 
-InputGpio::InputGpio(const std::size_t& pin_number): Gpio(pin_number) {
-	auto pin_number_uint = static_cast<uint>(get_pin_number());
-    gpio_set_dir(pin_number_uint, GPIO_IN);
-    gpio_pull_up(pin_number_uint);
+InputGpio::InputGpio(const std::size_t& pin_number): Gpio(pin_number, Direction::IN) {
+    gpio_set_dir(get_pin_number(), GPIO_IN);
+    gpio_pull_up(get_pin_number());
 }
 
-InputGpio::Direction InputGpio::get_direction() const {
-	return Direction::IN;
+InputGpio::Value InputGpio::read_value() const {
+	auto bool_to_gpio_value = [](bool bool_val) { return bool_val ? Value::HIGH : Value::LOW; };
+	return bool_to_gpio_value(gpio_get(get_pin_number()));
 }
