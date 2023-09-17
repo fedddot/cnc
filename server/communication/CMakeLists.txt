@@ -13,6 +13,11 @@ target_sources(uart_handler INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/uart_handler
 target_link_libraries(uart_handler INTERFACE ilistener isender pico_stdlib hardware_uart)
 target_include_directories(uart_handler INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
+add_library(server_package_manager INTERFACE)
+target_sources(server_package_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_package_manager.cpp)
+target_link_libraries(server_package_manager INTERFACE isender package_manager)
+target_include_directories(server_package_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+
 
 add_library(server_sender_test STATIC)
 target_link_libraries(server_sender_test PRIVATE server_sender)
@@ -22,3 +27,6 @@ target_link_libraries(server_receiver_test PRIVATE server_receiver)
 
 add_library(uart_handler_test STATIC)
 target_link_libraries(uart_handler_test PRIVATE uart_handler)
+
+add_library(server_package_manager_test STATIC)
+target_link_libraries(server_package_manager_test PRIVATE server_package_manager)
