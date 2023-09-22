@@ -12,8 +12,9 @@
 
 using namespace communication;
 using namespace common;
+using namespace hardware;
 
-std::map<ServerUart::UartId, ServerUart *> communication::ServerUart::s_interrupts_mapping;
+std::map<ServerUart::UartId, ServerUart *> hardware::ServerUart::s_interrupts_mapping;
 
 static uart_inst_t *convert_id(ServerUart::UartId id);
 static uint convert_baud(ServerUart::BaudRate baud);

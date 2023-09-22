@@ -7,8 +7,8 @@
 #include "ilistener.hpp"
 #include "uart.hpp"
 
-namespace communication {
-	class ServerUart: public Uart {
+namespace hardware {
+	class ServerUart: public communication::Uart {
 	public:
 		enum class UartId: int {
 			UART0,
@@ -39,5 +39,5 @@ namespace communication {
 	inline ServerUart::UartId ServerUart::uart_id() const {
 		return m_uart_id;
 	}
-} // namespace communication
+} // namespace hardware
 #endif // __SERVER_UART_HPP__
