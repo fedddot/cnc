@@ -41,11 +41,13 @@ ClientUart::~ClientUart() noexcept {
 
 void ClientUart::send(const std::vector<char>& data) {
 	std::size_t data_size(data.size());
-	std::shared_ptr<char> buffer(new char[data_size]);
+	char *buffer = new char[data_size];
 	for (std::size_t i = 0; i < data_size; ++i) {
-		(buffer.get())[i] = data[i];
+		buffer[i] = data[i];
 	}
-	auto write_result = write(m_port_fd, buffer.get(), data_size);
+	auto write_result = write(m_port_fd, buffer, data_size);
+	delete[] buffer;
+	buffer = nullptr;
 	if (data_size != static_cast<std::size_t>(write_result)) {
 		throw std::runtime_error("failed to write into the serial port");
 	}

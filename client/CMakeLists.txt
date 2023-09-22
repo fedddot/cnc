@@ -7,6 +7,8 @@ target_link_libraries(
 	client
 	PRIVATE
 	client_uart
+	package_descriptor
+	package_manager
 )
 
 add_subdirectory(communication)
