@@ -33,9 +33,6 @@ target_link_libraries(
 	hardware_rtc
 )
 
-add_library(server_task_manager_test STATIC)
-target_link_libraries(server_task_manager_test PRIVATE server_task_manager)
-
 add_executable(server ${CMAKE_CURRENT_LIST_DIR}/src/server.cpp)
 target_link_libraries(
 	server
