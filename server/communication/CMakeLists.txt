@@ -1,24 +1,7 @@
-add_library(server_sender INTERFACE)
-target_sources(server_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_sender.cpp)
-target_link_libraries(server_sender INTERFACE byte_sender idata iserializer json_serializer hardware_uart pico_stdlib)
-target_include_directories(server_sender INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-
-add_library(server_receiver INTERFACE)
-target_sources(server_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_receiver.cpp)
-target_link_libraries(server_receiver INTERFACE byte_receiver idata iparser json_parser)
-target_include_directories(server_receiver INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-
 add_library(server_package_manager INTERFACE)
 target_sources(server_package_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_package_manager.cpp)
-target_link_libraries(server_package_manager INTERFACE isender package_manager)
+target_link_libraries(server_package_manager INTERFACE package_manager package_descriptor server_uart)
 target_include_directories(server_package_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-
-
-add_library(server_sender_test STATIC)
-target_link_libraries(server_sender_test PRIVATE server_sender)
-
-add_library(server_receiver_test STATIC)
-target_link_libraries(server_receiver_test PRIVATE server_receiver)
 
 add_library(server_package_manager_test STATIC)
 target_link_libraries(server_package_manager_test PRIVATE server_package_manager)

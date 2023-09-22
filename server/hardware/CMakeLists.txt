@@ -17,6 +17,3 @@ add_library(server_uart INTERFACE)
 target_sources(server_uart INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_uart.cpp)
 target_include_directories(server_uart INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(server_uart INTERFACE ilistener uart pico_stdlib)
-
-add_library(server_uart_test STATIC)
-target_link_libraries(server_uart_test PRIVATE server_uart)
