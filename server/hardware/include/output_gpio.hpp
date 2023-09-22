@@ -7,7 +7,7 @@
 namespace hardware {
 	class OutputGpio: public Gpio {
 	public:
-		OutputGpio(const std::size_t& pin_number);
+		OutputGpio(PinNumber pin_number);
 		void write_value(const Value& val);
 	}; // OutputGpio
 } // namespace hardware

@@ -1,15 +1,11 @@
-#include <stdexcept>
-#include <cstddef>
-#include <algorithm>
-#include <stdio.h>
-
-#include "pico/stdlib.h"
 #include "hardware/gpio.h"
+#include "gpio.hpp"
+
 #include "output_gpio.hpp"
 
 using namespace hardware;
 
-OutputGpio::OutputGpio(const std::size_t& pin_number): Gpio(pin_number, Direction::OUT) {
+OutputGpio::OutputGpio(PinNumber pin_number): Gpio(pin_number, Direction::OUT) {
 	gpio_set_dir(get_pin_number(), GPIO_OUT);
 }
 

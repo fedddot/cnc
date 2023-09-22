@@ -8,6 +8,9 @@ target_sources(input_gpio INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/input_gpio.cpp
 target_include_directories(input_gpio INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(input_gpio INTERFACE gpio pico_stdlib)
 
+add_library(input_gpio_test STATIC)
+target_link_libraries(input_gpio_test PRIVATE input_gpio)
+
 add_library(output_gpio INTERFACE)
 target_sources(output_gpio INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/output_gpio.cpp)
 target_include_directories(output_gpio INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
