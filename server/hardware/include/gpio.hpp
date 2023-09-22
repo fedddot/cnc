@@ -1,8 +1,6 @@
 #ifndef	__GPIO_HPP__
 #define	__GPIO_HPP__
 
-#include <vector>
-
 namespace hardware {
 	class Gpio {
 	public:
@@ -24,8 +22,7 @@ namespace hardware {
 		enum : unsigned int { MIN_PIN_NUMBER = 0, MAX_PIN_NUMBER = 26 };
 		PinNumber m_pin_number;
 		Direction m_direction;
-		static std::vector<PinNumber> s_aquired_pin_numbers;
-		static PinNumber aquirePinNumber(PinNumber desired_pin_number);
+		static PinNumber init_pin_number(PinNumber desired_pin_number);
 	}; // Gpio
 
 	inline Gpio::PinNumber Gpio::get_pin_number() const {
