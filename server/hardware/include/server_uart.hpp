@@ -24,17 +24,14 @@ namespace communication {
 		inline UartId uart_id() const;
 	private:
 		UartId m_uart_id;
-
-		
+		static std::map<UartId, ServerUart *> s_interrupts_mapping;
 
 		void init_gpios();
 		void init();
 		void init_data_format();
 		void init_interrupts();
 
-		static std::map<UartId, ServerUart *> s_interrupts_mapping;
-
-		static common::IListener<char> *getCharListener(const UartId& id);
+		static common::IListener<char> *get_char_listener(const UartId& id);
 		static void on_uart0_rx();
 		static void on_uart1_rx();
 	}; // ServerUart

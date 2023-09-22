@@ -15,11 +15,11 @@ using namespace common;
 
 std::map<ServerUart::UartId, ServerUart *> communication::ServerUart::s_interrupts_mapping;
 
-static uart_inst_t *convertId(ServerUart::UartId id);
-static uint convertBaud(ServerUart::BaudRate baud);
-static uint convertDataBits(ServerUart::BitsNumber bits_num);
-static uint convertStopBits(ServerUart::StopBits stop_bits);
-static uart_parity_t convertParity(ServerUart::Parity parity);
+static uart_inst_t *convert_id(ServerUart::UartId id);
+static uint convert_baud(ServerUart::BaudRate baud);
+static uint convert_data_bits(ServerUart::BitsNumber bits_num);
+static uint convert_stop_bits(ServerUart::StopBits stop_bits);
+static uart_parity_t convert_parity(ServerUart::Parity parity);
 
 ServerUart::ServerUart(BaudRate baud_rate, Parity parity, StopBits stop_bits, BitsNumber bits_number, UartId uart_id): Uart(baud_rate, parity, stop_bits, bits_number), m_uart_id(uart_id) {
 	init_gpios();
@@ -29,7 +29,7 @@ ServerUart::ServerUart(BaudRate baud_rate, Parity parity, StopBits stop_bits, Bi
 }
 
 ServerUart::~ServerUart() noexcept {
-	uart_deinit(convertId(uart_id()));
+	uart_deinit(convert_id(uart_id()));
 	auto iter = s_interrupts_mapping.find(uart_id());
 	if (s_interrupts_mapping.end() != iter) {
 		s_interrupts_mapping.erase(iter);
@@ -37,7 +37,7 @@ ServerUart::~ServerUart() noexcept {
 }
 
 void ServerUart::send(const std::vector<char>& data) {
-	uart_inst_t *uart_ptr = convertId(uart_id());
+	uart_inst_t *uart_ptr = convert_id(uart_id());
 	std::for_each(data.begin(), data.end(),
 		[&](const auto& ch) {
 			uart_putc(uart_ptr, ch);
@@ -69,17 +69,17 @@ void ServerUart::init_gpios() {
 }
 
 void ServerUart::init() {
-	uart_inst_t *uart_ptr = convertId(uart_id());
-	uint baud = convertBaud(baud_rate());	
+	uart_inst_t *uart_ptr = convert_id(uart_id());
+	uint baud = convert_baud(baud_rate());	
 	uart_init(uart_ptr, baud);
 	uart_set_baudrate(uart_ptr, baud);
 }
 
 void ServerUart::init_data_format() {
-	uart_inst_t *uart_ptr = convertId(uart_id());
+	uart_inst_t *uart_ptr = convert_id(uart_id());
 	uart_set_hw_flow(uart_ptr, false, false);
 	uart_set_fifo_enabled(uart_ptr, false);
-	uart_set_format(uart_ptr, convertDataBits(bits_number()), convertStopBits(stop_bits()), convertParity(parity()));
+	uart_set_format(uart_ptr, convert_data_bits(bits_number()), convert_stop_bits(stop_bits()), convert_parity(parity()));
 }
 
 void ServerUart::init_interrupts() {
@@ -98,10 +98,10 @@ void ServerUart::init_interrupts() {
 	s_interrupts_mapping.insert({uart_id(), this});
 	irq_set_exclusive_handler(uart_irq, callback_ptr);
 	irq_set_enabled(uart_irq, true);
-	uart_set_irq_enables(convertId(uart_id()), true, false);
+	uart_set_irq_enables(convert_id(uart_id()), true, false);
 }
 
-IListener<char> *ServerUart::getCharListener(const UartId& id) {
+IListener<char> *ServerUart::get_char_listener(const UartId& id) {
 	auto iter = s_interrupts_mapping.find(id);
 	if ((s_interrupts_mapping.end() == iter) || (nullptr == iter->second)) {
 		return nullptr;
@@ -111,21 +111,21 @@ IListener<char> *ServerUart::getCharListener(const UartId& id) {
 
 void ServerUart::on_uart0_rx() {
 	const UartId id = UartId::UART0;
-	common::IListener<char> *listenerPtr = getCharListener(id);
+	common::IListener<char> *listenerPtr = get_char_listener(id);
 	if (nullptr != listenerPtr) {
-		listenerPtr->onEvent(uart_getc(convertId(id)));
+		listenerPtr->onEvent(uart_getc(convert_id(id)));
 	}
 }
 
 void ServerUart::on_uart1_rx() {
 	const UartId id = UartId::UART1;
-	common::IListener<char> *listenerPtr = getCharListener(id);
+	common::IListener<char> *listenerPtr = get_char_listener(id);
 	if (nullptr != listenerPtr) {
-		listenerPtr->onEvent(uart_getc(convertId(id)));
+		listenerPtr->onEvent(uart_getc(convert_id(id)));
 	}
 }
 
-static uart_inst_t *convertId(ServerUart::UartId id) {
+static uart_inst_t *convert_id(ServerUart::UartId id) {
 	switch (id) {
 	case ServerUart::UartId::UART0:
 		return uart0;
@@ -137,7 +137,7 @@ static uart_inst_t *convertId(ServerUart::UartId id) {
 	throw std::invalid_argument("unsupported uart_id received");
 }
 
-static uint convertBaud(ServerUart::BaudRate baud) {
+static uint convert_baud(ServerUart::BaudRate baud) {
 	switch (baud) {
 	case ServerUart::BaudRate::B9600:
 		return static_cast<uint>(9600);
@@ -149,7 +149,7 @@ static uint convertBaud(ServerUart::BaudRate baud) {
 	throw std::invalid_argument("unsupported baud rate received");
 }
 
-static uint convertDataBits(ServerUart::BitsNumber bits_num) {
+static uint convert_data_bits(ServerUart::BitsNumber bits_num) {
 	switch (bits_num) {
 	case ServerUart::BitsNumber::BN5:
 		return static_cast<uint>(5);
@@ -165,7 +165,7 @@ static uint convertDataBits(ServerUart::BitsNumber bits_num) {
 	throw std::invalid_argument("unsupported bits number received");
 }
 
-static uint convertStopBits(ServerUart::StopBits stop_bits) {
+static uint convert_stop_bits(ServerUart::StopBits stop_bits) {
 	switch (stop_bits) {
 	case ServerUart::StopBits::ONE:
 		return static_cast<uint>(1);
@@ -177,7 +177,7 @@ static uint convertStopBits(ServerUart::StopBits stop_bits) {
 	throw std::invalid_argument("unsupported stop bits number received");
 }
 
-static uart_parity_t convertParity(ServerUart::Parity parity) {
+static uart_parity_t convert_parity(ServerUart::Parity parity) {
 	switch (parity) {
 	case ServerUart::Parity::NONE:
 		return UART_PARITY_NONE;
