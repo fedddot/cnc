@@ -1,4 +1,0 @@
-add_library(server_package_manager INTERFACE)
-target_sources(server_package_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_package_manager.cpp)
-target_link_libraries(server_package_manager INTERFACE package_manager package_descriptor server_uart)
-target_include_directories(server_package_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
