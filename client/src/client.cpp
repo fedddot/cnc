@@ -1,68 +1,47 @@
-#include <cstddef>
-#include <vector>
-#include <memory>
-#include <algorithm>
-#include <iostream>
 #include <unistd.h>
 
-#include "client_receiver.hpp"
-#include "client_sender.hpp"
-#include "object.hpp"
-#include "string.hpp"
-#include "json_serializer.hpp"
-// #include "client_movement_task.hpp"
+#include <iostream>
+#include <vector>
+#include <string>
+
+#include "client_uart.hpp"
+#include "package_descriptor.hpp"
+#include "package_manager.hpp"
 
 using namespace common;
-using namespace data;
-using namespace json;
 using namespace communication;
 
-static inline std::vector<char> strToVector(const std::string& str) {
-	std::vector<char> result;
-	std::for_each(
-		str.begin(),
-		str.end(), 
-		[&](const auto& iter) { 
-			result.push_back(iter); 
-		}
-	);
-	return result;
-}
-
-class MsgListener: public IListener<IData> {
+class TestListener: public IListener<std::vector<char>> {
 public:
-	virtual void onEvent(const IData& event);
+	virtual void onEvent(const std::vector<char>& event) override;
 };
 
-void MsgListener::onEvent(const IData& event) {
-	JsonSerializer serializer;
-	auto serial_data = serializer.serialize(event);
-	for (auto iter = serial_data.begin(); serial_data.end() != iter; ++iter) {
-		std::cout << *iter;
-	}
-	std::cout << std::endl;
+void TestListener::onEvent(const std::vector<char>& event) {
+	std::string event_str(event.begin(), event.end());
+	std::cout << "Payload: " << event_str << std::endl;
+};
+
+PackageDescriptor init_package_descriptor() {
+	const std::string header_str("cnc_package_header");
+	const std::vector<char> header(header_str.begin(), header_str.end());
+	const std::size_t package_length_field_size(2UL);
+	return PackageDescriptor(header, package_length_field_size);
 }
 
 int main(void) {
-	const std::vector<char> header(strToVector("msg_header"));
-	const std::size_t length_field_size(2UL);
-	const std::size_t length_max(200UL);
-	const std::string port_path("/dev/ttyUSB0");
+	ClientUart uart(ClientUart::BaudRate::BR115200, ClientUart::Parity::NONE, ClientUart::StopBits::ONE, ClientUart::BitsNumber::BN8, "/dev/ttyUSB0");
 
-	ClientSender sender(header, length_field_size, port_path);
-	ClientReceiver receiver(header, length_field_size, length_max, port_path);
-	MsgListener listener;
-	receiver.set_data_listener(&listener);
+	PackageManager package_manager(init_package_descriptor(), uart);
+	uart.set_char_listener(&(package_manager.receiver()));
 
-	Object task_conf;
-	task_conf["type"] = std::shared_ptr<IData>(new String("movement"));
-	task_conf["axis"] = std::shared_ptr<IData>(new String("1"));
-	task_conf["distance"] = std::shared_ptr<IData>(new String("2.14"));
-	task_conf["speed"] = std::shared_ptr<IData>(new String("8.74"));
-	while (true) {
-		sender.send(task_conf);
-		sleep(1);
-	}
+	TestListener listener;
+	package_manager.receiver().set_data_listener(&listener);
+	
+	const std::string payload_str("asdkfjas;kdfmvnaksdnfvkavsdmfnk;avsdf askld fklasd fkjasdfh kjas dfh");
+	const std::vector<char> payload(payload_str.begin(), payload_str.end());
 
+	package_manager.sender().send(payload);
+
+	sleep(1);
 	return 0;
 }
