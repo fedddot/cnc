@@ -2,6 +2,8 @@
 #define	__CLIENT_UART_HPP__
 
 #include <string>
+#include <atomic>
+#include <thread>
 
 #include "uart.hpp"
 
@@ -14,17 +16,18 @@ namespace communication {
 
 		~ClientUart() noexcept override;
 		virtual void send(const std::vector<char>& data) override;
-
-		inline std::string path() const;
 	private:
-		std::string m_path;
-		
-		void init();
-		void deinit();
-	}; // ClientUart
+		enum {BAD_FD = -1};
+		int m_port_fd;
+		int m_polling_timeout;
+		std::atomic_bool m_is_polling_thread_running;
+		std::thread m_polling_thread;
 
-	inline std::string ClientUart::path() const {
-		return m_path;
-	}
+		static int open_port(const std::string& path);
+		static void close_port(int port_fd);
+		
+		void config_port();
+		void poll_fd();
+	}; // ClientUart
 } // namespace communication
 #endif // __CLIENT_UART_HPP__
