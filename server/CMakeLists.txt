@@ -23,8 +23,7 @@ target_link_libraries(
 
 pico_add_extra_outputs(server)
 
-set(FRAMEWORK_DIR ${CMAKE_SOURCE_DIR}/../../framework)
-add_subdirectory(communication)
 add_subdirectory(hardware)
 add_subdirectory(tasks)
+set(FRAMEWORK_DIR ${CMAKE_SOURCE_DIR}/../../framework)
 add_subdirectory(${FRAMEWORK_DIR} ${CMAKE_BINARY_DIR}/framework)
