@@ -26,7 +26,9 @@ int main(void) {
 	ServerUart uart(ServerUart::BaudRate::BR115200, ServerUart::Parity::NONE, ServerUart::StopBits::ONE, ServerUart::BitsNumber::BN8, ServerUart::UartId::UART0);
 	PackageManager package_manager(init_package_descriptor(), uart, uart);
 	ResultReporter reporter(package_manager);
-	package_manager.receiver().subscribe(&reporter);	
+	package_manager.receiver().subscribe(&reporter);
+
+	
 
 	OutputGpio led(25);	
 	while (true) {
