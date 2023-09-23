@@ -140,9 +140,9 @@ static uart_inst_t *convert_id(ServerUart::UartId id) {
 
 static uint convert_baud(ServerUart::BaudRate baud) {
 	switch (baud) {
-	case ServerUart::BaudRate::B9600:
+	case ServerUart::BaudRate::BR9600:
 		return static_cast<uint>(9600);
-	case ServerUart::BaudRate::B115200:
+	case ServerUart::BaudRate::BR115200:
 		return static_cast<uint>(115200);	
 	default:
 		break;
