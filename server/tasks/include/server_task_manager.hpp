@@ -18,6 +18,7 @@ namespace task {
 		ServerTaskManager(communication::PackageManager& package_manager);
 		ServerTaskManager(const ServerTaskManager& other) = delete;
 		ServerTaskManager& operator=(const ServerTaskManager& other) = delete;
+		virtual ~ServerTaskManager() noexcept override;
 
 		virtual void on_event(const std::vector<char>& event) override;
 

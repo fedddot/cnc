@@ -20,6 +20,7 @@ target_link_libraries(
 	server_uart
 	package_manager
 	package_descriptor
+	server_task_manager
 	output_gpio
 )
 

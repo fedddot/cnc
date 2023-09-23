@@ -26,6 +26,11 @@ using namespace communication;
 
 ServerTaskManager::ServerTaskManager(communication::PackageManager& package_manager): m_package_manager(package_manager) {
 	init_creators();
+	m_package_manager.receiver().subscribe(this);
+}
+
+ServerTaskManager::~ServerTaskManager() noexcept {
+	m_package_manager.receiver().unsubscribe(this);
 }
 
 void ServerTaskManager::on_event(const std::vector<char>& event) {
