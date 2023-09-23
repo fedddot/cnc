@@ -2,46 +2,45 @@
 #define	__SERVER_TASK_MANAGER_HPP__
 
 #include <string>
+#include <vector>
 #include <list>
 #include <memory>
 
 #include "factory.hpp"
-#include "isender.hpp"
-#include "idata.hpp"
+#include "object.hpp"
+#include "package_manager.hpp"
 #include "ilistener.hpp"
-#include "iserver_task.hpp"
+#include "server_task.hpp"
 
 namespace task {
-	class ServerTaskManager: public common::IListener<data::IData> {
+	class ServerTaskManager: public common::IListener<std::vector<char>> {
 	public:
-		typedef std::shared_ptr<communication::ISender<data::IData>> ServerSenderSmartPtr;
-		ServerTaskManager(ServerSenderSmartPtr sender_ptr, const std::string& task_type_key_field = "type");
-		virtual void onEvent(const data::IData& event) override;
+		ServerTaskManager(communication::PackageManager& package_manager);
+		ServerTaskManager(const ServerTaskManager& other) = delete;
+		ServerTaskManager& operator=(const ServerTaskManager& other) = delete;
 
-		std::shared_ptr<IServerTask> dequeue_task();
+		virtual void on_event(const std::vector<char>& event) override;
+
 		bool is_task_pending() const;
-
-		inline communication::ISender<data::IData>& accessSender();
+		void run_pending_task();
 	private:
-		typedef common::Factory<std::string, std::shared_ptr<IServerTask>, data::IData> TasksFactory;
+		communication::PackageManager& m_package_manager;
 		
-		typedef std::shared_ptr<common::ICreator<std::shared_ptr<IServerTask>, data::IData>> ServerTaskCreatorSmartPtr;
+		typedef common::Factory<std::string, std::shared_ptr<ServerTask>, data::Object> TasksFactory;
 
-		ServerSenderSmartPtr m_sender;
-		std::string m_task_type_key_field;
+		typedef common::ICreator<std::shared_ptr<ServerTask>, data::Object> TasksCreator;
+
+		common::Registry<hardware::Gpio::PinNumber, std::shared_ptr<hardware::Gpio>> m_gpio_registry;
+
 		TasksFactory m_task_factory;
 
-		std::list<std::shared_ptr<IServerTask>> m_tasks;
+		std::list<std::shared_ptr<ServerTask>> m_tasks;
 
 		void init_creators();
-		std::string get_task_type(const data::IData& event);
+		static data::Object parse_raw_data(const std::vector<char>& raw_data);
+		static std::string get_task_type(const data::Object& config_data);
 
 		void report_exception(const std::string& where, const std::string& what);
-		void report_task_result(const data::IData& task_result);
 	}; // ServerTaskManager
-
-	inline communication::ISender<data::IData>& ServerTaskManager::accessSender() {
-		return *m_sender;
-	}
 } // namespace cnc
 #endif // __SERVER_TASK_MANAGER_HPP__

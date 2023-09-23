@@ -13,5 +13,10 @@ target_sources(register_gpio_task_creator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/sr
 target_include_directories(register_gpio_task_creator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(register_gpio_task_creator INTERFACE icreator server_task register_gpio_task)
 
-add_library(register_gpio_task_creator_test STATIC)
-target_link_libraries(register_gpio_task_creator_test PRIVATE register_gpio_task_creator)
+add_library(server_task_manager INTERFACE)
+target_sources(server_task_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_task_manager.cpp)
+target_include_directories(server_task_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(server_task_manager INTERFACE server_task factory object icreator package_manager register_gpio_task_creator json_parser json_serializer)
+
+add_library(server_task_manager_test STATIC)
+target_link_libraries(server_task_manager_test PRIVATE server_task_manager)
