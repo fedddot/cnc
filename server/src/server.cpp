@@ -1,9 +1,12 @@
 #include <string>
 #include <vector>
 
+#include "pico/stdlib.h"
+
 #include "server_uart.hpp"
 #include "package_manager.hpp"
 #include "package_descriptor.hpp"
+#include "output_gpio.hpp"
 
 using namespace common;
 using namespace hardware;
@@ -12,7 +15,7 @@ using namespace communication;
 class ResultReporter: public IListener<std::vector<char>> {
 public:
 	ResultReporter(PackageManager& package_manager);
-	virtual void onEvent(const std::vector<char>& event) override;
+	virtual void on_event(const std::vector<char>& event) override;
 private:
 	PackageManager& m_package_manager;
 };
@@ -20,33 +23,27 @@ private:
 static PackageDescriptor init_package_descriptor();
 
 int main(void) {
-	int result = 0;
 	ServerUart uart(ServerUart::BaudRate::BR115200, ServerUart::Parity::NONE, ServerUart::StopBits::ONE, ServerUart::BitsNumber::BN8, ServerUart::UartId::UART0);
-	
-	try {
-		PackageManager package_manager(init_package_descriptor(), uart);
-		uart.set_char_listener(&(package_manager.receiver()));
+	PackageManager package_manager(init_package_descriptor(), uart, uart);
+	ResultReporter reporter(package_manager);
+	package_manager.receiver().subscribe(&reporter);	
 
-		ResultReporter reporter(package_manager);
-		package_manager.receiver().set_data_listener(&reporter);		
+	OutputGpio led(25);	
+	while (true) {
+		led.write_value(OutputGpio::Value::HIGH);
+		sleep_ms(500);
+		led.write_value(OutputGpio::Value::LOW);
+		sleep_ms(500);
+	}	
 
-		while (true) {
-
-		}
-	} catch (const std::exception& e) {
-		std::string err_msg_str("{\"error\": \"" + std::string(e.what()) + "\"}");
-		std::vector<char> err_msg(err_msg_str.begin(), err_msg_str.end());
-		uart.send(err_msg);
-		result = -1;
-	}
-	return result;
+	return 0;
 }
 
 ResultReporter::ResultReporter(PackageManager& package_manager): m_package_manager(package_manager) {
 
 }
 
-void ResultReporter::onEvent(const std::vector<char>& event) {
+void ResultReporter::on_event(const std::vector<char>& event) {
 	m_package_manager.sender().send(event);
 };
 

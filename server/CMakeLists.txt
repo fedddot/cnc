@@ -16,9 +16,11 @@ add_executable(server ${CMAKE_CURRENT_LIST_DIR}/src/server.cpp)
 target_link_libraries(
 	server
 	PRIVATE
+	uart
 	server_uart
 	package_manager
 	package_descriptor
+	output_gpio
 )
 
 pico_add_extra_outputs(server)

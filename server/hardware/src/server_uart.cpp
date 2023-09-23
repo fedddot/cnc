@@ -26,7 +26,7 @@ ServerUart::ServerUart(BaudRate baud_rate, Parity parity, StopBits stop_bits, Bi
 	init_gpios();
 	init();
 	init_data_format();
-	init_interrupts();
+	init_interrupts();	
 }
 
 ServerUart::~ServerUart() noexcept {
@@ -90,9 +90,11 @@ void ServerUart::init_interrupts() {
 	case ServerUart::UartId::UART0:
 		uart_irq = UART0_IRQ;
 		callback_ptr = &ServerUart::on_uart0_rx;
+		break;
 	case ServerUart::UartId::UART1:
 		uart_irq = UART1_IRQ;
 		callback_ptr = &ServerUart::on_uart1_rx;
+		break;
 	default:
 		throw std::runtime_error("unsupported uart_id");
 	}
@@ -102,27 +104,27 @@ void ServerUart::init_interrupts() {
 	uart_set_irq_enables(convert_id(uart_id()), true, false);
 }
 
-IListener<char> *ServerUart::get_char_listener(const UartId& id) {
+Uart *ServerUart::get_listening_uart(const UartId& id) {
 	auto iter = s_interrupts_mapping.find(id);
 	if ((s_interrupts_mapping.end() == iter) || (nullptr == iter->second)) {
 		return nullptr;
 	}
-	return iter->second->char_listener();
+	return iter->second;
 }
 
 void ServerUart::on_uart0_rx() {
 	const UartId id = UartId::UART0;
-	common::IListener<char> *listenerPtr = get_char_listener(id);
-	if (nullptr != listenerPtr) {
-		listenerPtr->onEvent(uart_getc(convert_id(id)));
+	Uart *listening_uart = get_listening_uart(id);
+	if (nullptr != listening_uart) {
+		listening_uart->dispatch(uart_getc(convert_id(id)));
 	}
 }
 
 void ServerUart::on_uart1_rx() {
 	const UartId id = UartId::UART1;
-	common::IListener<char> *listenerPtr = get_char_listener(id);
-	if (nullptr != listenerPtr) {
-		listenerPtr->onEvent(uart_getc(convert_id(id)));
+	Uart *listening_uart = get_listening_uart(id);
+	if (nullptr != listening_uart) {
+		listening_uart->dispatch(uart_getc(convert_id(id)));
 	}
 }
 

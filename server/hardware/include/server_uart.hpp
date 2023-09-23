@@ -31,7 +31,7 @@ namespace hardware {
 		void init_data_format();
 		void init_interrupts();
 
-		static common::IListener<char> *get_char_listener(const UartId& id);
+		static Uart *get_listening_uart(const UartId& id);
 		static void on_uart0_rx();
 		static void on_uart1_rx();
 	}; // ServerUart
