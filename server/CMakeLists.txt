@@ -12,39 +12,21 @@ set(PICO_CXX_ENABLE_RTTI 1)
 
 pico_sdk_init()
 
-add_library(server_task_manager INTERFACE)
-target_sources(server_task_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_task_manager.cpp)
-target_include_directories(server_task_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(
-	server_task_manager 
-	INTERFACE 
-	ilistener 
-	isender 
-	idata 
-	iserver_task 
-	server_sender 
-	server_receiver
-	factory 
-	icreator 
-	itask
-	server_movement_task_creator
-	server_movement_task
-	uart_handler
-	hardware_rtc
-)
-
 add_executable(server ${CMAKE_CURRENT_LIST_DIR}/src/server.cpp)
 target_link_libraries(
 	server
 	PRIVATE
+	uart
+	server_uart
+	package_manager
+	package_descriptor
 	server_task_manager
-	server_sender
+	output_gpio
 )
 
 pico_add_extra_outputs(server)
 
-set(FRAMEWORK_DIR ${CMAKE_SOURCE_DIR}/../../framework)
-add_subdirectory(communication)
 add_subdirectory(hardware)
 add_subdirectory(tasks)
+set(FRAMEWORK_DIR ${CMAKE_SOURCE_DIR}/../../framework)
 add_subdirectory(${FRAMEWORK_DIR} ${CMAKE_BINARY_DIR}/framework)

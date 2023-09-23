@@ -1,59 +1,44 @@
-#include <cstddef>
+#include <string>
 #include <vector>
-#include <memory>
-#include <algorithm>
 
-#include <stdio.h>
-#include "hardware/rtc.h"
 #include "pico/stdlib.h"
-#include "pico/util/datetime.h"
 
-#include "server_sender.hpp"
-#include "server_receiver.hpp"
+#include "server_uart.hpp"
+#include "package_manager.hpp"
+#include "package_descriptor.hpp"
+#include "output_gpio.hpp"
 #include "server_task_manager.hpp"
 
-#include "idata.hpp"
-#include "string.hpp"
-#include "object.hpp"
-
-#include "uart_handler.hpp"
-
-using namespace task;
-using namespace data;
+using namespace common;
+using namespace hardware;
 using namespace communication;
+using namespace task;
 
-static inline std::vector<char> strToVector(const std::string& str) {
-	std::vector<char> result;
-	result.insert(result.end(), str.begin(), str.end());
-	return result;
-}
+static PackageDescriptor init_package_descriptor();
 
 int main(void) {
-	const std::vector<char> header(strToVector("msg_header"));
-	const std::size_t length_field_size(2UL);
-	const std::size_t length_max(200UL);
-
-	UartHandler uart_handler(115200);
+	ServerUart uart(ServerUart::BaudRate::BR115200, ServerUart::Parity::NONE, ServerUart::StopBits::ONE, ServerUart::BitsNumber::BN8, ServerUart::UartId::UART0);
+	PackageManager package_manager(init_package_descriptor(), uart, uart);
 	
-	ServerTaskManager task_manager(ServerTaskManager::ServerSenderSmartPtr(new ServerDataSender(header, length_field_size, uart_handler)), "type");
-
-	ServerDataReceiver receiver(header, length_field_size, length_max);
-	uart_handler.set_byte_listener(&receiver);
-
-	receiver.set_data_listener(&task_manager);
-
-	uart_handler.start();
-
+	ServerTaskManager task_manager(package_manager);
+	
+	OutputGpio led(25);	
 	while (true) {
-		if (!task_manager.is_task_pending()) {
-			continue;
+		if (task_manager.is_task_pending()) {
+			task_manager.run_pending_task();
 		}
-		auto task_ptr = task_manager.dequeue_task();
-		task_ptr->execute();
-		auto task_report = task_ptr->report();
-		task_manager.accessSender().send(*task_report);
-		// sleep_ms(1000);
+		led.write_value(OutputGpio::Value::HIGH);
+		sleep_ms(500);
+		led.write_value(OutputGpio::Value::LOW);
+		sleep_ms(500);
 	}	
 
 	return 0;
+}
+
+static PackageDescriptor init_package_descriptor() {
+	const std::string header_str("cnc_package_header");
+	const std::vector<char> header(header_str.begin(), header_str.end());
+	const std::size_t package_length_field_size(2UL);
+	return PackageDescriptor(header, package_length_field_size);
 }
