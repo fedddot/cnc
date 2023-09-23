@@ -17,7 +17,7 @@ using namespace communication;
 class ResultReporter: public IListener<std::vector<char>> {
 public:
 	ResultReporter(std::condition_variable& cond_var);
-	virtual void onEvent(const std::vector<char>& event) override;
+	virtual void on_event(const std::vector<char>& event) override;
 private:
 	std::condition_variable& m_cond_var;
 };
@@ -38,14 +38,13 @@ int main(int argc, char **argv) {
 		
 		ClientUart uart(ClientUart::BaudRate::BR115200, ClientUart::Parity::NONE, ClientUart::StopBits::ONE, ClientUart::BitsNumber::BN8, uart_path);
 
-		PackageManager package_manager(init_package_descriptor(), uart);
-		uart.set_char_listener(&(package_manager.receiver()));
+		PackageManager package_manager(init_package_descriptor(), uart, uart);
 
 		std::mutex report_received_mux;
 		std::condition_variable report_received_cond;
 
 		ResultReporter reporter(report_received_cond);
-		package_manager.receiver().set_data_listener(&reporter);
+		package_manager.receiver().subscribe(&reporter);
 		
 		auto payload = read_task_payload(task_path);
 		package_manager.sender().send(payload);
@@ -63,7 +62,7 @@ ResultReporter::ResultReporter(std::condition_variable& cond_var): m_cond_var(co
 
 }
 
-void ResultReporter::onEvent(const std::vector<char>& event) {
+void ResultReporter::on_event(const std::vector<char>& event) {
 	std::string event_str(event.begin(), event.end());
 	std::cout << "Report:" << std::endl << event_str << std::endl;
 	m_cond_var.notify_all();
