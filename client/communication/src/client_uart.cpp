@@ -101,10 +101,7 @@ void ClientUart::poll_fd() {
 		if (1 != read(m_port_fd, &byte_read, 1)) {
 			continue;
 		}
-		auto char_listener_ptr = char_listener();
-		if (nullptr != char_listener_ptr) {
-			char_listener_ptr->onEvent(byte_read);
-		}		
+		dispatch(byte_read);	
 	}
 }
 
