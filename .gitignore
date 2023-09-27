@@ -1,8 +1,10 @@
 *.*
-*build/
-*.vscode/
+.vscode
+build
+!*.json
+!*.c
 !*.cpp
+!*.h
 !*.hpp
-!*.cmake
 !CMakeLists.txt
-!.gitignore
+!*.cmake
