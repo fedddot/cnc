@@ -1,0 +1,6 @@
+{
+	"type": "RegisterGpioTask",
+	"id": "task 1",
+	"pin_number": "25",
+	"direction": "IN"
+}
