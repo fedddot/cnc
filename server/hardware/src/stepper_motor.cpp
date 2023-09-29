@@ -1,195 +1,148 @@
-#include "hardware/gpio.h"
-#include "hardware/uart.h"
-
-#include <stdexcept>
 #include <algorithm>
+#include <stdexcept>
 #include <map>
+#include <vector>
 
-#include "ilistener.hpp"
-#include "uart.hpp"
+#include "gpio.hpp"
+#include "output_gpio.hpp"
 
-#include "server_uart.hpp"
+#include "stepper_motor.hpp"
 
-using namespace communication;
-using namespace common;
 using namespace hardware;
 
-std::map<ServerUart::UartId, ServerUart *> hardware::ServerUart::s_interrupts_mapping;
+const StepperMotor::ShouldersStates hardware::StepperMotor::m_states(StepperMotor::init_states());
 
-static uart_inst_t *convert_id(ServerUart::UartId id);
-static uint convert_baud(ServerUart::BaudRate baud);
-static uint convert_data_bits(ServerUart::BitsNumber bits_num);
-static uint convert_stop_bits(ServerUart::StopBits stop_bits);
-static uart_parity_t convert_parity(ServerUart::Parity parity);
+StepperMotor::StepperMotor(const ControlPinLayout& pin_layout): m_gpios(init_gpios(pin_layout)), m_current_shoulders_state_iter(m_states.begin()) {
 
-ServerUart::ServerUart(BaudRate baud_rate, Parity parity, StopBits stop_bits, BitsNumber bits_number, UartId uart_id): Uart(baud_rate, parity, stop_bits, bits_number), m_uart_id(uart_id) {
-	init_gpios();
-	init();
-	init_data_format();
-	init_interrupts();	
 }
 
-ServerUart::~ServerUart() noexcept {
-	uart_deinit(convert_id(uart_id()));
-	auto iter = s_interrupts_mapping.find(uart_id());
-	if (s_interrupts_mapping.end() != iter) {
-		s_interrupts_mapping.erase(iter);
+void StepperMotor::step(Direction direction) {
+	auto next_state_iter = next_state(m_current_shoulders_state_iter, direction);
+	apply_state(*next_state_iter, m_gpios);
+	m_current_shoulders_state_iter = next_state_iter;
+}
+
+StepperMotor::ShouldersStates::const_iterator StepperMotor::next_state(ShouldersStates::const_iterator from, Direction direction) {
+	if (m_states.end() == from) {
+		throw std::invalid_argument("invalid from iterator received");
 	}
+
+	auto proceed = [&](ShouldersStates::const_iterator from) {
+		auto next = from + 1;
+		if (next == m_states.end()) {
+			return m_states.begin();
+		}
+		return next;
+	};
+
+	auto preceed = [&](ShouldersStates::const_iterator from) {
+		if (m_states.begin() == from) {
+			return m_states.begin() + m_states.size() - 1;
+		}
+		auto prev = m_states.begin();
+		while (prev + 1 != from) {
+			++prev;
+		}
+		return prev;
+	};
+
+	switch (direction)
+	{
+	case Direction::CW:
+		return proceed(from);
+	case Direction::CCW:
+		return preceed(from);
+	default:
+		break;
+	}
+	throw std::invalid_argument("unsupported direction received");
 }
 
-void ServerUart::send(const std::vector<char>& data) {
-	uart_inst_t *uart_ptr = convert_id(uart_id());
-	std::for_each(data.begin(), data.end(),
-		[&](const auto& ch) {
-			uart_putc(uart_ptr, ch);
+StepperMotor::ControlGpios StepperMotor::init_gpios(const ControlPinLayout& pin_layout) {
+	ControlGpios result;
+	std::for_each(
+		pin_layout.begin(),
+		pin_layout.end(),
+		[&](const auto& iter) {
+			result.insert({iter.first, OutputGpio(iter.second)});
+		}
+	);
+	return result;
+}
+
+StepperMotor::ShouldersStates StepperMotor::init_states() {
+	return ShouldersStates(
+		{
+			// 0 degrees
+			{
+				{BridgeShoulder::A_LEFT, Gpio::Value::HIGH},
+				{BridgeShoulder::A_RIGHT, Gpio::Value::LOW},
+				{BridgeShoulder::B_LEFT, Gpio::Value::LOW},
+				{BridgeShoulder::B_RIGHT, Gpio::Value::LOW}
+			},
+			// 45 degrees
+			{
+				{BridgeShoulder::A_LEFT, Gpio::Value::HIGH},
+				{BridgeShoulder::A_RIGHT, Gpio::Value::LOW},
+				{BridgeShoulder::B_LEFT, Gpio::Value::HIGH},
+				{BridgeShoulder::B_RIGHT, Gpio::Value::LOW}
+			},
+			// 90 degrees
+			{
+				{BridgeShoulder::A_LEFT, Gpio::Value::LOW},
+				{BridgeShoulder::A_RIGHT, Gpio::Value::LOW},
+				{BridgeShoulder::B_LEFT, Gpio::Value::HIGH},
+				{BridgeShoulder::B_RIGHT, Gpio::Value::LOW}
+			},
+			// 135 degrees
+			{
+				{BridgeShoulder::A_LEFT, Gpio::Value::LOW},
+				{BridgeShoulder::A_RIGHT, Gpio::Value::HIGH},
+				{BridgeShoulder::B_LEFT, Gpio::Value::HIGH},
+				{BridgeShoulder::B_RIGHT, Gpio::Value::LOW}
+			},
+			// 180 degrees
+			{
+				{BridgeShoulder::A_LEFT, Gpio::Value::LOW},
+				{BridgeShoulder::A_RIGHT, Gpio::Value::HIGH},
+				{BridgeShoulder::B_LEFT, Gpio::Value::LOW},
+				{BridgeShoulder::B_RIGHT, Gpio::Value::LOW}
+			},
+			// 225 degrees
+			{
+				{BridgeShoulder::A_LEFT, Gpio::Value::LOW},
+				{BridgeShoulder::A_RIGHT, Gpio::Value::HIGH},
+				{BridgeShoulder::B_LEFT, Gpio::Value::LOW},
+				{BridgeShoulder::B_RIGHT, Gpio::Value::HIGH}
+			},
+			// 270 degrees
+			{
+				{BridgeShoulder::A_LEFT, Gpio::Value::LOW},
+				{BridgeShoulder::A_RIGHT, Gpio::Value::LOW},
+				{BridgeShoulder::B_LEFT, Gpio::Value::LOW},
+				{BridgeShoulder::B_RIGHT, Gpio::Value::HIGH}
+			},
+			// 315 degrees
+			{
+				{BridgeShoulder::A_LEFT, Gpio::Value::HIGH},
+				{BridgeShoulder::A_RIGHT, Gpio::Value::LOW},
+				{BridgeShoulder::B_LEFT, Gpio::Value::LOW},
+				{BridgeShoulder::B_RIGHT, Gpio::Value::HIGH}
+			},
 		}
 	);
 }
 
-void ServerUart::init_gpios() {
-	enum {
-		UART0_TX_PIN = 0,
-		UART0_RX_PIN = 1,
-
-		UART1_TX_PIN = 2,	// TODO: check it!
-		UART1_RX_PIN = 3,	// TODO: check it!
-	};
-	uint tx_pin(0U); uint rx_pin(0U);
-	switch (uart_id()) {
-	case UartId::UART0:
-		tx_pin = UART0_TX_PIN; rx_pin = UART0_RX_PIN;
-		break;
-	case UartId::UART1:
-		tx_pin = UART1_TX_PIN; rx_pin = UART1_RX_PIN;
-		break;	
-	default:
-		throw std::invalid_argument("unsupported uart_id received");
-	}
-	gpio_set_function(tx_pin, GPIO_FUNC_UART);
-	gpio_set_function(rx_pin, GPIO_FUNC_UART);
-}
-
-void ServerUart::init() {
-	uart_inst_t *uart_ptr = convert_id(uart_id());
-	uint baud = convert_baud(baud_rate());	
-	uart_init(uart_ptr, baud);
-	uart_set_baudrate(uart_ptr, baud);
-}
-
-void ServerUart::init_data_format() {
-	uart_inst_t *uart_ptr = convert_id(uart_id());
-	uart_set_hw_flow(uart_ptr, false, false);
-	uart_set_fifo_enabled(uart_ptr, false);
-	uart_set_format(uart_ptr, convert_data_bits(bits_number()), convert_stop_bits(stop_bits()), convert_parity(parity()));
-}
-
-void ServerUart::init_interrupts() {
-	int uart_irq = 0;
-	void (*callback_ptr)(void) = nullptr;
-	switch (uart_id()) {
-	case ServerUart::UartId::UART0:
-		uart_irq = UART0_IRQ;
-		callback_ptr = &ServerUart::on_uart0_rx;
-		break;
-	case ServerUart::UartId::UART1:
-		uart_irq = UART1_IRQ;
-		callback_ptr = &ServerUart::on_uart1_rx;
-		break;
-	default:
-		throw std::runtime_error("unsupported uart_id");
-	}
-	s_interrupts_mapping.insert({uart_id(), this});
-	irq_set_exclusive_handler(uart_irq, callback_ptr);
-	irq_set_enabled(uart_irq, true);
-	uart_set_irq_enables(convert_id(uart_id()), true, false);
-}
-
-Uart *ServerUart::get_listening_uart(const UartId& id) {
-	auto iter = s_interrupts_mapping.find(id);
-	if ((s_interrupts_mapping.end() == iter) || (nullptr == iter->second)) {
-		return nullptr;
-	}
-	return iter->second;
-}
-
-void ServerUart::on_uart0_rx() {
-	const UartId id = UartId::UART0;
-	Uart *listening_uart = get_listening_uart(id);
-	if (nullptr != listening_uart) {
-		listening_uart->dispatch(uart_getc(convert_id(id)));
-	}
-}
-
-void ServerUart::on_uart1_rx() {
-	const UartId id = UartId::UART1;
-	Uart *listening_uart = get_listening_uart(id);
-	if (nullptr != listening_uart) {
-		listening_uart->dispatch(uart_getc(convert_id(id)));
-	}
-}
-
-static uart_inst_t *convert_id(ServerUart::UartId id) {
-	switch (id) {
-	case ServerUart::UartId::UART0:
-		return uart0;
-	case ServerUart::UartId::UART1:
-		return uart1;		
-	default:
-		break;
-	}
-	throw std::invalid_argument("unsupported uart_id received");
-}
-
-static uint convert_baud(ServerUart::BaudRate baud) {
-	switch (baud) {
-	case ServerUart::BaudRate::BR9600:
-		return static_cast<uint>(9600);
-	case ServerUart::BaudRate::BR115200:
-		return static_cast<uint>(115200);	
-	default:
-		break;
-	}
-	throw std::invalid_argument("unsupported baud rate received");
-}
-
-static uint convert_data_bits(ServerUart::BitsNumber bits_num) {
-	switch (bits_num) {
-	case ServerUart::BitsNumber::BN5:
-		return static_cast<uint>(5);
-	case ServerUart::BitsNumber::BN6:
-		return static_cast<uint>(6);
-	case ServerUart::BitsNumber::BN7:
-		return static_cast<uint>(7);
-	case ServerUart::BitsNumber::BN8:
-		return static_cast<uint>(8);
-	default:
-		break;
-	}
-	throw std::invalid_argument("unsupported bits number received");
-}
-
-static uint convert_stop_bits(ServerUart::StopBits stop_bits) {
-	switch (stop_bits) {
-	case ServerUart::StopBits::ONE:
-		return static_cast<uint>(1);
-	case ServerUart::StopBits::TWO:
-		return static_cast<uint>(2);
-	default:
-		break;
-	}
-	throw std::invalid_argument("unsupported stop bits number received");
-}
-
-static uart_parity_t convert_parity(ServerUart::Parity parity) {
-	switch (parity) {
-	case ServerUart::Parity::NONE:
-		return UART_PARITY_NONE;
-	case ServerUart::Parity::EVEN:
-		return UART_PARITY_EVEN;
-	case ServerUart::Parity::ODD:
-		return UART_PARITY_ODD;
-	default:
-		break;
-	}
-	throw std::invalid_argument("unsupported parity received");
+void StepperMotor::apply_state(const ShouldersState& state, ControlGpios& gpios) {
+	std::for_each(
+		gpios.begin(),
+		gpios.end(),
+		[&](auto& gpios_iter) {
+			auto state_iter = state.find(gpios_iter.first);
+			if (state.end() == state_iter) {
+				throw std::invalid_argument("invalid state received");
+			}
+			gpios_iter.second.write_value((*state_iter).second);
+		}
+	);
 }
