@@ -13,6 +13,9 @@ namespace hardware {
 			Gpio::Value right_shoulder_state;
 		};
 		Bridge(const Gpio::PinNumber& left_shoulder_out, const Gpio::PinNumber& right_shoulder_out, const State& initial_state = {Gpio::Value::LOW, Gpio::Value::LOW});
+		Bridge(const Bridge& other) = delete;
+		Bridge& operator=(const Bridge& other) = delete;
+
 		~Bridge() noexcept;
 
 		inline State state() const;
