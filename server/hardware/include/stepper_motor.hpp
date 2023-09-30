@@ -2,6 +2,7 @@
 #define	__STEPPER_MOTOR_HPP__
 
 #include <map>
+#include <memory>
 #include <vector>
 
 #include "gpio.hpp"
@@ -22,12 +23,12 @@ namespace hardware {
 		};
 		typedef std::map<BridgeShoulder, Gpio::PinNumber> ControlPinLayout;
 		StepperMotor(const ControlPinLayout& pin_layout);
-		~StepperMotor() noexcept;
+		~StepperMotor() noexcept = default;
 		void step(Direction direction);
 	private:
 		typedef std::map<BridgeShoulder, Gpio::Value> ShouldersState;
 		typedef std::vector<ShouldersState> ShouldersStates;
-		typedef std::map<BridgeShoulder, OutputGpio> ControlGpios;
+		typedef std::map<BridgeShoulder, std::shared_ptr<OutputGpio>> ControlGpios;
 
 		ControlGpios m_gpios;
 		ShouldersStates::const_iterator m_current_shoulders_state_iter;

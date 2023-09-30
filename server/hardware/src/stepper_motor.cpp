@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <map>
+#include <memory>
 #include <vector>
 
 #include "gpio.hpp"
@@ -64,7 +65,7 @@ StepperMotor::ControlGpios StepperMotor::init_gpios(const ControlPinLayout& pin_
 		pin_layout.begin(),
 		pin_layout.end(),
 		[&](const auto& iter) {
-			result.insert({iter.first, OutputGpio(iter.second)});
+			result.insert({iter.first, std::shared_ptr<OutputGpio>(new OutputGpio(iter.second))});
 		}
 	);
 	return result;
@@ -142,7 +143,7 @@ void StepperMotor::apply_state(const ShouldersState& state, ControlGpios& gpios)
 			if (state.end() == state_iter) {
 				throw std::invalid_argument("invalid state received");
 			}
-			gpios_iter.second.write_value((*state_iter).second);
+			gpios_iter.second->write_value((*state_iter).second);
 		}
 	);
 }
