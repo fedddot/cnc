@@ -13,8 +13,10 @@ target_link_libraries(register_gpio_task INTERFACE server_task object gpio input
 add_library(register_stepper_motor_task INTERFACE)
 target_sources(register_stepper_motor_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/register_stepper_motor_task.cpp)
 target_include_directories(register_stepper_motor_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(register_stepper_motor_task INTERFACE server_task object bridge registry)
+target_link_libraries(register_stepper_motor_task INTERFACE server_task object stepper_motor registry)
 
+add_library(register_stepper_motor_task_test STATIC)
+target_link_libraries(register_stepper_motor_task_test PRIVATE register_stepper_motor_task)
 
 
 add_library(register_gpio_task_creator INTERFACE)

@@ -2,8 +2,7 @@
 #include <string>
 #include <memory>
 
-#include "gpio.hpp"
-#include "bridge.hpp"
+#include "stepper_motor.hpp"
 #include "registry.hpp"
 #include "object.hpp"
 #include "string.hpp"
@@ -15,22 +14,22 @@ using namespace task;
 using namespace data;
 using namespace hardware;
 
-RegisterBridgeTask::RegisterBridgeTask(const std::string& id, const std::string& bridge_id, const PinNumber& left_shoulder_out, const PinNumber& right_shoulder_out, const Bridge::State& initial_state, BridgeRegistry& registry): ServerTask(id), m_bridge_id(bridge_id), m_left_shoulder_out(left_shoulder_out), m_right_shoulder_out(right_shoulder_out), m_initial_state(initial_state), m_registry(registry) {
+RegisterStepperMotorTask::RegisterStepperMotorTask(const std::string& id, const std::string& motor_id, const hardware::StepperMotor::ControlGpios& control_gpios, StepperMotorRegistry& registry): ServerTask(id), m_motor_id(motor_id), m_control_gpios(control_gpios), m_registry(registry) {
 
 }
 
-void RegisterBridgeTask::execute() {
-	if (m_registry.is_registered(m_bridge_id)) {
+void RegisterStepperMotorTask::execute() {
+	if (m_registry.is_registered(m_motor_id)) {
 		m_report.insert({"result", std::shared_ptr<IData>(new String("FAIL"))});
 		m_report.insert({"what", std::shared_ptr<IData>(new String("already registered"))});
 		return;
 	}
-	std::shared_ptr<Bridge> bridge(new Bridge(m_left_shoulder_out, m_right_shoulder_out, m_initial_state));
+	std::shared_ptr<StepperMotor> motor(new StepperMotor(m_control_gpios));
 
-	m_registry.register_member(m_bridge_id, bridge);
+	m_registry.register_member(m_motor_id, motor);
 	m_report.insert({"result", std::shared_ptr<IData>(new String("OK"))});
 }
 
-data::Object RegisterBridgeTask::report() const {
+data::Object RegisterStepperMotorTask::report() const {
 	return m_report;
 }
