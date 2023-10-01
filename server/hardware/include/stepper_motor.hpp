@@ -2,7 +2,6 @@
 #define	__STEPPER_MOTOR_HPP__
 
 #include <map>
-#include <memory>
 #include <vector>
 
 #include "gpio.hpp"
@@ -21,25 +20,34 @@ namespace hardware {
 			B_LEFT,
 			B_RIGHT
 		};
-		typedef std::map<BridgeShoulder, Gpio::PinNumber> ControlPinLayout;
-		StepperMotor(const ControlPinLayout& pin_layout);
+		typedef std::map<BridgeShoulder, OutputGpio *> ControlGpios;
+		StepperMotor(const ControlGpios& control_gpios);
 		~StepperMotor() noexcept = default;
 		void step(Direction direction);
+		
+		void enable();
+		void disable();
+		inline bool is_enabled() const;
 	private:
 		typedef std::map<BridgeShoulder, Gpio::Value> ShouldersState;
 		typedef std::vector<ShouldersState> ShouldersStates;
-		typedef std::map<BridgeShoulder, std::shared_ptr<OutputGpio>> ControlGpios;
 
 		ControlGpios m_gpios;
 		ShouldersStates::const_iterator m_current_shoulders_state_iter;
-
+		bool m_is_enabled;
 
 		static const ShouldersStates m_states;
 
 		static ShouldersStates::const_iterator next_state(ShouldersStates::const_iterator from, Direction direction);
-		static ControlGpios init_gpios(const ControlPinLayout& pin_layout);
+		static ControlGpios init_gpios(const ControlGpios& control_gpios);
 		static ShouldersStates init_states();
-		static void apply_state(const ShouldersState& state, ControlGpios& gpios);
+		
+		static void apply_state(const ShouldersState& new_state, ControlGpios& gpios);
+		static void apply_state_smoothly(const ShouldersState& new_state, const ShouldersState& cur_state, ControlGpios& gpios);
 	}; // StepperMotor
+
+	inline bool StepperMotor::is_enabled() const {
+		return m_is_enabled;
+	}
 } // namespace hardware
 #endif // __STEPPER_MOTOR_HPP__

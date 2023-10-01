@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <stdexcept>
 #include <map>
-#include <memory>
 #include <vector>
 
 #include "gpio.hpp"
@@ -13,14 +12,34 @@ using namespace hardware;
 
 const StepperMotor::ShouldersStates hardware::StepperMotor::m_states(StepperMotor::init_states());
 
-StepperMotor::StepperMotor(const ControlPinLayout& pin_layout): m_gpios(init_gpios(pin_layout)), m_current_shoulders_state_iter(m_states.begin()) {
+StepperMotor::StepperMotor(const ControlGpios& control_gpios): m_gpios(init_gpios(control_gpios)), m_current_shoulders_state_iter(m_states.begin()), m_is_enabled(false) {
 
 }
 
 void StepperMotor::step(Direction direction) {
 	auto next_state_iter = next_state(m_current_shoulders_state_iter, direction);
-	apply_state(*next_state_iter, m_gpios);
+	apply_state_smoothly(*next_state_iter, *m_current_shoulders_state_iter, m_gpios);
 	m_current_shoulders_state_iter = next_state_iter;
+}
+
+void StepperMotor::enable() {
+	apply_state(*m_current_shoulders_state_iter, m_gpios);
+	m_is_enabled = true;
+}
+
+void StepperMotor::disable() {
+	apply_state(
+		ShouldersState(
+			{
+				{BridgeShoulder::A_LEFT,	Gpio::Value::LOW},
+				{BridgeShoulder::A_RIGHT,	Gpio::Value::LOW},
+				{BridgeShoulder::B_LEFT,	Gpio::Value::LOW},
+				{BridgeShoulder::B_RIGHT,	Gpio::Value::LOW}
+			}
+		),
+		m_gpios
+	);
+	m_is_enabled = false;
 }
 
 StepperMotor::ShouldersStates::const_iterator StepperMotor::next_state(ShouldersStates::const_iterator from, Direction direction) {
@@ -59,16 +78,26 @@ StepperMotor::ShouldersStates::const_iterator StepperMotor::next_state(Shoulders
 	throw std::invalid_argument("unsupported direction received");
 }
 
-StepperMotor::ControlGpios StepperMotor::init_gpios(const ControlPinLayout& pin_layout) {
-	ControlGpios result;
+StepperMotor::ControlGpios StepperMotor::init_gpios(const ControlGpios& control_gpios) {
+	const std::vector<BridgeShoulder> required_shoulders {
+		BridgeShoulder::A_LEFT,	BridgeShoulder::A_RIGHT,
+		BridgeShoulder::B_LEFT,	BridgeShoulder::B_RIGHT
+	};
 	std::for_each(
-		pin_layout.begin(),
-		pin_layout.end(),
-		[&](const auto& iter) {
-			result.insert({iter.first, std::shared_ptr<OutputGpio>(new OutputGpio(iter.second))});
+		required_shoulders.begin(),
+		required_shoulders.end(),
+		[&](const BridgeShoulder& shoulder) {
+			auto iter = control_gpios.find(shoulder);
+			if (control_gpios.end() == iter) {
+				throw std::invalid_argument("required bridge was not found in received ControlGpios object");
+			}
+
+			if (nullptr == iter->second) {
+				throw std::invalid_argument("invalid OutputGpio");
+			}
 		}
 	);
-	return result;
+	return control_gpios;
 }
 
 StepperMotor::ShouldersStates StepperMotor::init_states() {
@@ -134,16 +163,33 @@ StepperMotor::ShouldersStates StepperMotor::init_states() {
 	);
 }
 
-void StepperMotor::apply_state(const ShouldersState& state, ControlGpios& gpios) {
+void StepperMotor::apply_state(const ShouldersState& new_state, ControlGpios& gpios) {
 	std::for_each(
 		gpios.begin(),
 		gpios.end(),
 		[&](auto& gpios_iter) {
-			auto state_iter = state.find(gpios_iter.first);
-			if (state.end() == state_iter) {
-				throw std::invalid_argument("invalid state received");
+			auto new_state_iter = new_state.find(gpios_iter.first);
+			if (new_state.end() == new_state_iter) {
+				throw std::invalid_argument("invalid states received");
 			}
-			gpios_iter.second->write_value((*state_iter).second);
+			gpios_iter.second->write_value((*new_state_iter).second);
+		}
+	);
+}
+
+void StepperMotor::apply_state_smoothly(const ShouldersState& new_state, const ShouldersState& cur_state, ControlGpios& gpios) {
+	std::for_each(
+		gpios.begin(),
+		gpios.end(),
+		[&](auto& gpios_iter) {
+			auto new_state_iter = new_state.find(gpios_iter.first);
+			auto cur_state_iter = cur_state.find(gpios_iter.first);
+			if ((new_state.end() == new_state_iter) || (cur_state.end() == cur_state_iter)) {
+				throw std::invalid_argument("invalid states received");
+			}
+			if ((*new_state_iter).second != (*cur_state_iter).second) {
+				gpios_iter.second->write_value((*new_state_iter).second);
+			}
 		}
 	);
 }
