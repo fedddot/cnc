@@ -22,3 +22,8 @@ add_library(bridge INTERFACE)
 target_sources(bridge INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/bridge.cpp)
 target_include_directories(bridge INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(bridge INTERFACE gpio output_gpio)
+
+add_library(stepper_motor INTERFACE)
+target_sources(stepper_motor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/stepper_motor.cpp)
+target_include_directories(stepper_motor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(stepper_motor INTERFACE output_gpio)
