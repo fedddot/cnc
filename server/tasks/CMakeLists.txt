@@ -32,4 +32,18 @@ target_link_libraries(register_stepper_motor_task_creator INTERFACE icreator ser
 add_library(server_task_manager INTERFACE)
 target_sources(server_task_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_task_manager.cpp)
 target_include_directories(server_task_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(server_task_manager INTERFACE server_task factory object icreator package_manager register_gpio_task_creator json_parser json_serializer)
+target_link_libraries(
+	server_task_manager
+	INTERFACE
+	server_task
+	factory
+	object
+	icreator
+	package_manager
+
+	register_gpio_task_creator
+	register_stepper_motor_task_creator
+	
+	json_parser
+	json_serializer
+)
