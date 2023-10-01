@@ -9,7 +9,7 @@
 #include "string.hpp"
 #include "server_task.hpp"
 
-#include "register_bridge_task.hpp"
+#include "register_stepper_motor_task.hpp"
 
 using namespace task;
 using namespace data;

@@ -10,10 +10,10 @@ target_sources(register_gpio_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/regist
 target_include_directories(register_gpio_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(register_gpio_task INTERFACE server_task object gpio input_gpio output_gpio registry)
 
-add_library(register_bridge_task INTERFACE)
-target_sources(register_bridge_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/register_bridge_task.cpp)
-target_include_directories(register_bridge_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(register_bridge_task INTERFACE server_task object bridge registry)
+add_library(register_stepper_motor_task INTERFACE)
+target_sources(register_stepper_motor_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/register_stepper_motor_task.cpp)
+target_include_directories(register_stepper_motor_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(register_stepper_motor_task INTERFACE server_task object bridge registry)
 
 
 
