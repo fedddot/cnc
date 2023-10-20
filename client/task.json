@@ -1,6 +1,37 @@
-{
-	"type": "RegisterGpioTask",
-	"id": "task 1",
-	"pin_number": "25",
-	"direction": "IN"
-}
+[
+	{
+		"type": "RegisterGpioTask",
+		"id": "register gpio 5",
+		"pin_number": "5",
+		"direction": "OUT"
+	},
+	{
+		"type": "RegisterGpioTask",
+		"id": "register gpio 6",
+		"pin_number": "6",
+		"direction": "OUT"
+	},
+	{
+		"type": "RegisterGpioTask",
+		"id": "register gpio 7",
+		"pin_number": "7",
+		"direction": "OUT"
+	},
+	{
+		"type": "RegisterGpioTask",
+		"id": "register gpio 8",
+		"pin_number": "8",
+		"direction": "OUT"
+	},
+	{
+		"type": "RegisterStepperMotorTask",
+		"id": "register smX",
+		"motor_id": "smX",
+		"control_gpios": {
+			"A_LEFT": "5",
+			"A_RIGHT": "6",
+			"B_LEFT": "7",
+			"B_RIGHT": "8"
+		}
+	}
+]

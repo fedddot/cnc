@@ -9,6 +9,10 @@ target_link_libraries(
 	client_uart
 	package_descriptor
 	package_manager
+	task_result_listener
+	json_parser
+	json_serializer
+	array
 )
 
 add_subdirectory(communication)
