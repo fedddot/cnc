@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <mutex>
@@ -10,20 +11,20 @@
 #include "client_uart.hpp"
 #include "package_descriptor.hpp"
 #include "package_manager.hpp"
+#include "task_result_listener.hpp"
+#include "json_parser.hpp"
+#include "json_serializer.hpp"
+#include "array.hpp"
+#include "idata.hpp"
 
+using namespace json;
+using namespace data;
 using namespace common;
 using namespace communication;
 
-class ResultReporter: public IListener<std::vector<char>> {
-public:
-	ResultReporter(std::condition_variable& cond_var);
-	virtual void on_event(const std::vector<char>& event) override;
-private:
-	std::condition_variable& m_cond_var;
-};
-
 static std::vector<std::string> get_args(int argc, char **argv);
-static std::vector<char> read_task_payload(const std::string& task_file_path);
+static Array read_tasks(const std::string& task_file_path);
+static void perform_task(const IData& task_data, PackageManager& package_manager, TaskResultListener& result_listener);
 static PackageDescriptor init_package_descriptor();
 
 int main(int argc, char **argv) {
@@ -40,33 +41,25 @@ int main(int argc, char **argv) {
 
 		PackageManager package_manager(init_package_descriptor(), uart, uart);
 
-		std::mutex report_received_mux;
-		std::condition_variable report_received_cond;
-
-		ResultReporter reporter(report_received_cond);
-		package_manager.receiver().subscribe(&reporter);
+		TaskResultListener result_listener;
+		package_manager.receiver().subscribe(&result_listener);
 		
-		auto payload = read_task_payload(task_path);
-		package_manager.sender().send(payload);
+		Array tasks(read_tasks(task_path));
 
-		std::unique_lock<std::mutex> lock(report_received_mux);
-		report_received_cond.wait(lock);
+		std::for_each(
+			tasks.begin(),
+			tasks.end(),
+			[&](auto& task_data) {
+				perform_task(*task_data, package_manager, result_listener);
+			}
+		);
+
 	} catch (const std::exception& e) {
 		std::cout << "client: an exception catched: " << e.what() << std::endl;
 		result = -1;
 	}
 	return result;
 }
-
-ResultReporter::ResultReporter(std::condition_variable& cond_var): m_cond_var(cond_var) {
-
-}
-
-void ResultReporter::on_event(const std::vector<char>& event) {
-	std::string event_str(event.begin(), event.end());
-	std::cout << "Report:" << std::endl << event_str << std::endl;
-	m_cond_var.notify_all();
-};
 
 static PackageDescriptor init_package_descriptor() {
 	const std::string header_str("cnc_package_header");
@@ -75,17 +68,29 @@ static PackageDescriptor init_package_descriptor() {
 	return PackageDescriptor(header, package_length_field_size);
 }
 
-static std::vector<char> read_task_payload(const std::string& task_file_path) {
-	std::vector<char> task_payload;
+static Array read_tasks(const std::string& task_file_path) {
+	std::vector<char> raw_data;
 	std::ifstream task_file(task_file_path);
 	if (!task_file.is_open()) {
 		throw std::runtime_error("failed to open " + task_file_path);
 	}
 	char ch('A');
 	while (EOF != (ch = task_file.get())) {
-		task_payload.push_back(static_cast<char>(ch));
+		raw_data.push_back(static_cast<char>(ch));
 	}
-	return task_payload;
+	JsonParser parser;
+	auto parsed_data = parser.parse(raw_data);
+	return Array(dynamic_cast<Array&>(*parsed_data));;
+}
+
+static void perform_task(const IData& task_data, PackageManager& package_manager, TaskResultListener& result_listener) {
+	JsonSerializer serializer;
+	std::vector<char> serial_task_data(serializer.serialize(task_data));
+	std::cout << "[C2S]: " << std::string(serial_task_data.begin(), serial_task_data.end()) << std::endl;
+	package_manager.sender().send(serial_task_data);
+
+	std::vector<char> result_data = result_listener.wait_result();
+	std::cout << "[S2C]: " << std::string(result_data.begin(), result_data.end()) << std::endl;
 }
 
 static std::string port_path(int argc, char **argv) {
