@@ -20,12 +20,12 @@ using namespace data;
 using namespace common;
 using namespace hardware;
 
-RegisterStepperMotorTaskCreator::RegisterStepperMotorTaskCreator(StepperMotorRegistry& stepper_motors_registry, GpioRegistry& gpios_registry, const std::string& id_field = "id", const std::string& motor_id_field = "motor_id", const std::string& control_gpios_field = "control_gpios"): m_stepper_motors_registry(stepper_motors_registry), m_gpios_registry(gpios_registry), m_id_field(id_field), m_motor_id_field(motor_id_field), m_control_gpios_field(control_gpios_field) {
+RegisterStepperMotorTaskCreator::RegisterStepperMotorTaskCreator(StepperMotorRegistry& stepper_motors_registry, GpioRegistry& gpios_registry, const ControlGpiosFieldNamesMapping& gpios_field_names_mapping, const std::string& id_field, const std::string& motor_id_field, const std::string& control_gpios_field): m_stepper_motors_registry(stepper_motors_registry), m_gpios_registry(gpios_registry), m_gpios_field_names_mapping(gpios_field_names_mapping), m_id_field(id_field), m_motor_id_field(motor_id_field), m_control_gpios_field(control_gpios_field) {
 
 }
 
 template <class T>
-static T getField(const Object& data_object, const std::string& field_name) {
+T getField(const Object& data_object, const std::string& field_name) {
 	auto iter = data_object.find(field_name);
 	if (data_object.end() == iter) {
 		throw std::invalid_argument("received field not found");
@@ -36,28 +36,24 @@ static T getField(const Object& data_object, const std::string& field_name) {
 	return T(*(iter->second));
 }
 
-static StepperMotor::ControlGpios init_gpios(const Object& config_data, RegisterStepperMotorTaskCreator::GpioRegistry& gpios_registry) {
-	const std::map<StepperMotor::BridgeShoulder, std::string> shoulders_mapping {
-		{StepperMotor::BridgeShoulder::A_LEFT,		"a_left_pin_number"},
-		{StepperMotor::BridgeShoulder::A_RIGHT,		"a_right_pin_number"},
-		{StepperMotor::BridgeShoulder::B_LEFT,		"b_left_pin_number"},
-		{StepperMotor::BridgeShoulder::B_RIGHT,		"b_right_pin_number"},
-	};
+StepperMotor::ControlGpios RegisterStepperMotorTaskCreator::init_control_gpios(const Object& config_data) {
 	StepperMotor::ControlGpios result;
+	Object control_gpios_mapping = getField<Object>(config_data, m_control_gpios_field);
 	std::for_each(
-		shoulders_mapping.begin(),
-		shoulders_mapping.end(),
-		[&](const auto& mapping) {
-			String pin_number_str = getField<String>(config_data, mapping.second);
-			Gpio::PinNumber pin_number = static_cast<Gpio::PinNumber>(std::atoi(pin_number_str.c_str()));
-			if (!gpios_registry.is_registered(pin_number)) {
-				throw std::runtime_error("required pin (" + mapping.second + ") was not registered");
+		m_gpios_field_names_mapping.begin(),
+		m_gpios_field_names_mapping.end(),
+		[&](const auto& item) {
+			const StepperMotor::BridgeShoulder shoulder(item.first);
+			const std::string field_name(item.second);
+
+			String gpio_number_str(getField<String>(control_gpios_mapping, field_name));
+			int gpio_number = std::atoi(gpio_number_str.c_str());
+			Gpio *gpio_ptr = m_gpios_registry.access_member(gpio_number).get();
+			if (Gpio::Direction::OUT != gpio_ptr->get_direction()) {
+				throw std::runtime_error("wrong gpio direction for control " + field_name);
 			}
-			OutputGpio *output_gpio_ptr = dynamic_cast<OutputGpio *>(gpios_registry.access_member(pin_number).get());
-			if (nullptr == output_gpio_ptr) {
-				throw std::runtime_error("required pin (" + mapping.second + ") has incorrect configuration");
-			}
-			result[mapping.field] = output_gpio_ptr;
+			OutputGpio *output_gpio_ptr = dynamic_cast<OutputGpio *>(gpio_ptr);
+			result.insert({shoulder, output_gpio_ptr});
 		}
 	);
 	return result;
@@ -66,9 +62,8 @@ static StepperMotor::ControlGpios init_gpios(const Object& config_data, Register
 std::shared_ptr<ServerTask> RegisterStepperMotorTaskCreator::create(const Object& config_data) {
 	String task_id = getField<String>(config_data, m_id_field);
 	String motor_id = getField<String>(config_data, m_motor_id_field);
-	Object control_gpios_config_data = getField<Object>(config_data, m_control_gpios_field);
 	
-	StepperMotor::ControlGpios control_gpios = init_gpios(control_gpios_config_data, m_gpios_registry);
+	StepperMotor::ControlGpios control_gpios(init_control_gpios(config_data));
 
 	return std::shared_ptr<ServerTask>(new RegisterStepperMotorTask(task_id, motor_id, control_gpios, m_stepper_motors_registry));
 }
