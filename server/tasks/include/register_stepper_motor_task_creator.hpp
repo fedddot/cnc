@@ -17,7 +17,7 @@ namespace task {
 	public:
 		typedef RegisterStepperMotorTask::StepperMotorRegistry StepperMotorRegistry;
 		typedef common::Registry<hardware::Gpio::PinNumber, std::shared_ptr<hardware::Gpio>> GpioRegistry;
-		typedef std::map<StepperMotor::BridgeShoulder, std::string> ControlGpiosFieldNamesMapping;
+		typedef std::map<hardware::StepperMotor::BridgeShoulder, std::string> ControlGpiosFieldNamesMapping;
 		
 		RegisterStepperMotorTaskCreator(StepperMotorRegistry& stepper_motors_registry, GpioRegistry& gpios_registry, const ControlGpiosFieldNamesMapping& gpios_field_names_mapping, const std::string& id_field = "id", const std::string& motor_id_field = "motor_id", const std::string& control_gpios_field = "control_gpios");
 		RegisterStepperMotorTaskCreator(const RegisterStepperMotorTaskCreator& other) = delete;
@@ -32,7 +32,7 @@ namespace task {
 		std::string m_motor_id_field;
 		std::string m_control_gpios_field;
 
-		StepperMotor::ControlGpios init_control_gpios(const data::Object& config_data);
+		hardware::StepperMotor::ControlGpios init_control_gpios(const data::Object& config_data);
 	}; // RegisterStepperMotorTaskCreator
 } // namespace task
 #endif // __REGISTER_STEPPER_MOTOR_TASK_CREATOR_HPP__

@@ -64,6 +64,7 @@ using namespace data;
 using namespace json;
 using namespace common;
 using namespace communication;
+using namespace hardware;
 
 ServerTaskManager::ServerTaskManager(communication::PackageManager& package_manager): m_package_manager(package_manager), m_resources(new ServerTaskManagerResources()) {
 	m_package_manager.receiver().subscribe(this);
@@ -122,8 +123,25 @@ void ServerTaskManager::report_exception(const std::string& where, const std::st
 }
 
 ServerTaskManagerResources::ServerTaskManagerResources() {
-	m_task_factory.register_creator("RegisterGpioTask", std::shared_ptr<TasksCreator>(new RegisterGpioTaskCreator(m_gpio_registry)));
-	m_task_factory.register_creator("RegisterStepperMotorTask", std::shared_ptr<TasksCreator>(new RegisterStepperMotorTaskCreator(m_stepper_motor_registry, m_gpio_registry)));
+	m_task_factory.register_creator(
+		"RegisterGpioTask", 
+		std::shared_ptr<TasksCreator>(new RegisterGpioTaskCreator(m_gpio_registry))
+	);
+	m_task_factory.register_creator(
+		"RegisterStepperMotorTask", 
+		std::shared_ptr<TasksCreator>(
+			new RegisterStepperMotorTaskCreator(
+				m_stepper_motor_registry, 
+				m_gpio_registry, 
+				RegisterStepperMotorTaskCreator::ControlGpiosFieldNamesMapping {
+					{StepperMotor::BridgeShoulder::A_LEFT, "A_LEFT"},
+					{StepperMotor::BridgeShoulder::A_RIGHT, "A_RIGHT"},
+					{StepperMotor::BridgeShoulder::B_LEFT, "B_LEFT"},
+					{StepperMotor::BridgeShoulder::B_RIGHT, "B_RIGHT"}
+				}
+			)
+		)
+	);
 }
 
 inline GpioRegistry& ServerTaskManagerResources::gpio_registry() {
