@@ -13,9 +13,8 @@ set(PICO_CXX_ENABLE_RTTI 1)
 set(DEV_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 
 set(OPENOCD_DIR ${DEV_DIR}/openocd)
-set(DBG_INTERFACE cmsis-dap.cfg)
-set(DBG_TARGET rp2040.cfg)
-
+set(DBG_INTERFACE interface/cmsis-dap.cfg)
+set(DBG_TARGET target/rp2040.cfg)
 set(CONFIG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/config)
 set(VSCODE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/.vscode)
 
@@ -24,7 +23,7 @@ pico_sdk_init()
 add_custom_target(
 	start_openocd
 	COMMENT "Starting openocd (interface = ${DBG_INTERFACE}, target = ${DBG_TARGET})"
-	COMMAND sudo src/openocd -f interface/${DBG_INTERFACE} -c "adapter speed 5000" -f target/${DBG_TARGET} -s tcl
+	COMMAND sudo src/openocd -f ${DBG_INTERFACE} -f ${DBG_TARGET} -c "transport select swd" -c "adapter speed 5000" -s tcl
 	WORKING_DIRECTORY ${OPENOCD_DIR}
 )
 
