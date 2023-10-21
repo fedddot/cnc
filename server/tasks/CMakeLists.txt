@@ -29,6 +29,18 @@ target_link_libraries(register_stepper_motor_task_creator INTERFACE icreator ser
 
 
 
+add_library(steps_task INTERFACE)
+target_sources(steps_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/steps_task.cpp)
+target_include_directories(steps_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(steps_task INTERFACE server_task object string stepper_motor pico_stdlib)
+
+add_library(steps_task_creator INTERFACE)
+target_sources(steps_task_creator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/steps_task_creator.cpp)
+target_include_directories(steps_task_creator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(steps_task_creator INTERFACE icreator server_task steps_task registry stepper_motor)
+
+
+
 add_library(server_task_manager INTERFACE)
 target_sources(server_task_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/server_task_manager.cpp)
 target_include_directories(server_task_manager INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
@@ -43,6 +55,7 @@ target_link_libraries(
 
 	register_gpio_task_creator
 	register_stepper_motor_task_creator
+	steps_task_creator
 	
 	json_parser
 	json_serializer

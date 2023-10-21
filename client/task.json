@@ -33,5 +33,21 @@
 			"B_LEFT": "7",
 			"B_RIGHT": "8"
 		}
+	},
+	{
+		"type": "StepsTask",
+		"id": "perform steps 1",
+		"motor_id": "smX",
+		"direction": "CW",
+		"steps_number": "360",
+		"step_duration_ms": "10"
+	},
+	{
+		"type": "StepsTask",
+		"id": "perform steps 2",
+		"motor_id": "smX",
+		"direction": "CCW",
+		"steps_number": "360",
+		"step_duration_ms": "10"
 	}
 ]

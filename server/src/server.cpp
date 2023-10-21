@@ -23,14 +23,13 @@ int main(void) {
 	ServerTaskManager task_manager(package_manager);
 	
 	OutputGpio led(25);	
+	led.write_value(OutputGpio::Value::HIGH);
 	while (true) {
 		if (task_manager.is_task_pending()) {
+			led.write_value(OutputGpio::Value::LOW);
 			task_manager.run_pending_task();
+			led.write_value(OutputGpio::Value::HIGH);
 		}
-		led.write_value(OutputGpio::Value::HIGH);
-		sleep_ms(500);
-		led.write_value(OutputGpio::Value::LOW);
-		sleep_ms(500);
 	}	
 
 	return 0;
