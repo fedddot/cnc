@@ -1,13 +1,11 @@
 #include <stdexcept>
 #include <string>
-#include <memory>
 
-#include "gpio.hpp"
-#include "input_gpio.hpp"
-#include "output_gpio.hpp"
-#include "registry.hpp"
-#include "object.hpp"
+#include "pico/stdlib.h"
+
+#include "stepper_motor.hpp"
 #include "string.hpp"
+#include "object.hpp"
 #include "server_task.hpp"
 
 #include "steps_task.hpp"
@@ -16,30 +14,29 @@ using namespace task;
 using namespace data;
 using namespace hardware;
 
-RegisterGpioTask::RegisterGpioTask(const std::string& id, const PinNumber& pin_number, const Direction& direction, GpioRegistry& registry): ServerTask(id), m_pin_number(pin_number), m_direction(direction), m_registry(registry) {
+StepsTask::StepsTask(const std::string& id, StepperMotor& stepper_motor, const Direction& direction, unsigned int number_of_steps, unsigned int step_duration_ms): ServerTask(id), m_stepper_motor(stepper_motor), m_direction(direction), m_number_of_steps(number_of_steps), m_step_duration_ms(step_duration_ms) {
 
 }
 
-void RegisterGpioTask::execute() {
-	if (m_registry.is_registered(m_pin_number)) {
+void StepsTask::execute() {
+	try {
+		if (!m_stepper_motor.is_enabled()) {
+			m_stepper_motor.enable();
+		}
+		unsigned int steps = m_number_of_steps;
+		while (steps) {
+			m_stepper_motor.step(m_direction);
+			sleep_ms(m_step_duration_ms);
+			--steps;
+		}
+		m_stepper_motor.disable();
+		m_report.insert({"result", std::shared_ptr<IData>(new String("OK"))});
+	} catch (const std::exception& e) {
 		m_report.insert({"result", std::shared_ptr<IData>(new String("FAIL"))});
-		m_report.insert({"what", std::shared_ptr<IData>(new String("already registered"))});
-		return;
+		m_report.insert({"what", std::shared_ptr<IData>(new String(e.what()))});
 	}
-	std::shared_ptr<Gpio> gpio(nullptr);
-	switch (m_direction)
-	{
-	case Direction::IN:
-		gpio = std::shared_ptr<Gpio>(new InputGpio(m_pin_number));
-		break;
-	case Direction::OUT:
-		gpio = std::shared_ptr<Gpio>(new OutputGpio(m_pin_number));
-		break;
-	}
-	m_registry.register_member(m_pin_number, gpio);
-	m_report.insert({"result", std::shared_ptr<IData>(new String("OK"))});
 }
 
-data::Object RegisterGpioTask::report() const {
+data::Object StepsTask::report() const {
 	return m_report;
 }

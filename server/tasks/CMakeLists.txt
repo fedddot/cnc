@@ -32,7 +32,10 @@ target_link_libraries(register_stepper_motor_task_creator INTERFACE icreator ser
 add_library(steps_task INTERFACE)
 target_sources(steps_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/steps_task.cpp)
 target_include_directories(steps_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(steps_task INTERFACE server_task object stepper_motor)
+target_link_libraries(steps_task INTERFACE server_task object string stepper_motor pico_stdlib)
+# delete it!
+add_library(steps_task_test STATIC)
+target_link_libraries(steps_task_test PRIVATE steps_task)
 
 add_library(steps_task_creator INTERFACE)
 target_sources(steps_task_creator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/steps_task_creator.cpp)

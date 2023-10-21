@@ -1,31 +1,30 @@
-#ifndef	__REGISTER_STEPPER_MOTOR_TASK_HPP__
-#define	__REGISTER_STEPPER_MOTOR_TASK_HPP__
+#ifndef	__STEPS_TASK_HPP__
+#define	__STEPS_TASK_HPP__
 
 #include <string>
-#include <memory>
 
 #include "stepper_motor.hpp"
-#include "registry.hpp"
 #include "object.hpp"
 #include "server_task.hpp"
 
 namespace task {
-	class RegisterStepperMotorTask: public ServerTask {
+	class StepsTask: public ServerTask {
 	public:
-		typedef common::Registry<std::string, std::shared_ptr<hardware::StepperMotor>> StepperMotorRegistry;
+		typedef hardware::StepperMotor::Direction Direction;
 
-		RegisterStepperMotorTask(const std::string& id, const std::string& motor_id, const hardware::StepperMotor::ControlGpios& control_gpios, StepperMotorRegistry& registry);
-		RegisterStepperMotorTask(const RegisterStepperMotorTask& other) = delete;
-		RegisterStepperMotorTask& operator=(const RegisterStepperMotorTask& other) = delete;
+		StepsTask(const std::string& id, hardware::StepperMotor& stepper_motor, const Direction& direction, unsigned int number_of_steps, unsigned int step_duration_ms);
+		StepsTask(const StepsTask& other) = delete;
+		StepsTask& operator=(const StepsTask& other) = delete;
 		
 		virtual void execute() override;
 		virtual data::Object report() const override;
 	private:
-		std::string m_motor_id;
-		hardware::StepperMotor::ControlGpios m_control_gpios;
-		StepperMotorRegistry& m_registry;
+		hardware::StepperMotor& m_stepper_motor;
+		const Direction m_direction;
+		const unsigned int m_number_of_steps;
+		const unsigned int m_step_duration_ms;
 		data::Object m_report;
-	}; // RegisterStepperMotorTask
+	}; // StepsTask
 } // namespace task
 
-#endif // __REGISTER_STEPPER_MOTOR_TASK_HPP__
+#endif // __STEPS_TASK_HPP__
