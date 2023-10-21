@@ -10,6 +10,7 @@
 #include "factory.hpp"
 #include "register_gpio_task_creator.hpp"
 #include "register_stepper_motor_task_creator.hpp"
+#include "steps_task_creator.hpp"
 
 // Data
 #include "object.hpp"
@@ -141,6 +142,10 @@ ServerTaskManagerResources::ServerTaskManagerResources() {
 				}
 			)
 		)
+	);
+	m_task_factory.register_creator(
+		"StepsTask", 
+		std::shared_ptr<TasksCreator>(new StepsTaskCreator(m_stepper_motor_registry))
 	);
 }
 
