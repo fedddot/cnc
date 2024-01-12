@@ -1,0 +1,139 @@
+specification {
+	element actor {
+		style {
+			shape person
+			color blue
+		}
+	}
+
+	element container {
+		style {
+			shape rectangle
+			color green
+			icon https://icons.terrastruct.com/essentials%2F143-windows.svg
+		}
+	}
+
+	element peripheral {
+		style {
+			shape rectangle
+			color amber
+			icon https://icons.terrastruct.com/infra%2F021-hardware.svg
+		}
+	}
+
+	element component {
+		style {
+			shape rectangle
+			color gray
+		}
+	}
+
+	element interface {
+		style {
+			shape rectangle
+			color green
+			icon https://icons.terrastruct.com/dev%2Fcplusplus.svg
+		}
+	}
+
+	element code {
+		style {
+			shape rectangle
+			color amber
+			icon https://icons.terrastruct.com/dev%2Fcplusplus.svg
+		}
+	}
+	relationship implements_relation {
+		color sky
+		line solid
+		head onormal
+		tail none
+	}
+	relationship extends_relation {
+		color slate
+		line solid
+		head onormal
+		tail none
+	}
+	relationship communicates_relation {
+		color green
+		line dashed
+		head vee
+		tail none
+	}
+	relationship composites_relation {
+		color green
+		line dashed
+		head diamond
+		tail none
+	}
+	relationship aggregates_relation {
+		color green
+		line dashed
+		head odiamond
+		tail none
+	}
+}
+
+model {
+	client = actor "CNC Client" {
+		description "Resides offboard, sends to the remote CNC Server requests and processes received results"
+	}
+	server = container "CNC Server" {
+		description "Resides onboard, slavely handles clients requests and returns status responses"
+
+		platform_abst = component "Platform abstraction layer" {
+			commumication = component "Communication" {
+				reader = interface "Reader"
+				writer = interface "Writer"
+			}
+			async_management = component "Asynchronous operations management" {
+				data_received_dispatcher = interface "OnDataReceivedDispatcher"
+			}
+		}
+
+		platform_impl = component "Platform implementation layer" {
+			commumication = component "Communication" {
+				uart = code "Uart" {
+					description "Uart controller"
+				}
+				uart_reader = code "UartReader" {
+					-[implements_relation]-> platform_abst.commumication.reader "implements"
+					-> uart "uses"
+				}
+				uart_writer = code "UartWriter" {
+					-[implements_relation]-> platform_abst.commumication.writer "implements"
+					-> uart "uses"
+				}
+			}
+			async_management = component "Asynchronous operations management" {
+				data_received_dispatcher = code "On data received interruption handler" {
+					-> platform_abst.async_management.data_received_dispatcher "notifies"
+				}
+			}
+		}
+		
+	}
+
+	client -> server "sends request"
+	server -> client "returns response"
+}
+
+views {
+ 	view index {
+		include *
+		autoLayout LeftRight
+	}
+
+	view server_view of server {
+		include server.*
+		include server.platform_abst.*
+		include server.platform_abst.commumication.*
+		include server.platform_abst.async_management.*
+		include server.platform_impl.*
+		include server.platform_impl.commumication.*
+		include server.platform_impl.async_management.*
+		autoLayout LeftRight
+	}
+}

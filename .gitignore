@@ -8,3 +8,4 @@ build
 !*.hpp
 !CMakeLists.txt
 !*.cmake
+!*.c4
