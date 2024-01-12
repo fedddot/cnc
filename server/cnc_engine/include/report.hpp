@@ -1,8 +1,10 @@
 #ifndef	REPORT_HPP
 #define	REPORT_HPP
 
-#include "data.hpp"
 #include <memory>
+
+#include "data.hpp"
+
 namespace cnc_engine {
 	class Report {
 	public:
