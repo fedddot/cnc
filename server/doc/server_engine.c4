@@ -1,0 +1,44 @@
+model {
+	cnc_engine = component {
+		description "Receives structured data describing type and parameters of a CncTask to be performed. Sends this data to a CncTaskFactory and receives corresponding task. Performs the task, composes report to the client and sends it."
+
+		Data = interface {
+			description "Holds all required for the Task creation data"
+			-> Engine "passed"
+		}
+
+		Task = interface {
+			description "An interface of an executable and reportable task"
+			-> Engine "Data (report)"
+		}
+
+		Engine = class {
+			description "Receives from the underlying protocol a Data object defining a Task to be performed"
+			-> Resourses.TaskFactory "Data (task params)"
+			-> Task "executes"
+			-> Sender "Data (report)"
+		}
+		
+		Resourses = class {
+			description "A facade aggregating interfaces of all the resources required by the Engine"
+			
+			TaskFactory = interface {
+				description "Creates tasks according to the received data"
+				-> Task "creates"
+				-> Engine "Task"
+			}
+
+			Sender = interface {
+				description "Sends Data object through the underlying communication protocol"
+			}
+		}
+	}
+}
+
+views {
+	view of cnc_engine {
+		include *
+		include Resourses.*
+		autoLayout TopBottom
+	}
+}
