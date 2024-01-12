@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 
 project(cnc_server C CXX ASM)
 
+# UTs framework
 set(DEV_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 set(GTEST_DIR ${DEV_DIR}/tools/googletest)
 
