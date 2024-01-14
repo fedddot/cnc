@@ -1,67 +1,80 @@
 #include "gtest/gtest.h"
 #include <iostream>
-#include <string>
-#include <vector>
+#include <map>
+#include <memory>
 
+#include "data.hpp"
 #include "engine.hpp"
+#include "integer.hpp"
+#include "report.hpp"
 #include "task.hpp"
 
 using namespace cnc_engine;
 
-class TestTask: public Task<std::string> {
-private:
-	const std::string m_report;
-public:
-	TestTask(const std::string& report): m_report(report) {
+template <class T>
+const T& castData(const Data& data) {
+	return dynamic_cast<const T&>(data);
+}
 
+class TestTask: public Task<Report> {
+private:
+	std::unique_ptr<Data> m_report_data;
+public:
+	TestTask(const Data& cfg): m_report_data(cfg.copy()) {
 	}
 
-	virtual std::string execute() override {
-		return m_report;
+	virtual Report execute() override {
+		Integer result(castData<Integer>(*m_report_data));
+		Report::Result report_result = (result.get() == 0) ? Report::Result::SUCCESS : Report::Result::FAILURE;
+		return Report(report_result, *m_report_data);
 	}
 };
 
-class TestFactory: public Engine<std::string, std::string>::TaskFactory {
+class TestFactory: public Engine::TaskFactory {
 public:
-	virtual Task<std::string> *create(const std::string& cfg) const override {
+	virtual Task<Report> *create(const Data& cfg) const override {
 		return new TestTask(cfg);
 	}
 };
 
-class TestSender: public Engine<std::string, std::string>::ReportSender {
+class TestSender: public Engine::ReportSender {
 private:
-	std::string m_expected_report;
+	Report::Result m_expected_result;
 public:
-	void set_expected_report(const std::string& report) {
-		m_expected_report = report;
+	TestSender(const Report::Result& expected_result): m_expected_result((expected_result)) {
+
 	}
 
-	virtual void send(const std::string& data) const override {
-		std::cout << "data received: \"" << data << "\"; expected: \"" << m_expected_report << "\"" << std::endl;
-		ASSERT_EQ(data, m_expected_report);
+	virtual void send(const Report& data) const override {
+		std::cout << "received report with result = ";
+		switch (data.result()) {
+		case Report::Result::FAILURE:
+			std::cout << "FAILURE";
+			break;
+		case Report::Result::SUCCESS:
+			std::cout << "SUCCESS";
+			break;
+		}
+		std::cout << std::endl;
+		ASSERT_EQ(m_expected_result, data.result());
 	}
 };
 
 TEST(ut_engine, sanity) {
 	// GIVEN
 	TestFactory factory;
-	TestSender sender;
-	const std::vector<std::string> test_datas {
-		"test1",
-		"test2",
-		"test3",
-		""
+	const std::map<Report::Result, Integer> test_cases {
+		{Report::Result::SUCCESS, Integer(0)},
+		{Report::Result::FAILURE, Integer(-1)}
 	};
 
-	// WHEN
-	using TestEngine = Engine<std::string, std::string>;
-	TestEngine *engine_ptr(nullptr);
-	std::string report("");
+	for (auto test_case: test_cases) {
+		// WHEN
+		TestSender sender(test_case.first);
+		std::unique_ptr<Engine> engine_ptr(nullptr);
 
-	// THEN
-	ASSERT_NO_THROW(engine_ptr = new TestEngine(factory, sender));
-	for (auto data: test_datas) {
-		sender.set_expected_report(data);
-		ASSERT_NO_THROW(engine_ptr->run_task(data));
+		// THEN
+		ASSERT_NO_THROW(engine_ptr = std::unique_ptr<Engine>(new Engine(factory, sender)));
+		ASSERT_NO_THROW(engine_ptr->run_task(test_case.second));
 	}
 }
