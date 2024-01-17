@@ -11,10 +11,12 @@ namespace task_factory {
 	using TaskCfg = cnc_engine::Data;
 	using Report = cnc_engine::Report;
 
-	class TaskFactory: public cnc_engine::Factory<Task, Report> {
+	class TaskFactory: public cnc_engine::Factory<Task *, TaskCfg> {
 	public:
-		
-		virtual Task *create(const TaskCfg& cfg) const = 0;
+		TaskFactory();
+		TaskFactory(const TaskFactory& other) = default;
+		TaskFactory& operator=(const TaskFactory& other) = default;
+		virtual Task *create(const TaskCfg& cfg) const override;
 	};
 }
 #endif // TASK_FACTORY_HPP
