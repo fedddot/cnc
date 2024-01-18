@@ -10,15 +10,15 @@
 #include "task.hpp"
 
 namespace task_factory {
-	class TaskFactory: public cnc_engine::Factory<cnc_engine::Task<cnc_engine::Report> *, cnc_engine::Data> {
+	class TaskFactory: public basics::Factory<basics::Task<cnc_engine::Report> *, cnc_engine::Data> {
 	public:
 		enum class TaskType: int {
 			CREATE_INVENTORY_ITEM,
 			DELETE_INVENTORY_ITEM
 		};
-		using Task = cnc_engine::Task<cnc_engine::Report>;
+		using Task = basics::Task<cnc_engine::Report>;
 		using TaskConfigData = cnc_engine::Data;
-		using TaskCreator = Creator<Task *, TaskConfigData>;
+		using TaskCreator = basics::Creator<Task *, TaskConfigData>;
 
 		TaskFactory(const std::map<TaskType, TaskCreator&>& creators);
 		TaskFactory(const TaskFactory& other) = default;

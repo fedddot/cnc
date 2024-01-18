@@ -1,3 +1,6 @@
+add_library(creator INTERFACE)
+target_include_directories(creator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+
 add_library(factory INTERFACE)
 target_include_directories(factory INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
