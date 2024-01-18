@@ -10,3 +10,4 @@ add_subdirectory(${GTEST_DIR} ${CMAKE_BINARY_DIR}/gtest EXCLUDE_FROM_ALL)
 
 add_subdirectory(cnc_engine)
 add_subdirectory(task_factory)
+add_subdirectory(inventory)
