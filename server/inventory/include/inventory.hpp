@@ -25,7 +25,7 @@ namespace inventory {
 	inline Inventory<Tkey, Titem>::~Inventory() noexcept {
 		try {
 			for (auto iter: m_items) {
-				delete iter->second;
+				delete (iter.second);
 			}
 			m_items.clear();
 		} catch (...) {
