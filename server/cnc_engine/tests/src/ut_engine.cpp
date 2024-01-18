@@ -9,6 +9,7 @@
 #include "report.hpp"
 #include "task.hpp"
 
+using namespace basics;
 using namespace cnc_engine;
 
 template <class T>

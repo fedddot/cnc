@@ -10,8 +10,8 @@
 namespace cnc_engine {
 	class Engine {
 	public:
-		using TaskFactory = Factory<Task<Report> *, Data>;
-		using ReportSender = Sender<Report>;
+		using TaskFactory = basics::Factory<basics::Task<Report> *, Data>;
+		using ReportSender = basics::Sender<Report>;
 
 		Engine(TaskFactory& task_factory, ReportSender& report_sender);
 		Engine(const Engine& other) = delete;

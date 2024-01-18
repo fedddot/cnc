@@ -1,7 +1,7 @@
 #ifndef	CREATOR_HPP
 #define	CREATOR_HPP
 
-namespace task_factory {
+namespace basics {
 	template <class Tprod, class Tconf>
 	class Creator {
 	public:
