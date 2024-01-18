@@ -3,11 +3,11 @@
 
 #include <map>
 
+#include "creator.hpp"
+#include "data.hpp"
 #include "factory.hpp"
 #include "report.hpp"
 #include "task.hpp"
-#include "data.hpp"
-#include "creator.hpp"
 
 namespace task_factory {
 	class TaskFactory: public cnc_engine::Factory<cnc_engine::Task<cnc_engine::Report> *, cnc_engine::Data> {
