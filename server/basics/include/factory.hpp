@@ -1,7 +1,7 @@
 #ifndef	FACTORY_HPP
 #define	FACTORY_HPP
 
-namespace cnc_engine {
+namespace basics {
 	template <class Tprod, class Tconf>
 	class Factory {
 	public:
@@ -9,4 +9,5 @@ namespace cnc_engine {
 		virtual Tprod create(const Tconf& cfg) const = 0;
 	};
 }
+
 #endif // FACTORY_HPP
