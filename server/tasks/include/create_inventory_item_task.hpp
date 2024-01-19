@@ -4,6 +4,7 @@
 #include "creator.hpp"
 #include "inventory.hpp"
 #include "report.hpp"
+#include "string.hpp"
 #include "task.hpp"
 
 namespace tasks {
@@ -21,5 +22,24 @@ namespace tasks {
 		Tconf m_item_cfg;
 		const basics::Creator<Titem *, Tconf>& m_item_creator;
 	};
+
+	template <class Tkey, class Titem, class Tconf>
+	CreateInventoryItemTask<Tkey, Titem, Tconf>::CreateInventoryItemTask(inventory::Inventory<Tkey, Titem>& inventory, const Tkey& key, const Tconf& item_cfg, const basics::Creator<Titem *, Tconf>& item_creator): m_inventory(inventory), m_key(key), m_item_cfg(item_cfg), m_item_creator(item_creator) {
+
+	}
+
+	template <class Tkey, class Titem, class Tconf>
+	cnc_engine::Report CreateInventoryItemTask<Tkey, Titem, Tconf>::execute() {
+		cnc_engine::Report::Result result = cnc_engine::Report::Result::FAILURE;
+		std::string report_data("");
+		try {
+			m_inventory.put(m_key, m_item_creator.create(m_item_cfg));
+			result = cnc_engine::Report::Result::SUCCESS;
+		} catch (const std::exception& e) {
+			result = cnc_engine::Report::Result::FAILURE;
+			report_data = e.what();
+		}
+		return cnc_engine::Report(result, cnc_engine::String(report_data));
+	}
 }
 #endif // CREATE_INVENTORY_ITEM_TASK_HPP
