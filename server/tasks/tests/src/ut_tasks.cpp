@@ -2,7 +2,9 @@
 
 #include "create_inventory_item_task.hpp"
 #include "creator.hpp"
+#include "data.hpp"
 #include "delete_inventory_item_task.hpp"
+#include "integer.hpp"
 #include "inventory.hpp"
 #include "report.hpp"
 
@@ -11,10 +13,10 @@ using namespace inventory;
 using namespace tasks;
 using namespace cnc_engine;
 
-class TestItemCreator: public Creator<int *, int> {
+class TestItemCreator: public Creator<int *, Data> {
 public:
-	virtual int *create(const int& cfg) const override {
-		return new int(cfg);
+	virtual int *create(const Data& cfg) const override {
+		return new int(Data::cast<Integer>(cfg).get());
 	}
 };
 
@@ -24,10 +26,10 @@ TEST(ut_tasks, CreateInventoryItemTask_sanity) {
 	Inventory<int, int> test_inventory;
 
 	// WHEN
-	CreateInventoryItemTask<int, int, int> instance(
+	CreateInventoryItemTask<int, int> instance(
 		test_inventory,
 		11,
-		2,
+		Integer(2),
 		creator
 	);
 	Report *report = nullptr;
@@ -61,6 +63,7 @@ TEST(ut_tasks, DeleteInventoryItemTask_sanity) {
 	
 	// THEN
 	ASSERT_NO_THROW(report = new Report(instance.execute()));
+	ASSERT_NE(nullptr, report);
 	ASSERT_EQ(Report::Result::SUCCESS, report->result());
 	ASSERT_FALSE(test_inventory.contains(0));
 	
