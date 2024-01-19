@@ -1,0 +1,6 @@
+add_library(create_inventory_item_task INTERFACE)
+target_sources(create_inventory_item_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/create_inventory_item_task.cpp)
+target_include_directories(create_inventory_item_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(create_inventory_item_task INTERFACE task inventory report)
+
+add_subdirectory(tests)
