@@ -9,7 +9,7 @@ namespace data {
 			STR,
 			OBJECT
 		};
-		virtual inline ~Data() noexcept = 0;
+		virtual ~Data() noexcept = 0;
 		virtual Type type() const = 0;
 		virtual Data *copy() const = 0;
 		

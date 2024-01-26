@@ -2,6 +2,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <stdexcept>
 
 #include "data.hpp"
 #include "engine.hpp"
@@ -11,29 +12,31 @@
 
 using namespace basics;
 using namespace cnc_engine;
+using namespace data;
 
 template <class T>
 const T& castData(const Data& data) {
 	return dynamic_cast<const T&>(data);
 }
 
-class TestTask: public Task<Report> {
+class TestTask: public Task {
 private:
 	std::unique_ptr<Data> m_report_data;
 public:
 	TestTask(const Data& cfg): m_report_data(cfg.copy()) {
 	}
 
-	virtual Report execute() override {
+	virtual void execute() override {
 		Integer result(castData<Integer>(*m_report_data));
-		Report::Result report_result = (result.get() == 0) ? Report::Result::SUCCESS : Report::Result::FAILURE;
-		return Report(report_result, *m_report_data);
+		if (result.get()) {
+			throw std::runtime_error("failed to perform the task!");
+		}
 	}
 };
 
 class TestFactory: public Engine::TaskFactory {
 public:
-	virtual Task<Report> *create(const Data& cfg) const override {
+	virtual Task *create(const Data& cfg) const override {
 		return new TestTask(cfg);
 	}
 };

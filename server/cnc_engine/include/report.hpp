@@ -12,18 +12,18 @@ namespace cnc_engine {
 			SUCCESS,
 			FAILURE
 		};
-		inline Report(const Result& result, const Data& data);
+		inline Report(const Result& result, const data::Data& data);
 		inline Report(const Report& other);
 		inline Report& operator=(const Report& other);
 		~Report() noexcept = default;
 		inline virtual Result result() const;
-		inline virtual const Data& data() const;
+		inline virtual const data::Data& data() const;
 	private:
 		Result m_result;
-		std::unique_ptr<Data> m_data;
+		std::unique_ptr<data::Data> m_data;
 	};
 
-	inline Report::Report(const Result& result, const Data& data): m_result(result), m_data(data.copy()) {
+	inline Report::Report(const Result& result, const data::Data& data): m_result(result), m_data(data.copy()) {
 
 	}
 
@@ -33,7 +33,7 @@ namespace cnc_engine {
 
 	inline Report& Report::operator=(const Report& other) {
 		m_result = other.m_result;
-		m_data = std::unique_ptr<Data>(other.m_data->copy());
+		m_data = std::unique_ptr<data::Data>(other.m_data->copy());
 		return *this;
 	}
 
@@ -41,7 +41,7 @@ namespace cnc_engine {
 		return m_result;
 	}
 
-	inline const Data& Report::data() const {
+	inline const data::Data& Report::data() const {
 		return std::ref(*m_data);
 	}
 }

@@ -8,6 +8,7 @@
 #include "engine.hpp"
 
 using namespace cnc_engine;
+using namespace data;
 
 Engine::Engine(TaskFactory& task_factory, ReportSender& report_sender): m_task_factory(task_factory), m_report_sender(report_sender) {
 
