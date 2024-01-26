@@ -6,12 +6,10 @@
 #include "data.hpp"
 #include "integer.hpp"
 #include "object.hpp"
-#include "report.hpp"
 #include "task.hpp"
 #include "task_factory.hpp"
 
 using namespace task_factory;
-using namespace cnc_engine;
 using namespace data;
 using namespace basics;
 
