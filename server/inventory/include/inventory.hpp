@@ -2,6 +2,7 @@
 #define	INVENTORY_HPP
 
 #include <map>
+#include <memory>
 #include <stdexcept>
 
 namespace inventory {
@@ -12,29 +13,18 @@ namespace inventory {
 		Inventory(const Inventory& other) = delete;
 		Inventory& operator=(const Inventory& other) = delete;
 		
-		inline ~Inventory() noexcept;
+		~Inventory() noexcept = default;
 
-		inline void put(const Tkey& key, Titem *item);
-		inline Titem *get(const Tkey& key);
-		inline bool contains(const Tkey& key) const;
+		void put(const Tkey& key, const std::shared_ptr<Titem>& item);
+		Titem *get(const Tkey& key);
+		void remove(const Tkey& key);
+		bool contains(const Tkey& key) const;
 	private:
-		std::map<Tkey, Titem *> m_items;
+		std::map<Tkey, std::shared_ptr<Titem>> m_items;
 	};
 
 	template <class Tkey, class Titem>
-	inline Inventory<Tkey, Titem>::~Inventory() noexcept {
-		try {
-			for (auto iter: m_items) {
-				delete (iter.second);
-			}
-			m_items.clear();
-		} catch (...) {
-
-		}
-	}
-
-	template <class Tkey, class Titem>
-	inline void Inventory<Tkey, Titem>::put(const Tkey& key, Titem *item) {
+	inline void Inventory<Tkey, Titem>::put(const Tkey& key, const std::shared_ptr<Titem>& item) {
 		if (m_items.end() != m_items.find(key)) {
 			throw std::invalid_argument("received key is already registered");
 		}
@@ -50,9 +40,16 @@ namespace inventory {
 		if (m_items.end() == iter) {
 			throw std::invalid_argument("received key is not registered");
 		}
-		Titem *item = iter->second;
+		return (iter->second).get();
+	}
+
+	template <class Tkey, class Titem>
+	void Inventory<Tkey, Titem>::remove(const Tkey& key) {
+		auto iter = m_items.find(key);
+		if (m_items.end() == iter) {
+			throw std::invalid_argument("received key is not registered");
+		}
 		m_items.erase(iter);
-		return item;
 	}
 
 	template <class Tkey, class Titem>
