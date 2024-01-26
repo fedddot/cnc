@@ -8,6 +8,8 @@
 
 using namespace task_factory;
 using namespace cnc_engine;
+using namespace data;
+using namespace basics;
 
 const std::string task_factory::TaskFactory::s_task_type_field_name("task_type");
 
@@ -16,12 +18,12 @@ TaskFactory::TaskFactory(const std::map<TaskType, TaskCreator&>& creators): m_cr
 
 }
 
-TaskFactory::TaskType TaskFactory::retrieve_task_type(const TaskConfigData& cfg) {
-	const Object& cfg_object = TaskConfigData::cast<Object>(cfg);
+TaskFactory::TaskType TaskFactory::retrieve_task_type(const Data& cfg) {
+	const Object& cfg_object = Data::cast<Object>(cfg);
 	if (!cfg_object.contains(s_task_type_field_name)) {
 		throw std::invalid_argument("received cfg object doesn't contain field " + s_task_type_field_name);
 	}
-	const Integer& int_type = TaskConfigData::cast<Integer>(cfg_object.access(s_task_type_field_name));
+	const Integer& int_type = Data::cast<Integer>(cfg_object.access(s_task_type_field_name));
 	
 	switch (int_type.get()) {
 	case static_cast<int>(TaskType::CREATE_INVENTORY_ITEM):
@@ -32,7 +34,7 @@ TaskFactory::TaskType TaskFactory::retrieve_task_type(const TaskConfigData& cfg)
 	throw std::invalid_argument("failed to retrieve task type from the config");
 }
 
-TaskFactory::Task *TaskFactory::create(const TaskConfigData& cfg) const {
+Task *TaskFactory::create(const Data& cfg) const {
 	auto iter = m_creators.find(retrieve_task_type(cfg));
 	if (m_creators.end() == iter) {
 		throw std::invalid_argument("creator matching received cfg is not registered");

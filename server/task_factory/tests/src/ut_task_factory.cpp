@@ -7,24 +7,27 @@
 #include "integer.hpp"
 #include "object.hpp"
 #include "report.hpp"
+#include "task.hpp"
 #include "task_factory.hpp"
 
 using namespace task_factory;
 using namespace cnc_engine;
+using namespace data;
+using namespace basics;
 
-class TestTask: public TaskFactory::Task {
+class TestTask: public Task {
 public:
-	TestTask(const TaskFactory::TaskConfigData& cfg): m_cfg(cfg.copy()) {}
-	virtual Report execute() override {
-		return Report(Report::Result::SUCCESS, *m_cfg);
+	TestTask(const Data& cfg): m_cfg(cfg.copy()) {}
+	virtual void execute() override {
+		
 	}
 private:
-	std::unique_ptr<TaskFactory::TaskConfigData> m_cfg;
+	std::unique_ptr<Data> m_cfg;
 };
 
 class TestTaskCreator: public TaskFactory::TaskCreator {
 public:
-	virtual TaskFactory::Task *create(const TaskFactory::TaskConfigData& cfg) const {
+	virtual Task *create(const Data& cfg) const {
 		return new TestTask(cfg);
 	}
 };
@@ -40,12 +43,12 @@ TEST(ut_engine, sanity) {
 
 	// WHEN
 	TaskFactory *instance_ptr = nullptr;
-	TaskFactory::Task *task_ptr = nullptr;
+	Task *task_ptr = nullptr;
 
 	// THEN
 	ASSERT_NO_THROW(instance_ptr = new TaskFactory(creators));
 	ASSERT_NE(nullptr, instance_ptr);
 	ASSERT_NO_THROW(task_ptr = instance_ptr->create(test_cfg));
 	ASSERT_NE(nullptr, task_ptr);
-	Report report(task_ptr->execute());
+	ASSERT_NO_THROW(task_ptr->execute());
 }
