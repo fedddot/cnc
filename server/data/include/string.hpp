@@ -5,7 +5,7 @@
 #include "data.hpp"
 #include "value.hpp"
 
-namespace cnc_engine {
+namespace data {
 	class String: public Value<std::string> {
 	public:
 		inline String(const std::string& str);

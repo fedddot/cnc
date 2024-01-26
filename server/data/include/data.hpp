@@ -1,7 +1,7 @@
 #ifndef	DATA_HPP
 #define	DATA_HPP
 
-namespace cnc_engine {
+namespace data {
 	class Data {
 	public:
 		enum class Type : int {

@@ -4,7 +4,7 @@
 #include "data.hpp"
 #include "value.hpp"
 
-namespace cnc_engine {
+namespace data {
 	class Integer: public Value<int> {
 	public:
 		inline Integer(int val);

@@ -8,5 +8,5 @@ target_include_directories(engine INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(engine INTERFACE data task sender factory)
 
 
-add_subdirectory(data)
+
 add_subdirectory(tests)

@@ -8,7 +8,7 @@
 
 #include "data.hpp"
 
-namespace cnc_engine {
+namespace data {
 	class Object: public Data {
 	public:
 		Object() = default;

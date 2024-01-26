@@ -3,7 +3,7 @@
 
 #include "data.hpp"
 
-namespace cnc_engine {
+namespace data {
 	template <class T>
 	class Value: public Data {
 	public:
