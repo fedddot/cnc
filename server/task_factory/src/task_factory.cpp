@@ -12,11 +12,6 @@ using namespace basics;
 
 const std::string task_factory::TaskFactory::s_task_type_field_name("task_type");
 
-
-TaskFactory::TaskFactory(const std::map<TaskType, TaskCreator&>& creators): m_creators(creators) {
-
-}
-
 TaskFactory::TaskType TaskFactory::retrieve_task_type(const Data& cfg) {
 	const Object& cfg_object = Data::cast<Object>(cfg);
 	if (!cfg_object.contains(s_task_type_field_name)) {
@@ -38,5 +33,5 @@ Task *TaskFactory::create(const Data& cfg) const {
 	if (m_creators.end() == iter) {
 		throw std::invalid_argument("creator matching received cfg is not registered");
 	}
-	return (iter->second).create(cfg);
+	return (iter->second)(cfg);
 }
