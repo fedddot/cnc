@@ -15,10 +15,10 @@ Engine::Engine(TaskFactory& task_factory, ReportSender& report_sender): m_task_f
 }
 
 void Engine::run_task(const Data& task_cfg_data) {
-	std::unique_ptr<basics::Task> task_ptr(m_task_factory.create(task_cfg_data));
 	Report::Result report_result(Report::Result::SUCCESS);
 	Object report_data;
 	try {
+		std::unique_ptr<basics::Task> task_ptr(m_task_factory.create(task_cfg_data));
 		task_ptr->execute();
 	} catch (const std::exception& e) {
 		report_data.add("exception", String(e.what()));
