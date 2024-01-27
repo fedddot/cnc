@@ -2,11 +2,21 @@ cmake_minimum_required(VERSION 3.12)
 
 project(cnc_server C CXX ASM)
 
-# UTs framework
-set(DEV_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
-set(GTEST_DIR ${DEV_DIR}/googletest)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_subdirectory(${GTEST_DIR} ${CMAKE_BINARY_DIR}/gtest EXCLUDE_FROM_ALL)
+if(NOT DEFINED DEV_DIR)
+    set(DEV_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+endif()
+
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+FetchContent_MakeAvailable(googletest)
+
+# add_subdirectory(${GTEST_DIR} ${CMAKE_BINARY_DIR}/gtest EXCLUDE_FROM_ALL)
 
 add_subdirectory(basics)
 add_subdirectory(cnc_engine)
