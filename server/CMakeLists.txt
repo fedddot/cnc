@@ -2,9 +2,13 @@ cmake_minimum_required(VERSION 3.12)
 
 project(cnc_server C CXX ASM)
 
-# UTs framework
-set(DEV_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
-set(GTEST_DIR ${DEV_DIR}/googletest)
+if(NOT DEFINED DEV_DIR)
+    set(DEV_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+endif()
+
+if(NOT DEFINED GTEST_DIR)
+    set(GTEST_DIR ${DEV_DIR}/googletest)
+endif()
 
 add_subdirectory(${GTEST_DIR} ${CMAKE_BINARY_DIR}/gtest EXCLUDE_FROM_ALL)
 
