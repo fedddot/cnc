@@ -7,9 +7,7 @@ add_executable(
 target_link_libraries(
 	data_tests
 	PRIVATE
-	object
-	string
-	integer
+	data_lib
 	
 	gtest
 	gmock
