@@ -2,19 +2,17 @@
 #define	DELETE_INVENTORY_ITEM_TASK_HPP
 
 #include "inventory.hpp"
-#include "report.hpp"
-#include "string.hpp"
 #include "task.hpp"
 
 namespace tasks {
 	template <class Tkey, class Titem>
-	class DeleteInventoryItemTask: public basics::Task<cnc_engine::Report> {
+	class DeleteInventoryItemTask: public basics::Task {
 	public:
 		DeleteInventoryItemTask(inventory::Inventory<Tkey, Titem>& inventory, const Tkey& key);
 		DeleteInventoryItemTask(const DeleteInventoryItemTask& other) = default;
 		DeleteInventoryItemTask& operator=(const DeleteInventoryItemTask& other) = default;
 
-		virtual cnc_engine::Report execute() override;
+		virtual void execute() override;
 	private:
 		inventory::Inventory<Tkey, Titem>& m_inventory;
 		Tkey m_key;
@@ -26,19 +24,8 @@ namespace tasks {
 	}
 
 	template <class Tkey, class Titem>
-	cnc_engine::Report DeleteInventoryItemTask<Tkey, Titem>::execute() {
-		cnc_engine::Report::Result result = cnc_engine::Report::Result::FAILURE;
-		std::string report_data("");
-		try {
-			Titem *item_ptr = m_inventory.get(m_key);
-			delete item_ptr;
-			item_ptr = nullptr;
-			result = cnc_engine::Report::Result::SUCCESS;
-		} catch (const std::exception& e) {
-			result = cnc_engine::Report::Result::FAILURE;
-			report_data = e.what();
-		}
-		return cnc_engine::Report(result, cnc_engine::String(report_data));
+	void DeleteInventoryItemTask<Tkey, Titem>::execute() {
+		m_inventory.remove(m_key);
 	}
 }
 #endif // DELETE_INVENTORY_ITEM_TASK_HPP
