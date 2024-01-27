@@ -1,43 +1,119 @@
-#include <string>
-#include <vector>
+#include "creator.hpp"
+#include "data.hpp"
+#include "delete_inventory_item_task.hpp"
+#include "engine.hpp"
+#include "integer.hpp"
+#include "inventory.hpp"
+#include "object.hpp"
+#include "task.hpp"
+#include "task_factory.hpp"
+#include "create_inventory_item_task.hpp"
+#include <iostream>
+#include <map>
 
-#include "pico/stdlib.h"
+using namespace cnc_engine;
+using namespace task_factory;
+using namespace data;
+using namespace basics;
+using namespace inventory;
+using namespace tasks;
 
-#include "server_uart.hpp"
-#include "package_manager.hpp"
-#include "package_descriptor.hpp"
-#include "output_gpio.hpp"
-#include "server_task_manager.hpp"
+class Gpio {
+public:
+    enum class Direction: int {
+        INPUT,
+        OUTPUT
+    };
+    enum class Value: int {
+        LOW,
+        HIGH
+    };
+    Gpio(int id, const Direction& direction): m_id(id), m_direction(direction), m_val(Value::LOW) {
 
-using namespace common;
-using namespace hardware;
-using namespace communication;
-using namespace task;
+    }
+    Value get() const {
+        return m_val;
+    }
+    void set(const Value& val) {
+        m_val = val;
+    }
+private:
+    int m_id;
+    Direction m_direction;
+    Value m_val;
+};
 
-static PackageDescriptor init_package_descriptor();
+class GpioCreator: public Creator<Gpio *, data::Data> {
+public:
+    virtual Gpio *create(const data::Data& cfg) const {
+        const Object& cfg_data = Data::cast<Object>(cfg);
+        Gpio::Direction gpio_dir = static_cast<Gpio::Direction>(Data::cast<Integer>(cfg_data.access("direction")).get());
+        int gpio_id = Data::cast<Integer>(cfg_data.access("id")).get();
+        return new Gpio(m_gpio_id, m_gpio_dir);
+    }
+private:
+    int m_gpio_id;
+    Gpio::Direction m_gpio_dir;
+};
+
+static GpioCreator s_gpio_creator;
+
+class CreateGpioTaskCreator: public Creator<Task *, Data> {
+public:
+    CreateGpioTaskCreator(Inventory<int, Gpio>& gpio_inventory): m_gpio_inventory(gpio_inventory) {
+
+    }
+    virtual Task *create(const Data& data) const {
+        int gpio_id = Data::cast<Integer>(Data::cast<Object>(data).access("id")).get();
+
+        return new CreateInventoryItemTask<int, Gpio>(m_gpio_inventory, gpio_id, data, s_gpio_creator);
+    }
+private:
+    Inventory<int, Gpio>& m_gpio_inventory;
+};
+
+class DeleteGpioTaskCreator: public Creator<Task *, Data> {
+public:
+    DeleteGpioTaskCreator(Inventory<int, Gpio>& gpio_inventory): m_gpio_inventory(gpio_inventory) {
+
+    }
+    virtual Task *create(const Data& data) const {
+        int gpio_id = Data::cast<Integer>(Data::cast<Object>(data).access("id")).get();
+        return new DeleteInventoryItemTask<int, Gpio>(m_gpio_inventory, gpio_id);
+    }
+private:
+    Inventory<int, Gpio>& m_gpio_inventory;
+};
+
+class ReportSender: public Engine::ReportSender {
+public:
+    virtual void send(const Report& data) const {
+        std::cout << "report: result = " << static_cast<int>(data.result()) << std::endl;
+    }
+};
 
 int main(void) {
-	ServerUart uart(ServerUart::BaudRate::BR115200, ServerUart::Parity::NONE, ServerUart::StopBits::ONE, ServerUart::BitsNumber::BN8, ServerUart::UartId::UART0);
-	PackageManager package_manager(init_package_descriptor(), uart, uart);
-	
-	ServerTaskManager task_manager(package_manager);
-	
-	OutputGpio led(25);	
-	led.write_value(OutputGpio::Value::HIGH);
-	while (true) {
-		if (task_manager.is_task_pending()) {
-			led.write_value(OutputGpio::Value::LOW);
-			task_manager.run_pending_task();
-			led.write_value(OutputGpio::Value::HIGH);
-		}
-	}	
+    Inventory<int, Gpio> gpio_inventory;
+    CreateGpioTaskCreator create_item_task_creator(gpio_inventory);
+    DeleteGpioTaskCreator delete_item_task_creator(gpio_inventory);
+    
+    TaskFactory task_factory(
+        {
+            {TaskFactory::TaskType::CREATE_INVENTORY_ITEM, std::ref(create_item_task_creator)},
+            {TaskFactory::TaskType::CREATE_INVENTORY_ITEM, std::ref(delete_item_task_creator)}
+        }
+    );
 
-	return 0;
-}
+    ReportSender sender;
+    Engine engine(task_factory, sender);
 
-static PackageDescriptor init_package_descriptor() {
-	const std::string header_str("cnc_package_header");
-	const std::vector<char> header(header_str.begin(), header_str.end());
-	const std::size_t package_length_field_size(2UL);
-	return PackageDescriptor(header, package_length_field_size);
+    Object taskCfg;
+    taskCfg.add("task_type", Integer(static_cast<int>(TaskFactory::TaskType::CREATE_INVENTORY_ITEM)));
+    taskCfg.add("id", Integer(0));
+    taskCfg.add("direction", Integer(static_cast<int>(Gpio::Direction::INPUT)));
+
+
+    engine.run_task(taskCfg);
+
+    return 0;
 }

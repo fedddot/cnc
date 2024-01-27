@@ -8,3 +8,5 @@ build
 !*.hpp
 !CMakeLists.txt
 !*.cmake
+!*.c4
+!*.code-workspace
