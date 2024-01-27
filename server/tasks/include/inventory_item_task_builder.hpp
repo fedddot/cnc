@@ -1,46 +1,54 @@
 #ifndef	INVENTORY_ITEM_TASK_BUILDER_HPP
 #define	INVENTORY_ITEM_TASK_BUILDER_HPP
 
-#include "creator.hpp"
-#include "data.hpp"
+#include "builder.hpp"
 #include "inventory.hpp"
 #include "task.hpp"
-#include <memory>
+#include <stdexcept>
 
 namespace tasks {
 	template <class Tkey, class Titem>
-	class CreateInventoryItemTask: public basics::Task {
+	class InventoryItemTaskBuilder: public basics::Builder<basics::Task *> {
 	public:
-		CreateInventoryItemTask(
-			inventory::Inventory<Tkey, Titem>& inventory, 
-			const Tkey& key, 
-			const data::Data& item_cfg, 
-			const basics::Creator<Titem *, data::Data>& item_creator
-		);
-		CreateInventoryItemTask(const CreateInventoryItemTask& other) = default;
-		CreateInventoryItemTask& operator=(const CreateInventoryItemTask& other) = default;
+		InventoryItemTaskBuilder();
+		InventoryItemTaskBuilder(const InventoryItemTaskBuilder& other) = default;
+		InventoryItemTaskBuilder& operator=(const InventoryItemTaskBuilder& other) = default;
 
-		virtual void execute() override;
+		void set_inventory(inventory::Inventory<Tkey, Titem> *inventory);
+		inventory::Inventory<Tkey, Titem>& inventory() const;
+
+		void set_key(const Tkey& key);
+		Tkey key() const;
 	private:
-		inventory::Inventory<Tkey, Titem>& m_inventory;
+		mutable inventory::Inventory<Tkey, Titem> *m_inventory;
 		Tkey m_key;
-		std::unique_ptr<data::Data> m_item_cfg;
-		basics::Creator<Titem *, data::Data>& m_item_creator;
 	};
 
 	template <class Tkey, class Titem>
-	CreateInventoryItemTask<Tkey, Titem>::CreateInventoryItemTask(
-		inventory::Inventory<Tkey, Titem>& inventory, 
-		const Tkey& key, 
-		const data::Data& item_cfg, 
-		const basics::Creator<Titem *, data::Data>& item_creator
-	): m_inventory(inventory), m_key(key), m_item_cfg(item_cfg.copy()), m_item_creator(std::ref(item_creator)) {
-
+	inline InventoryItemTaskBuilder<Tkey, Titem>::InventoryItemTaskBuilder(): m_inventory(nullptr) {
 	}
 
 	template <class Tkey, class Titem>
-	void CreateInventoryItemTask<Tkey, Titem>::execute() {
-		m_inventory.put(m_key, std::shared_ptr<int>(m_item_creator.create(*m_item_cfg)));
+	inline void InventoryItemTaskBuilder<Tkey, Titem>::set_inventory(inventory::Inventory<Tkey, Titem> *inventory) {
+		m_inventory = inventory;
+	}
+
+	template <class Tkey, class Titem>
+	inline inventory::Inventory<Tkey, Titem>& InventoryItemTaskBuilder<Tkey, Titem>::inventory() const {
+		if (nullptr == m_inventory) {
+			throw std::runtime_error("inventory has not been set");
+		}
+		return std::ref(*m_inventory);
+	}
+
+	template <class Tkey, class Titem>
+	inline void InventoryItemTaskBuilder<Tkey, Titem>::set_key(const Tkey& key) {
+		m_key = key;
+	}
+
+	template <class Tkey, class Titem>
+	inline Tkey InventoryItemTaskBuilder<Tkey, Titem>::key() const {
+		return m_key;
 	}
 }
 #endif // INVENTORY_ITEM_TASK_BUILDER_HPP
