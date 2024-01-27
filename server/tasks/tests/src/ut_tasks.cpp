@@ -7,13 +7,11 @@
 #include "delete_inventory_item_task.hpp"
 #include "integer.hpp"
 #include "inventory.hpp"
-#include "report.hpp"
 
 using namespace basics;
 using namespace inventory;
 using namespace tasks;
 using namespace data;
-using namespace cnc_engine;
 
 class TestItemCreator: public basics::Creator<int *, Data> {
 public:
@@ -34,7 +32,6 @@ TEST(ut_tasks, CreateInventoryItemTask_sanity) {
 		Integer(2),
 		creator
 	);
-	Report *report = nullptr;
 	
 	// THEN
 	ASSERT_NO_THROW(instance.execute());

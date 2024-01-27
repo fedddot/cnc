@@ -1,5 +1,5 @@
-#ifndef	CREATE_INVENTORY_ITEM_TASK_HPP
-#define	CREATE_INVENTORY_ITEM_TASK_HPP
+#ifndef	INVENTORY_ITEM_TASK_BUILDER_HPP
+#define	INVENTORY_ITEM_TASK_BUILDER_HPP
 
 #include "creator.hpp"
 #include "data.hpp"
@@ -25,7 +25,7 @@ namespace tasks {
 		inventory::Inventory<Tkey, Titem>& m_inventory;
 		Tkey m_key;
 		std::unique_ptr<data::Data> m_item_cfg;
-		const basics::Creator<Titem *, data::Data>& m_item_creator;
+		basics::Creator<Titem *, data::Data>& m_item_creator;
 	};
 
 	template <class Tkey, class Titem>
@@ -34,7 +34,7 @@ namespace tasks {
 		const Tkey& key, 
 		const data::Data& item_cfg, 
 		const basics::Creator<Titem *, data::Data>& item_creator
-	): m_inventory(inventory), m_key(key), m_item_cfg(item_cfg.copy()), m_item_creator(item_creator) {
+	): m_inventory(inventory), m_key(key), m_item_cfg(item_cfg.copy()), m_item_creator(std::ref(item_creator)) {
 
 	}
 
@@ -43,4 +43,4 @@ namespace tasks {
 		m_inventory.put(m_key, std::shared_ptr<int>(m_item_creator.create(*m_item_cfg)));
 	}
 }
-#endif // CREATE_INVENTORY_ITEM_TASK_HPP
+#endif // INVENTORY_ITEM_TASK_BUILDER_HPP

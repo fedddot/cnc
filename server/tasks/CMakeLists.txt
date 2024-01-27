@@ -1,9 +1,15 @@
 add_library(create_inventory_item_task INTERFACE)
 target_include_directories(create_inventory_item_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(create_inventory_item_task INTERFACE task creator inventory report string)
+target_link_libraries(create_inventory_item_task INTERFACE task creator inventory)
 
 add_library(delete_inventory_item_task INTERFACE)
 target_include_directories(delete_inventory_item_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(delete_inventory_item_task INTERFACE task inventory report string)
+target_link_libraries(delete_inventory_item_task INTERFACE task inventory)
+
+add_library(inventory_item_task_builder INTERFACE)
+target_include_directories(inventory_item_task_builder INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(inventory_item_task_builder INTERFACE task inventory builder)
+
+
 
 add_subdirectory(tests)

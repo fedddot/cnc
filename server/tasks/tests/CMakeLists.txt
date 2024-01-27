@@ -8,6 +8,10 @@ target_link_libraries(
 	tasks_tests
 	PRIVATE
 	create_inventory_item_task
+	delete_inventory_item_task
+	inventory_item_task_builder
+
+	data_lib
 	
 	gtest
 	gmock

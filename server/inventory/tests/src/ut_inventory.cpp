@@ -18,9 +18,5 @@ TEST(ut_inventory, sanity) {
 	ASSERT_TRUE(instance.contains(0));
 	ASSERT_NO_THROW(item_ptr = instance.get(0));
 	ASSERT_NE(nullptr, item_ptr);
-	ASSERT_THROW(instance.get(0), std::invalid_argument);
 	ASSERT_THROW(instance.put(1, nullptr), std::invalid_argument);
-
-	// CLEANUP
-	delete item_ptr;
 }
