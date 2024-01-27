@@ -1,6 +1,4 @@
 #include "gtest/gtest.h"
-#include <functional>
-#include <map>
 #include <memory>
 
 #include "data.hpp"
