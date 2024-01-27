@@ -42,7 +42,7 @@ bool Object::contains(const std::string& name) const {
 }
 
 void Object::throw_if_not_found(const std::string &name) const {
-	if (!contains(name)) {
+	if (!cntains(name)) {
 		throw std::invalid_argument("data object does not contain field " + name);
 	}
 }
