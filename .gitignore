@@ -9,3 +9,4 @@ build
 !CMakeLists.txt
 !*.cmake
 !*.c4
+!*.code-workspace
