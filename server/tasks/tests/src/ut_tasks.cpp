@@ -2,7 +2,6 @@
 #include <memory>
 
 #include "create_inventory_item_task.hpp"
-#include "creator.hpp"
 #include "data.hpp"
 #include "delete_inventory_item_task.hpp"
 #include "integer.hpp"
@@ -13,16 +12,8 @@ using namespace inventory;
 using namespace tasks;
 using namespace data;
 
-class TestItemCreator: public basics::Creator<int *, Data> {
-public:
-	virtual int *create(const Data& cfg) const override {
-		return new int(Data::cast<Integer>(cfg).get());
-	}
-};
-
 TEST(ut_tasks, CreateInventoryItemTask_sanity) {
 	// GIVEN
-	TestItemCreator creator;
 	Inventory<int, int> test_inventory;
 
 	// WHEN
@@ -30,7 +21,9 @@ TEST(ut_tasks, CreateInventoryItemTask_sanity) {
 		test_inventory,
 		11,
 		Integer(2),
-		creator
+		[&](const Data& data)-> int * {
+			return new int(Data::cast<Integer>(data).get());
+		}
 	);
 	
 	// THEN

@@ -97,12 +97,7 @@ int main(void) {
     CreateGpioTaskCreator create_item_task_creator(gpio_inventory);
     DeleteGpioTaskCreator delete_item_task_creator(gpio_inventory);
     
-    TaskFactory task_factory(
-        {
-            {TaskFactory::TaskType::CREATE_INVENTORY_ITEM, std::ref(create_item_task_creator)},
-            {TaskFactory::TaskType::CREATE_INVENTORY_ITEM, std::ref(delete_item_task_creator)}
-        }
-    );
+    TaskFactory task_factory;
 
     ReportSender sender;
     Engine engine(task_factory, sender);
