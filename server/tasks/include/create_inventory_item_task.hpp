@@ -40,7 +40,7 @@ namespace tasks {
 
 	template <class Tkey, class Titem>
 	void CreateInventoryItemTask<Tkey, Titem>::execute() {
-		m_inventory.put(m_key, std::shared_ptr<int>(m_item_creator.create(*m_item_cfg)));
+		m_inventory.put(m_key, std::shared_ptr<Titem>(m_item_creator.create(*m_item_cfg)));
 	}
 }
 #endif // CREATE_INVENTORY_ITEM_TASK_HPP

@@ -19,5 +19,9 @@ add_executable(server ${CMAKE_CURRENT_LIST_DIR}/src/server.cpp)
 target_link_libraries(
     server
     PRIVATE
+    creator
+    
     engine
+    task_factory
+    create_inventory_item_task
 )
