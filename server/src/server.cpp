@@ -1,5 +1,4 @@
 #include "data.hpp"
-#include "delete_inventory_item_task.hpp"
 #include "engine.hpp"
 #include "integer.hpp"
 #include "inventory.hpp"
@@ -7,7 +6,6 @@
 #include "object.hpp"
 #include "task.hpp"
 #include "task_factory.hpp"
-#include "create_inventory_item_task.hpp"
 #include <iostream>
 #include <stdexcept>
 

@@ -8,8 +8,6 @@ target_link_libraries(
 	tasks_tests
 	PRIVATE
 	inventory_task
-	create_inventory_item_task
-	delete_inventory_item_task
 
 	data_lib
 	
