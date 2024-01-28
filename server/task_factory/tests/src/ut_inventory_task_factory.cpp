@@ -5,7 +5,7 @@
 #include "integer.hpp"
 #include "object.hpp"
 #include "task.hpp"
-#include "task_factory.hpp"
+#include "inventory_task_factory.hpp"
 
 using namespace task_factory;
 using namespace data;
