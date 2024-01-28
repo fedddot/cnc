@@ -7,6 +7,7 @@
 
 #include "data.hpp"
 #include "factory.hpp"
+#include "inventory.hpp"
 #include "task.hpp"
 
 namespace task_factory {
@@ -18,23 +19,28 @@ namespace task_factory {
 			DELETE_INVENTORY_ITEM,
 			USE_INVENTORY_ITEM
 		};
-		using TaskCreator = std::function<basics::Task *(const data::Data&)>;
+		using TaskCreator = std::function<basics::Task *(inventory::Inventory<Tkey, Titem> *inventory, const data::Data&)>;
 		using TaskTypeRetriever = std::function<TaskType(const data::Data&)>;
 
-		InventoryTaskFactory(const TaskTypeRetriever& task_type_retriever);
+		InventoryTaskFactory(inventory::Inventory<Tkey, Titem> *inventory, const TaskTypeRetriever& task_type_retriever);
 		InventoryTaskFactory(const InventoryTaskFactory& other) = default;
 		InventoryTaskFactory& operator=(const InventoryTaskFactory& other) = default;
 
-		virtual basics::Task *create(const data::Data& cfg) const override;
 		void set_creator(const TaskType& type, const TaskCreator& creator);
 		void remove_creator(const TaskType& type);
+		
+		virtual basics::Task *create(const data::Data& cfg) const override;
 	private:
+		inventory::Inventory<Tkey, Titem> *m_inventory;
 		TaskTypeRetriever m_task_type_retriever;
 		std::map<TaskType, TaskCreator> m_creators;
 	};
 
 	template <class Tkey, class Titem>
-	inline InventoryTaskFactory<Tkey, Titem>::InventoryTaskFactory(const TaskTypeRetriever& task_type_retriever): m_task_type_retriever(task_type_retriever) {
+	inline InventoryTaskFactory<Tkey, Titem>::InventoryTaskFactory(inventory::Inventory<Tkey, Titem> *inventory, const TaskTypeRetriever& task_type_retriever): m_inventory(inventory), m_task_type_retriever(task_type_retriever) {
+		if (!m_inventory) {
+			throw std::invalid_argument("invalid inventory ptr received");
+		}
 		if (!m_task_type_retriever) {
 			throw std::invalid_argument("invalid task type retriever received");
 		}
@@ -60,7 +66,7 @@ namespace task_factory {
 		if (m_creators.end() == iter) {
 			throw std::invalid_argument("creator matching received cfg is not registered");
 		}
-		return (iter->second)(cfg);
+		return (iter->second)(m_inventory, cfg);
 	}
 }
 #endif // INVENTORY_TASK_FACTORY_HPP
