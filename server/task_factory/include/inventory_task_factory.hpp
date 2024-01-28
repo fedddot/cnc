@@ -61,7 +61,7 @@ namespace task_factory {
 	}
 
 	template <class Tkey, class Titem>
-	basics::Task *InventoryTaskFactory<Tkey, Titem>::create(const data::Data& cfg) const {
+	inline basics::Task *InventoryTaskFactory<Tkey, Titem>::create(const data::Data& cfg) const {
 		auto iter = m_creators.find(m_task_type_retriever(cfg));
 		if (m_creators.end() == iter) {
 			throw std::invalid_argument("creator matching received cfg is not registered");

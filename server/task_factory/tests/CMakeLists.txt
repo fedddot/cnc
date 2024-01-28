@@ -8,6 +8,8 @@ target_link_libraries(
 	task_factory_tests
 	PRIVATE
 	inventory_task_factory
+	inventory_task
+	inventory
 	object
 	
 	gtest

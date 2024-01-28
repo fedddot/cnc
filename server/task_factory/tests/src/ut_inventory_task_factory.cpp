@@ -1,43 +1,66 @@
 #include "gtest/gtest.h"
-#include <memory>
+#include "gtest/gtest-matchers.h"
+#include "gmock/gmock-matchers.h"
+#include "gmock/gmock-more-matchers.h"
+#include <stdexcept>
+#include <string>
 
 #include "data.hpp"
 #include "integer.hpp"
+#include "inventory.hpp"
+#include "inventory_task_factory.hpp"
+#include "inventory_task.hpp"
 #include "object.hpp"
 #include "task.hpp"
-#include "inventory_task_factory.hpp"
 
 using namespace task_factory;
+using namespace inventory;
 using namespace data;
 using namespace basics;
+using namespace tasks;
 
-class TestTask: public Task {
-public:
-	TestTask(const Data& cfg): m_cfg(cfg.copy()) {}
-	virtual void execute() override {
-		
+using TestInventoryTaskFactory = InventoryTaskFactory<int, std::string>;
+using TaskType = TestInventoryTaskFactory::TaskType;
+
+static TaskType retrieve_type(const Data& data) {
+	const Object& data_object = Data::cast<Object>(data);
+	auto int_type = Data::cast<Integer>(data_object.access("task_type")).get();
+	switch (int_type) {
+	case static_cast<int>(TaskType::CREATE_INVENTORY_ITEM):
+		return TaskType::CREATE_INVENTORY_ITEM;
+	case static_cast<int>(TaskType::DELETE_INVENTORY_ITEM):
+		return TaskType::DELETE_INVENTORY_ITEM;
+	case static_cast<int>(TaskType::USE_INVENTORY_ITEM):
+		return TaskType::USE_INVENTORY_ITEM;
+	default:
+		throw std::invalid_argument("failed to retrieve task type");
 	}
-private:
-	std::unique_ptr<Data> m_cfg;
-};
+}
 
-TEST(ut_engine, sanity) {
+TEST(inventory_task_factory, ctor_dtor_sanity) {
 	// GIVEN
-	auto creator = [&](const Data& data)-> Task * {
-		return new TestTask(data);
-	};
-	Object test_cfg;
-	test_cfg.add("task_type", Integer(static_cast<int>(TaskFactory::TaskType::CREATE_INVENTORY_ITEM)));
+	Inventory<int, std::string> inventory;
 
 	// WHEN
-	TaskFactory *instance_ptr = nullptr;
-	Task *task_ptr = nullptr;
+	TestInventoryTaskFactory *instance_ptr = nullptr;
 
 	// THEN
-	ASSERT_NO_THROW(instance_ptr = new TaskFactory());
-	ASSERT_NE(nullptr, instance_ptr);
-	ASSERT_NO_THROW(instance_ptr->set_creator(TaskFactory::TaskType::CREATE_INVENTORY_ITEM, creator));
-	ASSERT_NO_THROW(task_ptr = instance_ptr->create(test_cfg));
-	ASSERT_NE(nullptr, task_ptr);
-	ASSERT_NO_THROW(task_ptr->execute());
+	ASSERT_NO_THROW(instance_ptr = new TestInventoryTaskFactory(&inventory, retrieve_type));
+	ASSERT_NO_THROW(delete instance_ptr);
+}
+
+TEST(inventory_task_factory, set_create_sanity) {
+	// GIVEN
+	Inventory<int, std::string> inventory;
+	TestInventoryTaskFactory instance(&inventory, retrieve_type);
+
+	// THEN
+	ASSERT_NO_THROW(
+		instance.set_creator(
+			TaskType::CREATE_INVENTORY_ITEM,
+			[](Inventory<int, std::string> *inv, const Data& cfg)-> Task * {
+				return nullptr;
+			}
+		)
+	);
 }
