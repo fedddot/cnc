@@ -7,9 +7,7 @@ add_executable(
 target_link_libraries(
 	tasks_tests
 	PRIVATE
-	create_inventory_item_task
-	delete_inventory_item_task
-	inventory_item_task_builder
+	inventory_task
 
 	data_lib
 	

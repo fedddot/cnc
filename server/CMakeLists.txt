@@ -33,5 +33,5 @@ target_link_libraries(
     
     engine
     task_factory
-    create_inventory_item_task
+    inventory_task
 )
