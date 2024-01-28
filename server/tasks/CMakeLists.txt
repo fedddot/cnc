@@ -1,6 +1,10 @@
+add_library(inventory_task INTERFACE)
+target_include_directories(inventory_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(inventory_task INTERFACE task inventory)
+
 add_library(create_inventory_item_task INTERFACE)
 target_include_directories(create_inventory_item_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(create_inventory_item_task INTERFACE task creator inventory)
+target_link_libraries(create_inventory_item_task INTERFACE task inventory)
 
 add_library(delete_inventory_item_task INTERFACE)
 target_include_directories(delete_inventory_item_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
