@@ -3,11 +3,13 @@
 #include "engine.hpp"
 #include "integer.hpp"
 #include "inventory.hpp"
+#include "inventory_task.hpp"
 #include "object.hpp"
 #include "task.hpp"
 #include "task_factory.hpp"
 #include "create_inventory_item_task.hpp"
 #include <iostream>
+#include <stdexcept>
 
 using namespace cnc_engine;
 using namespace task_factory;
@@ -62,12 +64,15 @@ int main(void) {
     task_factory.set_creator(
         TaskFactory::TaskType::CREATE_INVENTORY_ITEM,
         [&](const Data& cfg)-> Task * {
-            int gpio_id = Data::cast<Integer>(Data::cast<Object>(cfg).access("id")).get();
-            return new CreateInventoryItemTask<int, Gpio>(
-                gpio_inventory, 
-                gpio_id, 
-                cfg, 
-                gpio_creator
+            return new InventoryTask<int, Gpio>(
+                &gpio_inventory,
+                [&](Inventory<int, Gpio> *inventory, const Data& data)-> void {
+                    const Object& data_object = Data::cast<Object>(data);
+                    int id = Data::cast<Integer>(data_object.access("id")).get();
+                    Gpio::Direction dir = static_cast<Gpio::Direction>(Data::cast<Integer>(data_object.access("direction")).get());
+                    inventory->put(id, std::shared_ptr<Gpio>(new Gpio(id, dir)));
+                },
+                cfg
             );
         }
     );
@@ -75,10 +80,14 @@ int main(void) {
     task_factory.set_creator(
         TaskFactory::TaskType::DELETE_INVENTORY_ITEM,
         [&](const Data& cfg)-> Task * {
-            int gpio_id = Data::cast<Integer>(Data::cast<Object>(cfg).access("id")).get();
-            return new DeleteInventoryItemTask<int, Gpio>(
-                gpio_inventory, 
-                gpio_id
+            return new InventoryTask<int, Gpio>(
+                &gpio_inventory,
+                [&](Inventory<int, Gpio> *inventory, const Data& data)-> void {
+                    const Object& data_object = Data::cast<Object>(data);
+                    int id = Data::cast<Integer>(data_object.access("id")).get();
+                    inventory->remove(id);
+                },
+                cfg
             );
         }
     );
@@ -86,13 +95,24 @@ int main(void) {
     ReportSender sender;
     Engine engine(task_factory, sender);
 
-    Object taskCfg;
-    taskCfg.add("task_type", Integer(static_cast<int>(TaskFactory::TaskType::CREATE_INVENTORY_ITEM)));
-    taskCfg.add("id", Integer(0));
-    taskCfg.add("direction", Integer(static_cast<int>(Gpio::Direction::INPUT)));
+    Object createTaskCfg;
+    createTaskCfg.add("task_type", Integer(static_cast<int>(TaskFactory::TaskType::CREATE_INVENTORY_ITEM)));
+    createTaskCfg.add("id", Integer(0));
+    createTaskCfg.add("direction", Integer(static_cast<int>(Gpio::Direction::INPUT)));
+    engine.run_task(createTaskCfg);
 
+    if (!gpio_inventory.contains(0)) {
+        throw std::runtime_error("create task failed");
+    }
 
-    engine.run_task(taskCfg);
+    Object deleteTaskCfg;
+    deleteTaskCfg.add("task_type", Integer(static_cast<int>(TaskFactory::TaskType::DELETE_INVENTORY_ITEM)));
+    deleteTaskCfg.add("id", Integer(0));
+    engine.run_task(deleteTaskCfg);
+
+    if (gpio_inventory.contains(0)) {
+        throw std::runtime_error("delete task failed");
+    }
 
     return 0;
 }
