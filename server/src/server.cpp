@@ -3,6 +3,7 @@
 #include "integer.hpp"
 #include "inventory.hpp"
 #include "inventory_task.hpp"
+#include "inventory_task_factory.hpp"
 #include "object.hpp"
 #include "task.hpp"
 #include "task_factory.hpp"
@@ -48,42 +49,40 @@ public:
     }
 };
 
-int main(void) {
-    Inventory<int, Gpio> gpio_inventory;
-    
-    TaskFactory task_factory;
-    auto gpio_creator = [](const Data& cfg)-> Gpio * {
-        const Object& cfg_data = Data::cast<Object>(cfg);
-        Gpio::Direction gpio_dir = static_cast<Gpio::Direction>(Data::cast<Integer>(cfg_data.access("direction")).get());
-        int gpio_id = Data::cast<Integer>(cfg_data.access("id")).get();
-        return new Gpio(gpio_id, gpio_dir);
-    };
+using GpioInventory = Inventory<int, Gpio>;
+using GpioTaskFactory = InventoryTaskFactory<int, Gpio>;
 
+int main(void) {
+    GpioInventory gpio_inventory;
+    
+    GpioTaskFactory task_factory(
+        &gpio_inventory,
+        [](const Data& data)-> GpioTaskFactory::TaskType {
+            return static_cast<GpioTaskFactory::TaskType>(Data::cast<Integer>(Data::cast<Object>(data).access("task_type")).get());
+        }
+    );
     task_factory.set_creator(
-        TaskFactory::TaskType::CREATE_INVENTORY_ITEM,
-        [&](const Data& cfg)-> Task * {
-            return new InventoryTask<int, Gpio>(
-                &gpio_inventory,
-                [&](Inventory<int, Gpio> *inventory, const Data& data)-> void {
-                    const Object& data_object = Data::cast<Object>(data);
-                    int id = Data::cast<Integer>(data_object.access("id")).get();
-                    Gpio::Direction dir = static_cast<Gpio::Direction>(Data::cast<Integer>(data_object.access("direction")).get());
-                    inventory->put(id, std::shared_ptr<Gpio>(new Gpio(id, dir)));
+        GpioTaskFactory::TaskType::CREATE_INVENTORY_ITEM,
+        [&](GpioInventory *inventory, const Data& cfg)-> Task * {
+            return new InventoryTask<int, Gpio> (
+                inventory,
+                [&](GpioInventory *gpio_inv, const data::Data& cfg_data)-> void {
+                    auto id = Data::cast<Integer>(Data::cast<Object>(cfg_data).access("id")).get();
+                    auto dir = static_cast<Gpio::Direction>(Data::cast<Integer>(Data::cast<Object>(cfg_data).access("direction")).get());
+                    gpio_inv->put(id, std::shared_ptr<Gpio>(new Gpio(id, dir)));
                 },
                 cfg
             );
         }
     );
-
     task_factory.set_creator(
-        TaskFactory::TaskType::DELETE_INVENTORY_ITEM,
-        [&](const Data& cfg)-> Task * {
-            return new InventoryTask<int, Gpio>(
-                &gpio_inventory,
-                [&](Inventory<int, Gpio> *inventory, const Data& data)-> void {
-                    const Object& data_object = Data::cast<Object>(data);
-                    int id = Data::cast<Integer>(data_object.access("id")).get();
-                    inventory->remove(id);
+        GpioTaskFactory::TaskType::DELETE_INVENTORY_ITEM,
+        [&](GpioInventory *inventory, const Data& cfg)-> Task * {
+            return new InventoryTask<int, Gpio> (
+                inventory,
+                [&](GpioInventory *gpio_inv, const data::Data& cfg_data)-> void {
+                    auto id = Data::cast<Integer>(Data::cast<Object>(cfg_data).access("id")).get();
+                    gpio_inv->remove(id);
                 },
                 cfg
             );
