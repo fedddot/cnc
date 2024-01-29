@@ -6,7 +6,6 @@
 #include "inventory_task_factory.hpp"
 #include "object.hpp"
 #include "task.hpp"
-#include "task_factory.hpp"
 #include <iostream>
 #include <stdexcept>
 
