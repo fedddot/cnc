@@ -9,5 +9,6 @@ build
 !CMakeLists.txt
 !*.cmake
 !*.c4
+!*.dsl
 !*.code-workspace
 !*.yml
