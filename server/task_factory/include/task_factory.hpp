@@ -11,37 +11,45 @@
 #include "task.hpp"
 
 namespace task_factory {
-	class TaskFactory: public basics::Factory<basics::Task *, data::Data> {
+	class TaskFactory: public engine::Factory {
 	public:
-		enum class TaskType: int {
-			CREATE_INVENTORY_ITEM,
-			DELETE_INVENTORY_ITEM
-		};
-		using TaskCreator = std::function<basics::Task *(const data::Data&)>;
+		using TaskCreator = std::function<engine::Task *(const data::Data&)>;
+		using CreatorIdRetriever = std::function<std::string(const data::Data&)>;
 
-		TaskFactory() = default;
+		TaskFactory(const CreatorIdRetriever& id_retriever);
 		TaskFactory(const TaskFactory& other) = default;
 		TaskFactory& operator=(const TaskFactory& other) = default;
 
-		virtual basics::Task *create(const data::Data& cfg) const override;
-		void set_creator(const TaskType& type, const TaskCreator& creator);
-		void remove_creator(const TaskType& type);
+		virtual engine::Task *create(const data::Data& cfg) const override;
+		void set_creator(const std::string& id, const TaskCreator& creator);
+		void remove_creator(const std::string& id);
 	private:
-		std::map<TaskType, TaskCreator> m_creators;
-		static const std::string s_task_type_field_name;
-		static TaskType retrieve_task_type(const data::Data& cfg);
+		CreatorIdRetriever m_id_retriever;
+		std::map<std::string, TaskCreator> m_creators;
 	};
 
-	inline void TaskFactory::set_creator(const TaskType& type, const TaskCreator& creator) {
-		m_creators[type] = creator;
+	inline TaskFactory::TaskFactory(const CreatorIdRetriever& id_retriever): m_id_retriever(id_retriever) {
+
 	}
 
-	inline void TaskFactory::remove_creator(const TaskType& type) {
-		auto iter = m_creators.find(type);
+	inline void TaskFactory::set_creator(const std::string& id, const TaskCreator& creator) {
+		m_creators[id] = creator;
+	}
+
+	inline void TaskFactory::remove_creator(const std::string& id) {
+		auto iter = m_creators.find(id);
 		if (m_creators.end() == iter) {
 			throw std::invalid_argument("creator with received type not found");
 		}
 		m_creators.erase(iter);
+	}
+
+	inline engine::Task *TaskFactory::create(const data::Data& cfg) const {
+		auto iter = m_creators.find(m_id_retriever(cfg));
+		if (m_creators.end() == iter) {
+			throw std::invalid_argument("creator with received type not found");
+		}
+		return iter->second(cfg);
 	}
 }
 #endif // TASK_FACTORY_HPP
