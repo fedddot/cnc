@@ -12,3 +12,4 @@ build
 !*.dsl
 !*.code-workspace
 !*.yml
+!*.py
