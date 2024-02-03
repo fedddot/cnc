@@ -1,28 +1,21 @@
+#include <memory>
+
 #include "data.hpp"
-#include "object.hpp"
-#include "report.hpp"
-#include "string.hpp"
+#include "factory.hpp"
+#include "sender.hpp"
 #include "task.hpp"
-#include <exception>
 
 #include "engine.hpp"
 
-using namespace cnc_engine;
+using namespace engine;
 using namespace data;
 
-Engine::Engine(TaskFactory& task_factory, ReportSender& report_sender): m_task_factory(task_factory), m_report_sender(report_sender) {
+Engine::Engine(Factory& task_factory, Sender& report_sender): m_task_factory(task_factory), m_report_sender(report_sender) {
 
 }
 
-void Engine::run_task(const Data& task_cfg_data) {
-	Report::Result report_result(Report::Result::SUCCESS);
-	Object report_data;
-	try {
-		std::unique_ptr<basics::Task> task_ptr(m_task_factory.create(task_cfg_data));
-		task_ptr->execute();
-	} catch (const std::exception& e) {
-		report_data.add("exception", String(e.what()));
-		report_result = Report::Result::FAILURE;
-	}
-	m_report_sender.send(Report(report_result, report_data));
+void Engine::run_task(const Data& cfg) {
+	std::unique_ptr<Task> task_ptr(m_task_factory.create(cfg));
+	task_ptr->execute();
+	m_report_sender.send(task_ptr->report());
 }
