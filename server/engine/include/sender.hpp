@@ -1,12 +1,14 @@
 #ifndef	SENDER_HPP
 #define	SENDER_HPP
 
-namespace basics {
-	template <class Tdata>
+#include "data.hpp"
+
+namespace engine {
+
 	class Sender {
 	public:
 		virtual ~Sender() noexcept = default;
-		virtual void send(const Tdata& data) const = 0;
+		virtual void send(const data::Data& data) const = 0;
 	};
 
 }

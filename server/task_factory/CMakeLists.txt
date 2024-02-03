@@ -7,4 +7,4 @@ add_library(inventory_task_factory INTERFACE)
 target_include_directories(inventory_task_factory INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(inventory_task_factory INTERFACE factory task data inventory)
 
-add_subdirectory(tests)
+add_subdirectory(tests EXCLUDE_FROM_ALL)

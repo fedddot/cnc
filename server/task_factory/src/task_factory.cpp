@@ -3,12 +3,10 @@
 
 #include "integer.hpp"
 #include "object.hpp"
-#include "creator.hpp"
 #include "task_factory.hpp"
 
 using namespace task_factory;
 using namespace data;
-using namespace basics;
 
 const std::string task_factory::TaskFactory::s_task_type_field_name("task_type");
 

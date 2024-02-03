@@ -7,11 +7,11 @@
 namespace data {
 	class Integer: public Value<int> {
 	public:
-		inline Integer(int val);
+		Integer(int val);
 		Integer(const Integer& other) = default;
 		Integer& operator=(const Integer& other) = default;
-		inline Type type() const override;
-		virtual inline Data *copy() const override;
+		Type type() const override;
+		virtual Data *clone() const override;
 	};
 
 	inline Integer::Integer(int val): Value<int>(val) {
@@ -22,7 +22,7 @@ namespace data {
 		return Type::INT;
 	}
 
-	inline Data *Integer::copy() const {
+	inline Data *Integer::clone() const {
 		return new Integer(*this);
 	}
 }

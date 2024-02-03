@@ -1,10 +1,8 @@
 #ifndef	DATA_HPP
 #define	DATA_HPP
 
-#include "copyable.hpp"
-
 namespace data {
-	class Data: public basics::Copyable<Data> {
+	class Data {
 	public:
 		enum class Type : int {
 			INT,
@@ -13,6 +11,7 @@ namespace data {
 		};
 		virtual ~Data() noexcept = 0;
 		virtual Type type() const = 0;
+		virtual Data *clone() const = 0;
 
 		template <class T>
 		static inline T& cast(Data& data);

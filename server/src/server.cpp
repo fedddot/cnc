@@ -5,23 +5,23 @@
 #include "inventory_task.hpp"
 #include "inventory_task_factory.hpp"
 #include "object.hpp"
+#include "sender.hpp"
 #include "task.hpp"
 #include <iostream>
 #include <stdexcept>
 
-using namespace cnc_engine;
+using namespace engine;
 using namespace task_factory;
 using namespace data;
-using namespace basics;
 using namespace inventory;
 using namespace tasks;
 
 class Gpio;
 
-class ReportSender: public Engine::ReportSender {
+class ReportSender: public Sender {
 public:
-    virtual void send(const Report& data) const {
-        std::cout << "report: result = " << static_cast<int>(data.result()) << std::endl;
+    virtual void send(const Data& data) const {
+        std::cout << "report: result = " << std::endl;
     }
 };
 

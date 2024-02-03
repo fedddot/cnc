@@ -7,7 +7,6 @@
 #include "inventory_task.hpp"
 #include "object.hpp"
 
-using namespace basics;
 using namespace inventory;
 using namespace tasks;
 using namespace data;

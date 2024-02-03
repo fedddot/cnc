@@ -16,7 +16,7 @@ namespace data {
 		Object& operator=(const Object& other);
 
 		virtual Type type() const override;
-		virtual Data *copy() const override;
+		virtual Data *clone() const override;
 
 		std::size_t size() const;
 		bool contains(const std::string& name) const;
