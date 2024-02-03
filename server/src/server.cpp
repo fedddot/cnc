@@ -1,14 +1,15 @@
+#include <iostream>
+#include <memory>
+#include <stdexcept>
+
 #include "data.hpp"
 #include "engine.hpp"
 #include "integer.hpp"
 #include "inventory.hpp"
 #include "inventory_task.hpp"
-#include "inventory_task_factory.hpp"
+#include "task_factory.hpp"
 #include "object.hpp"
 #include "sender.hpp"
-#include "task.hpp"
-#include <iostream>
-#include <stdexcept>
 
 using namespace engine;
 using namespace task_factory;
@@ -16,51 +17,12 @@ using namespace data;
 using namespace inventory;
 using namespace tasks;
 
-class Gpio;
-
 class ReportSender: public Sender {
 public:
     virtual void send(const Data& data) const {
         std::cout << "report: result = " << std::endl;
     }
 };
-
-using GpioInventory = Inventory<int, Gpio>;
-using GpioTaskFactory = InventoryTaskFactory<int, Gpio>;
-
-static GpioTaskFactory create_gpio_task_factory(GpioInventory *inventory_ptr);
-static Object get_create_gpio_task_data(int id);
-static Object get_delete_gpio_task_data(int id);
-static Object get_set_gpio_task_data(int id);
-
-int main(void) {
-    GpioInventory gpio_inventory;    
-    GpioTaskFactory task_factory(create_gpio_task_factory(&gpio_inventory));
-
-    ReportSender sender;
-    Engine engine(task_factory, sender);
-
-    int gpio_num = 12;
-
-    engine.run_task(get_create_gpio_task_data(gpio_num));
-
-    if (!gpio_inventory.contains(gpio_num)) {
-        throw std::runtime_error("create task failed");
-    }
-
-    engine.run_task(get_set_gpio_task_data(gpio_num));
-
-    engine.run_task(get_delete_gpio_task_data(gpio_num));
-
-    if (gpio_inventory.contains(gpio_num)) {
-        throw std::runtime_error("delete task failed");
-    }
-
-    return 0;
-}
-
-// static functions implementations
-
 class Gpio {
 public:
     enum class Direction: int {
@@ -86,79 +48,103 @@ private:
     Value m_val;
 };
 
-inline Object get_create_gpio_task_data(int id) {
+static inline TaskFactory get_task_factory();
+static Object get_create_gpio_task_data(int id, const Gpio::Direction& dir);
+static Object get_set_gpio_task_data(int id, const Gpio::Value& val);
+static Object get_delete_gpio_task_data(int id);
+
+
+Inventory<int, Gpio> gpio_inventory;
+int main(void) {
+    TaskFactory mcu_task_factory(get_task_factory());
+    ReportSender sender;
+    Engine engine(mcu_task_factory, sender);
+
+    int gpio_num = 12;
+
+    engine.run_task(get_create_gpio_task_data(gpio_num, Gpio::Direction::INPUT));
+
+    if (!gpio_inventory.contains(gpio_num)) {
+        throw std::runtime_error("create task failed");
+    }
+
+    engine.run_task(get_set_gpio_task_data(gpio_num, Gpio::Value::HIGH));
+
+    engine.run_task(get_delete_gpio_task_data(gpio_num));
+
+    if (gpio_inventory.contains(gpio_num)) {
+        throw std::runtime_error("delete task failed");
+    }
+
+    return 0;
+}
+
+// static functions/classes implementations
+
+inline Object get_create_gpio_task_data(int id, const Gpio::Direction& dir) {
     Object data;
-    data.add("task_type", Integer(static_cast<int>(GpioTaskFactory::TaskType::CREATE_INVENTORY_ITEM)));
-    data.add("id", Integer(id));
-    data.add("direction", Integer(static_cast<int>(Gpio::Direction::INPUT)));
+    data.add("task_type", String("create_gpio"));
+    data.add("gpio_id", Integer(id));
+    data.add("gpio_dir", Integer(static_cast<int>(dir)));
+    return data;
+}
+
+static Object get_set_gpio_task_data(int id, const Gpio::Value& val) {
+    Object data;
+    data.add("task_type", String("set_gpio"));
+    data.add("gpio_id", Integer(id));
+    data.add("gpio_val", Integer(static_cast<int>(val)));
     return data;
 }
 
 inline Object get_delete_gpio_task_data(int id) {
     Object data;
-    data.add("task_type", Integer(static_cast<int>(GpioTaskFactory::TaskType::DELETE_INVENTORY_ITEM)));
-    data.add("id", Integer(id));
+    data.add("task_type", String("delete_gpio"));
+    data.add("gpio_id", Integer(id));
     return data;
 }
 
-inline Object get_set_gpio_task_data(int id) {
-    Object data;
-    data.add("task_type", Integer(static_cast<int>(GpioTaskFactory::TaskType::USE_INVENTORY_ITEM)));
-    data.add("id", Integer(id));
-    data.add("value", Integer(static_cast<int>(Gpio::Value::HIGH)));
-    return data;
-}
-
-inline void create_gpio_action(GpioInventory *gpio_inv, const data::Data& cfg_data) {
-    auto id = Data::cast<Integer>(Data::cast<Object>(cfg_data).access("id")).get();
-    auto dir = static_cast<Gpio::Direction>(Data::cast<Integer>(Data::cast<Object>(cfg_data).access("direction")).get());
-    gpio_inv->put(id, std::shared_ptr<Gpio>(new Gpio(id, dir)));
-}
-
-inline void delete_gpio_action(GpioInventory *gpio_inv, const data::Data& cfg_data) {
-    auto id = Data::cast<Integer>(Data::cast<Object>(cfg_data).access("id")).get();
-    gpio_inv->remove(id);
-}
-
-inline void set_gpio_action(GpioInventory *gpio_inv, const data::Data& cfg_data) {
-    auto id = Data::cast<Integer>(Data::cast<Object>(cfg_data).access("id")).get();
-    auto value = static_cast<Gpio::Value>(Data::cast<Integer>(Data::cast<Object>(cfg_data).access("value")).get());
-    gpio_inv->get(id)->set(value);
-}
-
-inline GpioTaskFactory create_gpio_task_factory(GpioInventory *inventory_ptr) {
-    GpioTaskFactory factory(
-        inventory_ptr,
-        [](const Data& data)-> GpioTaskFactory::TaskType {
-            return static_cast<GpioTaskFactory::TaskType>(Data::cast<Integer>(Data::cast<Object>(data).access("task_type")).get());
+static inline TaskFactory get_task_factory() {
+    TaskFactory factory(
+        [](const Data& cfg)-> std::string {
+            return Data::cast<String>(Data::cast<Object>(cfg).access("task_type")).get();
         }
     );
+
     factory.set_creator(
-        GpioTaskFactory::TaskType::CREATE_INVENTORY_ITEM,
-        [&](GpioInventory *inventory, const Data& cfg)-> Task * {
-            return new InventoryTask<int, Gpio> (
-                inventory,
-                create_gpio_action,
+        "create_gpio",
+        [&](const Data& cfg) {
+            return new InventoryTask<int, Gpio>(
+                &gpio_inventory,
+                [](Inventory<int, Gpio> *inventory_ptr, const Data& cfg) {
+                    inventory_ptr->put(12, std::shared_ptr<Gpio>(new Gpio(12, Gpio::Direction::INPUT)));
+                },
                 cfg
             );
         }
     );
+
     factory.set_creator(
-        GpioTaskFactory::TaskType::DELETE_INVENTORY_ITEM,
-        [&](GpioInventory *inventory, const Data& cfg)-> Task * {
-            return new InventoryTask<int, Gpio> (
-                inventory,
-                delete_gpio_action,
+        "set_gpio",
+        [&](const Data& cfg) {
+            return new InventoryTask<int, Gpio>(
+                &gpio_inventory,
+                [](Inventory<int, Gpio> *inventory_ptr, const Data& cfg) {
+                    (inventory_ptr->get(12))->set(Gpio::Value::HIGH);
+                },
                 cfg
             );
         }
     );
+
     factory.set_creator(
-        GpioTaskFactory::TaskType::USE_INVENTORY_ITEM,
-        [&](GpioInventory *inventory, const Data& cfg)-> Task * {
-            return new InventoryTask<int, Gpio> (
-                inventory,
-                set_gpio_action,
+        "delete_gpio",
+        [&](const Data& cfg) {
+            return new InventoryTask<int, Gpio>(
+                &gpio_inventory,
+                [](Inventory<int, Gpio> *inventory_ptr, const Data& cfg) {
+                    inventory_ptr->remove(12);
+                },
                 cfg
             );
         }

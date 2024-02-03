@@ -1,36 +1,35 @@
 #include "gtest/gtest.h"
 #include <iostream>
-#include <map>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 #include "data.hpp"
 #include "engine.hpp"
 #include "factory.hpp"
 #include "integer.hpp"
+#include "object.hpp"
+#include "sender.hpp"
 #include "task.hpp"
 
 using namespace engine;
 using namespace data;
 
-template <class T>
-const T& castData(const Data& data) {
-	return dynamic_cast<const T&>(data);
-}
-
 class TestTask: public Task {
-private:
-	std::unique_ptr<Data> m_report_data;
 public:
-	TestTask(const Data& cfg): m_report_data(cfg.clone()) {
+	TestTask(const Data& cfg): m_report_data(Data::cast<Object>(cfg)) {
 	}
-
 	virtual void execute() override {
-		Integer result(castData<Integer>(*m_report_data));
-		if (result.get()) {
+		if (Data::cast<Integer>(m_report_data.access("result")).get()) {
 			throw std::runtime_error("failed to perform the task!");
 		}
 	}
+
+	virtual const data::Data& report() const override {
+		return m_report_data;
+	}
+private:
+	Object m_report_data;
 };
 
 class TestFactory: public Factory {
@@ -40,44 +39,48 @@ public:
 	}
 };
 
-class TestSender: public Engine::ReportSender {
-private:
-	Report::Result m_expected_result;
+class TestSender: public Sender {
 public:
-	TestSender(const Report::Result& expected_result): m_expected_result((expected_result)) {
+	TestSender(const Integer& expected_result): m_expected_result(expected_result) {
 
 	}
 
-	virtual void send(const Report& data) const override {
+	virtual void send(const Data& data) const override {
 		std::cout << "received report with result = ";
-		switch (data.result()) {
-		case Report::Result::FAILURE:
-			std::cout << "FAILURE";
-			break;
-		case Report::Result::SUCCESS:
+		Integer received_result(Data::cast<Integer>(Data::cast<Object>(data).access("result")));
+		switch (received_result.get()) {
+		case 0:
 			std::cout << "SUCCESS";
 			break;
+		default:
+			std::cout << "FAILURE";
 		}
 		std::cout << std::endl;
-		ASSERT_EQ(m_expected_result, data.result());
+		ASSERT_EQ(m_expected_result.get(), received_result.get());
 	}
+private:
+	Integer m_expected_result;
 };
 
 TEST(ut_engine, sanity) {
 	// GIVEN
 	TestFactory factory;
-	const std::map<Report::Result, Integer> test_cases {
-		{Report::Result::SUCCESS, Integer(0)},
-		{Report::Result::FAILURE, Integer(-1)}
-	};
+	const std::vector<Integer> test_cases {Integer(0), Integer(-1)};
 
 	for (auto test_case: test_cases) {
 		// WHEN
-		TestSender sender(test_case.first);
+		TestSender sender(test_case);
+		TestFactory factory;
 		std::unique_ptr<Engine> engine_ptr(nullptr);
 
 		// THEN
 		ASSERT_NO_THROW(engine_ptr = std::unique_ptr<Engine>(new Engine(factory, sender)));
-		ASSERT_NO_THROW(engine_ptr->run_task(test_case.second));
+		Object task_cfg;
+		task_cfg.add("result", test_case);
+		if (test_case.get()) {
+			ASSERT_ANY_THROW(engine_ptr->run_task(task_cfg));
+		} else {
+			ASSERT_NO_THROW(engine_ptr->run_task(task_cfg));
+		}
 	}
 }
