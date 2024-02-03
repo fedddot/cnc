@@ -6,12 +6,11 @@
 
 #include "data.hpp"
 #include "engine.hpp"
+#include "factory.hpp"
 #include "integer.hpp"
-#include "report.hpp"
 #include "task.hpp"
 
-using namespace basics;
-using namespace cnc_engine;
+using namespace engine;
 using namespace data;
 
 template <class T>
@@ -23,7 +22,7 @@ class TestTask: public Task {
 private:
 	std::unique_ptr<Data> m_report_data;
 public:
-	TestTask(const Data& cfg): m_report_data(cfg.copy()) {
+	TestTask(const Data& cfg): m_report_data(cfg.clone()) {
 	}
 
 	virtual void execute() override {
@@ -34,7 +33,7 @@ public:
 	}
 };
 
-class TestFactory: public Engine::TaskFactory {
+class TestFactory: public Factory {
 public:
 	virtual Task *create(const Data& cfg) const override {
 		return new TestTask(cfg);

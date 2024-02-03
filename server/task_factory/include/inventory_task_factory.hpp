@@ -12,14 +12,14 @@
 
 namespace task_factory {
 	template <class Tkey, class Titem>
-	class InventoryTaskFactory: public basics::Factory<basics::Task *, data::Data> {
+	class InventoryTaskFactory: public engine::Factory {
 	public:
 		enum class TaskType: int {
 			CREATE_INVENTORY_ITEM,
 			DELETE_INVENTORY_ITEM,
 			USE_INVENTORY_ITEM
 		};
-		using TaskCreator = std::function<basics::Task *(inventory::Inventory<Tkey, Titem> *inventory, const data::Data&)>;
+		using TaskCreator = std::function<engine::Task *(inventory::Inventory<Tkey, Titem> *inventory, const data::Data&)>;
 		using TaskTypeRetriever = std::function<TaskType(const data::Data&)>;
 
 		InventoryTaskFactory(inventory::Inventory<Tkey, Titem> *inventory, const TaskTypeRetriever& task_type_retriever);
@@ -29,7 +29,7 @@ namespace task_factory {
 		void set_creator(const TaskType& type, const TaskCreator& creator);
 		void remove_creator(const TaskType& type);
 		
-		virtual basics::Task *create(const data::Data& cfg) const override;
+		virtual engine::Task *create(const data::Data& cfg) const override;
 	private:
 		inventory::Inventory<Tkey, Titem> *m_inventory;
 		TaskTypeRetriever m_task_type_retriever;
@@ -61,7 +61,7 @@ namespace task_factory {
 	}
 
 	template <class Tkey, class Titem>
-	inline basics::Task *InventoryTaskFactory<Tkey, Titem>::create(const data::Data& cfg) const {
+	inline engine::Task *InventoryTaskFactory<Tkey, Titem>::create(const data::Data& cfg) const {
 		auto iter = m_creators.find(m_task_type_retriever(cfg));
 		if (m_creators.end() == iter) {
 			throw std::invalid_argument("creator matching received cfg is not registered");

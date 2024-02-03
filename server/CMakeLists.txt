@@ -26,10 +26,8 @@ add_subdirectory(tasks)
 add_executable(server ${CMAKE_CURRENT_LIST_DIR}/src/server.cpp)
 target_link_libraries(
     server
-    PRIVATE
-    creator
-    
+    PRIVATE    
     engine
-    task_factory
+    inventory_task_factory
     inventory_task
 )

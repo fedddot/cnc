@@ -18,4 +18,4 @@ target_link_libraries(engine INTERFACE data_lib task sender factory)
 
 add_subdirectory(data)
 
-add_subdirectory(tests)
+add_subdirectory(tests EXCLUDE_FROM_ALL)
