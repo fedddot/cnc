@@ -1,9 +1,5 @@
 #include "gtest/gtest.h"
-#include "gtest/gtest-matchers.h"
-#include "gmock/gmock-matchers.h"
-#include "gmock/gmock-more-matchers.h"
 #include <memory>
-#include <stdexcept>
 #include <string>
 
 #include "data.hpp"
@@ -33,9 +29,9 @@ TEST(ut_task_factory, ctor_dtor_sanity) {
 TEST(ut_task_factory, set_creator_remove_creator_sanity) {
 	// GIVEN
 	const std::map<std::string, TaskFactory::TaskCreator> test_cases {
-		{"ctor1", [&](const Data& cfg)-> Task * {}},
-		{"ctor2", [&](const Data& cfg)-> Task * {}},
-		{"ctor3", [&](const Data& cfg)-> Task * {}}
+		{"ctor1", [&](const Data& cfg)-> Task * { return nullptr; }},
+		{"ctor2", [&](const Data& cfg)-> Task * { return nullptr; }},
+		{"ctor3", [&](const Data& cfg)-> Task * { return nullptr; }}
 	};
 
 	// WHEN
