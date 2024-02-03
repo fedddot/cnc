@@ -20,7 +20,6 @@ FetchContent_MakeAvailable(googletest)
 
 add_subdirectory(basics)
 add_subdirectory(engine)
-add_subdirectory(data)
 add_subdirectory(task_factory)
 add_subdirectory(inventory)
 add_subdirectory(tasks)

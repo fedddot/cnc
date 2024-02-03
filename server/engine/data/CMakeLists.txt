@@ -1,6 +1,6 @@
 add_library(data INTERFACE)
 target_include_directories(data INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(data INTERFACE copyable)
+target_link_libraries(data INTERFACE basics)
 
 add_library(value INTERFACE)
 target_include_directories(value INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
