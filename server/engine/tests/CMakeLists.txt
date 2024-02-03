@@ -8,7 +8,7 @@ target_link_libraries(
 	engine_tests
 	PRIVATE
 	engine
-	
+
 	gtest
 	gmock
 	-g
