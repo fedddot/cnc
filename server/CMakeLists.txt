@@ -28,6 +28,7 @@ target_link_libraries(
     server
     PRIVATE    
     engine
-    inventory_task_factory
+    task_factory
+    inventory
     inventory_task
 )
