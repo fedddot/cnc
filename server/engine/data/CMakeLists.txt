@@ -17,4 +17,4 @@ target_include_directories(integer INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 add_library(data_lib INTERFACE)
 target_link_libraries(data_lib INTERFACE data value object string integer)
 
-add_subdirectory(tests)
+add_subdirectory(tests EXCLUDE_FROM_ALL)
