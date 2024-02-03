@@ -18,7 +18,7 @@ Object::DataContainer Object::copy_container(const Object& obj) {
 	std::map<std::string, std::unique_ptr<Data>> data;
 	obj.for_each(
 		[&](const std::string& name, const Data& member)-> void {
-			data.insert({ name, std::unique_ptr<Data>(member.copy()) });
+			data.insert({ name, std::unique_ptr<Data>(member.clone()) });
 		}
 	);
 	return data;
@@ -68,13 +68,13 @@ void Object::add(const std::string& name, const Data& data) {
 	if (contains(name)) {
 		throw std::invalid_argument("data object already contains field " + name);
 	}
-	m_data.insert({ name, std::unique_ptr<Data>(data.copy()) });
+	m_data.insert({ name, std::unique_ptr<Data>(data.clone()) });
 }
 
 Object::Type Object::type() const {
 	return Type::OBJECT;
 }
 
-Data *Object::copy() const {
+Data *Object::clone() const {
 	return new Object(*this);
 }

@@ -8,11 +8,11 @@
 namespace data {
 	class String: public Value<std::string> {
 	public:
-		inline String(const std::string& str);
+		String(const std::string& str);
 		String(const String& other) = default;
 		String& operator=(const String& other) = default;
-		inline Type type() const override;
-		virtual inline Data *copy() const override;
+		Type type() const override;
+		virtual Data *clone() const override;
 	}; // String
 
 	inline String::String(const std::string& str): Value<std::string>(str) {
@@ -23,7 +23,7 @@ namespace data {
 		return Type::STR;
 	}
 
-	inline Data *String::copy() const {
+	inline Data *String::clone() const {
 		return new String(*this);
 	}
 }
