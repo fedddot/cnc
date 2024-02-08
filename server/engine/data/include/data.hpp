@@ -14,10 +14,10 @@ namespace data {
 		virtual Data *clone() const = 0;
 
 		template <class T>
-		static inline T& cast(Data& data);
+		static T& cast(Data& data);
 
 		template <class T>
-		static inline const T& cast(const Data& data);
+		static const T& cast(const Data& data);
 	};
 
 	inline Data::~Data() noexcept {
