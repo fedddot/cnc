@@ -90,7 +90,7 @@ namespace cnc {
 			tasks.push_back(apply_state_data(m_states.current()));
 			tasks.push_back(m_data_generator->generate_delay_data(step_duration_ms));
 		}
-		throw std::runtime_error("NOT IMPLEMENTED");
+		m_executor->execute(m_data_generator->generate_tasks_data(tasks));
 	}
 
 	template <typename Tgpio_id>

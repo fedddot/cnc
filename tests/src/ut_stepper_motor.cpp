@@ -106,5 +106,6 @@ TEST(ut_stepper_motor, steps_sanity) {
 
 	// THEN
 	using Direction = typename StepperMotor<GpioId>::Direction;
-	ASSERT_NO_THROW(instance.steps(Direction::CCW, 10, 30));
+	ASSERT_NO_THROW(instance.steps(Direction::CCW, 3, 30));
+	ASSERT_NO_THROW(instance.steps(Direction::CW, 7, 40));
 }
