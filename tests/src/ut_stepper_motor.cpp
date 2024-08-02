@@ -32,14 +32,6 @@ TEST(ut_stepper_motor, ctor_dtor_sanity) {
 					{Shoulder::HL, GpioState::LOW},
 					{Shoulder::HR, GpioState::LOW}
 				}
-			),
-			StepperMotorState(
-				{
-					{Shoulder::LL, GpioState::HIGH},
-					{Shoulder::LR, GpioState::LOW},
-					{Shoulder::HL, GpioState::HIGH},
-					{Shoulder::HR, GpioState::LOW}
-				}
 			)
 		}
 	);
@@ -55,7 +47,7 @@ TEST(ut_stepper_motor, ctor_dtor_sanity) {
 				cnc_utl::TaskObjectGenerator(),
 				cnc_utl::CustomTaskExecutor<void(const TestMotor::TaskData&)>(
 					[](const TestMotor::TaskData& data){
-						(void)(data);
+						throw std::runtime_error("NOT IMPLEMENTED");
 					}
 				)
 			)
@@ -65,4 +57,50 @@ TEST(ut_stepper_motor, ctor_dtor_sanity) {
 	ASSERT_NO_THROW(delete instance_ptr);
 
 	instance_ptr = nullptr;
+}
+
+TEST(ut_stepper_motor, steps_sanity) {
+	// GIVEN
+	const TestMotor::MotorShoulders shoulders {
+		{Shoulder::LL, 4},
+		{Shoulder::LR, 5},
+		{Shoulder::HL, 6},
+		{Shoulder::HR, 7}
+	};
+	const StepperMotorStates states(
+		{
+			StepperMotorState(
+				{
+					{Shoulder::LL, GpioState::HIGH},
+					{Shoulder::LR, GpioState::LOW},
+					{Shoulder::HL, GpioState::LOW},
+					{Shoulder::HR, GpioState::LOW}
+				}
+			),
+			StepperMotorState(
+				{
+					{Shoulder::LL, GpioState::HIGH},
+					{Shoulder::LR, GpioState::LOW},
+					{Shoulder::HL, GpioState::LOW},
+					{Shoulder::HR, GpioState::LOW}
+				}
+			)
+		}
+	);
+
+	// WHEN
+	StepperMotor<GpioId> instance(
+		shoulders,
+		states,
+		cnc_utl::TaskObjectGenerator(),
+		cnc_utl::CustomTaskExecutor<void(const TestMotor::TaskData&)>(
+			[](const TestMotor::TaskData& data){
+				throw std::runtime_error("NOT IMPLEMENTED");
+			}
+		)
+	);
+
+	// THEN
+	using Direction = typename StepperMotor<GpioId>::Direction;
+	ASSERT_NO_THROW(instance.steps(Direction::CCW, 10, 30));
 }
