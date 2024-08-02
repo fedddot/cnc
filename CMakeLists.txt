@@ -14,7 +14,6 @@ target_link_libraries(
     INTERFACE
     data_lib
     gpio
-    mcu_factory
 )
 
 add_library(stepper_motor INTERFACE)
