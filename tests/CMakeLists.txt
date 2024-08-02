@@ -11,6 +11,7 @@ target_link_libraries(
     task_data_generator
 	task_object_generator
 	stepper_motor
+	custom_task_executor
 
 	gtest
 )
