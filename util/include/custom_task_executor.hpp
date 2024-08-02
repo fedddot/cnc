@@ -35,6 +35,11 @@ namespace cnc_utl {
 	inline Tdata CustomTaskExecutor<Tdata(Args...)>::execute(Args... args) {
 		return m_action(std::forward<Args>(args)...);
 	}
+
+	template <typename Tdata, typename... Args>
+	inline cnc::TaskExecutor<Tdata(Args...)> *CustomTaskExecutor<Tdata(Args...)>::clone() const {
+		return new CustomTaskExecutor(*this);
+	}
 }
 
 #endif // CUSTOM_TASK_EXECUTOR_HPP
