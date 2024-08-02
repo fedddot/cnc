@@ -1,12 +1,12 @@
 #ifndef	STEPPER_MOTOR_HPP
 #define	STEPPER_MOTOR_HPP
 
-#include <array>
-#include <cstddef>
 #include <map>
+#include <memory>
 
-#include "gpio.hpp"
 #include "object.hpp"
+#include "stepper_motor_state.hpp"
+#include "stepper_motor_states.hpp"
 #include "task_data_generator.hpp"
 #include "task_executor.hpp"
 
@@ -20,15 +20,18 @@ namespace cnc {
 			CCW
 		};
 
+		using Shoulder = typename StepperMotorState<Tgpio_id>::Shoulder;
+		using MotorShoulders = std::map<Shoulder, Tgpio_id>;
 		using TaskData = mcu_server::Object;
+		using TaskDataGenerator = TaskDataGenerator<TaskData, Tgpio_id>;
+		using StepperMotorStates = StepperMotorStates<Tgpio_id>;
+		using TaskExecutor = TaskExecutor<void(const TaskData&)>;
 
 		StepperMotor(
-			const TaskExecutor<void(const TaskData&)>& executor,
-			const TaskDataGenerator<TaskData, Tgpio_id> data_generator,
-			const Tgpio_id& ll_gpio,
-			const Tgpio_id& lr_gpio,
-			const Tgpio_id& hl_gpio,
-			const Tgpio_id& hr_gpio
+			const MotorShoulders& shoulders,
+			const StepperMotorStates& states,
+			const TaskDataGenerator& data_generator,
+			const TaskExecutor& executor
 		);
 
 		StepperMotor(const StepperMotor& other) = delete;
@@ -37,19 +40,24 @@ namespace cnc {
 
 		void steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) const;
 	private:
-		enum class Shoulder: int { LL, LR, HL, HR };
-		using GpioState = typename mcu_platform::Gpio::State;
-		using MotorShoulders = std::map<Shoulder, Tgpio_id>;
-		using MotorState = std::map<Shoulder, GpioState>;
-		enum: std::size_t { MOTOR_STATES_NUMBER = 8UL };
-		using MotorStates = std::array<const MotorState, MOTOR_STATES_NUMBER>;
-		
-		std::size_t m_current_state_index;
-
-		static const MotorStates s_states;
-
-		static std::size_t next_state_index(const std::size_t& current_state, const Direction& direction);
+		MotorShoulders m_shoulders;
+		std::unique_ptr<TaskExecutor> m_executor;
+		std::unique_ptr<TaskDataGenerator> m_data_generator;
+		StepperMotorStates m_states;
 	};
+
+	template <typename Tgpio_id>
+	inline StepperMotor<Tgpio_id>::StepperMotor(
+		const MotorShoulders& shoulders,
+		const StepperMotorStates& states,
+		const TaskDataGenerator& data_generator,
+		const TaskExecutor& executor
+	): {
+		
+	}
+	inline void StepperMotor::steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) const {
+
+	}
 }
 
 #endif // STEPPER_MOTOR_HPP
