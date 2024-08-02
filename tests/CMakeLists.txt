@@ -2,6 +2,7 @@ add_executable(
 	cnc_tests
 	${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/ut_task_data_generator.cpp
+	${CMAKE_CURRENT_LIST_DIR}/src/ut_stepper_motor.cpp
 )
 
 target_link_libraries(
@@ -9,8 +10,7 @@ target_link_libraries(
 	PRIVATE
     data_lib
     task_data_generator
-	json_data_parser
-	json_data_serializer
+	stepper_motor
 
 	gtest
 )

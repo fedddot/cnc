@@ -1,10 +1,12 @@
-#include <string>
-
 #include "gtest/gtest.h"
+#include <memory>
+#include <string>
 
 #include "array.hpp"
 #include "data.hpp"
 #include "integer.hpp"
+#include "json_data_parser.hpp"
+#include "json_data_serializer.hpp"
 
 #include "mcu_factory.hpp"
 #include "object.hpp"
@@ -32,6 +34,7 @@ TEST(ut_task_data_generator, ctor_dtor_sanity) {
 	ASSERT_NO_THROW(
 		(
 			instance_ptr = new TaskDataGenerator(
+				JsonDataSerializer(),
 				task_type_field,
 				gpio_id_field,
 				gpio_dir_field,
@@ -47,9 +50,12 @@ TEST(ut_task_data_generator, ctor_dtor_sanity) {
 	instance_ptr = nullptr;
 }
 
-void assert_result_contains_int(const Object& result, const std::string& field_name, const int value) {
-	ASSERT_TRUE(result.contains(field_name));
-	ASSERT_EQ(value, Data::cast<Integer>(result.access(field_name)).get());
+void assert_result_contains_int(const std::string& result, const std::string& field_name, const int value) {
+	std::unique_ptr<Data> parsed_result(JsonDataParser().parse(result));
+	ASSERT_EQ(Data::Type::OBJECT, parsed_result->type());
+	auto& result_object = Data::cast<Object>(*parsed_result);
+	ASSERT_TRUE(result_object.contains(field_name));
+	ASSERT_EQ(value, Data::cast<Integer>(result_object.access(field_name)).get());
 }
 
 TEST(ut_task_data_generator, generate_sanity) {
@@ -63,6 +69,7 @@ TEST(ut_task_data_generator, generate_sanity) {
 
 	// WHEN
 	TaskDataGenerator instance(
+		JsonDataSerializer(),
 		task_type_field,
 		gpio_id_field,
 		gpio_dir_field,
@@ -70,7 +77,7 @@ TEST(ut_task_data_generator, generate_sanity) {
 		delay_field,
 		tasks_field
 	);
-	Object result;
+	TaskDataGenerator::TaskData result("");
 
 	// THEN
 	ASSERT_NO_THROW(result = instance.generate_create_gpio_data(10, TaskDataGenerator::GpioDirection::OUT));
@@ -103,6 +110,7 @@ TEST(ut_task_data_generator, generate_tasks_sanity) {
 	
 	// WHEN
 	TaskDataGenerator instance(
+		JsonDataSerializer(),
 		task_type_field,
 		gpio_id_field,
 		gpio_dir_field,
@@ -110,10 +118,11 @@ TEST(ut_task_data_generator, generate_tasks_sanity) {
 		delay_field,
 		tasks_field
 	);
+	JsonDataParser parser;
 	Array tasks;
-	tasks.push_back(instance.generate_create_gpio_data(10, TaskDataGenerator::GpioDirection::OUT));
-	tasks.push_back(instance.generate_set_gpio_data(10, TaskDataGenerator::GpioState::HIGH));
-	Object result;
+	tasks.push_back(*std::unique_ptr<Data>(parser.parse(instance.generate_create_gpio_data(10, TaskDataGenerator::GpioDirection::OUT))));
+	tasks.push_back(*std::unique_ptr<Data>(parser.parse(instance.generate_set_gpio_data(10, TaskDataGenerator::GpioState::HIGH))));
+	TaskDataGenerator::TaskData result("");
 
 	// THEN
 	ASSERT_NO_THROW(result = instance.generate_tasks_data(tasks));
