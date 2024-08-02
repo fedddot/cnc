@@ -9,6 +9,7 @@ target_link_libraries(
 	PRIVATE
     data_lib
     task_data_generator
+	json_data_serializer
 
 	gtest
 )

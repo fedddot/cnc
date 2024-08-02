@@ -1,39 +1,38 @@
 #ifndef	TASK_DATA_GENERATOR_HPP
 #define	TASK_DATA_GENERATOR_HPP
 
-#include <chrono>
-#include <stdexcept>
-#include <thread>
-#include <unistd.h>
+#include <memory>
+#include <string>
+
+#include "data.hpp"
+#include "gpio.hpp"
+#include "serializer.hpp"
 
 namespace cnc {
 	class TaskDataGenerator {
 	public:
-		TaskDataGenerator(mcu_ipc::IpcConnection<Tdata> *connection);
+		using TaskData = std::string;
+		using GpioId = int;
+		using TaskDataSerializer = mcu_server::Serializer<TaskData(const mcu_server::Data&)>;
+		
+		TaskDataGenerator(
+			const TaskDataSerializer& serializer,
+			const std::string& task_type_field = "task_type",
+			const std::string& gpio_id_field = "gpio_id",
+			const std::string& gpio_dir_field = "gpio_dir",
+			const std::string& gpio_state_field = "gpio_state",
+			const std::string& delay_field = "delay_ms"
+		);
 		TaskDataGenerator(const TaskDataGenerator& other) = delete;
 		TaskDataGenerator& operator=(const TaskDataGenerator& other) = delete;
 		virtual ~TaskDataGenerator() noexcept = default;
 
-		Tdata run(const Tdata& data) const;
+		TaskData generate_create_gpio_data(int id, const mcu_platform::Gpio::Direction& dir) const;
+		TaskData generate_delete_gpio_data(int id) const;
 	private:
-		mcu_ipc::IpcConnection<Tdata> *m_connection;
+		std::unique_ptr<TaskDataSerializer> m_serializer;
 	};
 
-	template <typename Tdata>
-	inline TaskDataGenerator<Tdata>::TaskDataGenerator(mcu_ipc::IpcConnection<Tdata> *connection): m_connection(connection) {
-		if (!m_connection) {
-			throw std::invalid_argument("invalid connection ptr received");
-		}
-	}
-
-	template <typename Tdata>
-	inline Tdata TaskDataGenerator<Tdata>::run(const Tdata& data) const {
-		m_connection->send(data);
-		while (!m_connection->readable()) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		}
-		return m_connection->read();
-	}
 }
 
 #endif // TASK_DATA_GENERATOR_HPP

@@ -9,7 +9,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(task_data_generator INTERFACE)
 target_include_directories(task_data_generator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(task_data_generator INTERFACE creator)
+target_link_libraries(task_data_generator INTERFACE data_lib gpio serializer)
 
 add_subdirectory(external)
 add_subdirectory(tests EXCLUDE_FROM_ALL)
