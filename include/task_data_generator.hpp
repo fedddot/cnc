@@ -1,21 +1,18 @@
-#ifndef	MCU_CLIENT_HPP
-#define	MCU_CLIENT_HPP
+#ifndef	TASK_DATA_GENERATOR_HPP
+#define	TASK_DATA_GENERATOR_HPP
 
 #include <chrono>
 #include <stdexcept>
 #include <thread>
 #include <unistd.h>
 
-#include "ipc_connection.hpp"
-
-namespace mcu_client {
-	template <typename Tdata>
-	class McuClient {
+namespace cnc {
+	class TaskDataGenerator {
 	public:
-		McuClient(mcu_ipc::IpcConnection<Tdata> *connection);
-		McuClient(const McuClient& other) = delete;
-		McuClient& operator=(const McuClient& other) = delete;
-		virtual ~McuClient() noexcept = default;
+		TaskDataGenerator(mcu_ipc::IpcConnection<Tdata> *connection);
+		TaskDataGenerator(const TaskDataGenerator& other) = delete;
+		TaskDataGenerator& operator=(const TaskDataGenerator& other) = delete;
+		virtual ~TaskDataGenerator() noexcept = default;
 
 		Tdata run(const Tdata& data) const;
 	private:
@@ -23,14 +20,14 @@ namespace mcu_client {
 	};
 
 	template <typename Tdata>
-	inline McuClient<Tdata>::McuClient(mcu_ipc::IpcConnection<Tdata> *connection): m_connection(connection) {
+	inline TaskDataGenerator<Tdata>::TaskDataGenerator(mcu_ipc::IpcConnection<Tdata> *connection): m_connection(connection) {
 		if (!m_connection) {
 			throw std::invalid_argument("invalid connection ptr received");
 		}
 	}
 
 	template <typename Tdata>
-	inline Tdata McuClient<Tdata>::run(const Tdata& data) const {
+	inline Tdata TaskDataGenerator<Tdata>::run(const Tdata& data) const {
 		m_connection->send(data);
 		while (!m_connection->readable()) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -39,4 +36,4 @@ namespace mcu_client {
 	}
 }
 
-#endif // MCU_CLIENT_HPP
+#endif // TASK_DATA_GENERATOR_HPP
