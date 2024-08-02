@@ -17,7 +17,8 @@ if not os.path.isdir(build_path):
 subprocess.run(["cmake", ".."], cwd=build_path).check_returncode()
 
 uts = [
-    "cnc_tests"
+    "cnc_tests",
+    "cnc_util_tests"
 ]
 
 def find_executable(name, path):
