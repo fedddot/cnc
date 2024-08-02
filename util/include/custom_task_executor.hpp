@@ -1,8 +1,10 @@
 #ifndef	CUSTOM_TASK_EXECUTOR_HPP
 #define	CUSTOM_TASK_EXECUTOR_HPP
 
-#include "task_executor.hpp"
 #include <functional>
+#include <stdexcept>
+
+#include "task_executor.hpp"
 
 namespace cnc_utl {
 	template <typename Signature>
@@ -16,11 +18,23 @@ namespace cnc_utl {
 		CustomTaskExecutor(const CustomTaskExecutor& other) = default;
 		CustomTaskExecutor& operator=(const CustomTaskExecutor& other) = default;
 		
-		Tdata execute(Args...) override;
+		Tdata execute(Args... args) override;
 		cnc::TaskExecutor<Tdata(Args...)> *clone() const override;
 	private:
 		ExecuteAction m_action;
 	};
+
+	template <typename Tdata, typename... Args>
+	inline CustomTaskExecutor<Tdata(Args...)>::CustomTaskExecutor(const ExecuteAction& action): m_action(action) {
+		if (!m_action) {
+			throw std::invalid_argument("invalid action received");
+		}
+	}
+
+	template <typename Tdata, typename... Args>
+	inline Tdata CustomTaskExecutor<Tdata(Args...)>::execute(Args... args) {
+		return m_action(std::forward<Args>(args)...);
+	}
 }
 
 #endif // CUSTOM_TASK_EXECUTOR_HPP
