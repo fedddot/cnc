@@ -9,6 +9,7 @@ target_link_libraries(
 	PRIVATE
     data_lib
     task_data_generator
+	task_object_generator
 	stepper_motor
 
 	gtest

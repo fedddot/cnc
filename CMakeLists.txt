@@ -16,15 +16,18 @@ target_link_libraries(
     gpio
 )
 
+add_library(task_executor INTERFACE)
+target_include_directories(task_executor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+
 add_library(stepper_motor INTERFACE)
 target_include_directories(stepper_motor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(
     stepper_motor
     INTERFACE
     gpio
-    json_data_parser
-    json_data_serializer
-    mcu_client
+    data_lib
+    task_data_generator
+    task_executor
 )
 
 add_subdirectory(external)
