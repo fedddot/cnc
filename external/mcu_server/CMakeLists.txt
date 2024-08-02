@@ -4,7 +4,7 @@ FetchContent_Declare(
     GIT_TAG         main
 )
 FetchContent_GetProperties(mcu_server)
-if(NOT mcu_server)
+if(NOT mcu_server_POPULATED)
 	FetchContent_Populate(mcu_server)
 	add_subdirectory(${mcu_server_SOURCE_DIR} ${mcu_server_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
