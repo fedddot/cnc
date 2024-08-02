@@ -34,6 +34,8 @@ namespace cnc {
 
 		TaskData generate_create_gpio_data(const GpioId& id, const GpioDirection& dir) const;
 		TaskData generate_delete_gpio_data(const GpioId& id) const;
+		TaskData generate_set_gpio_data(const GpioId& id, const GpioState& state) const;
+		TaskData generate_delay_data(const unsigned int delay_ms) const;
 	private:
 		const std::unique_ptr<TaskDataSerializer> m_serializer;
 		const std::string m_task_type_field;
@@ -75,6 +77,24 @@ namespace cnc {
 		return m_serializer->serialize(task_data);
 	}
 
+	inline TaskDataGenerator::TaskData TaskDataGenerator::generate_set_gpio_data(const GpioId& id, const GpioState& state) const {
+		using namespace mcu_server;
+		using namespace mcu_platform;
+		Object task_data;
+		task_data.add(m_task_type_field, Integer(static_cast<int>(McuTaskType::SET_GPIO)));
+		task_data.add(m_gpio_id_field, Integer(static_cast<int>(id)));
+		task_data.add(m_gpio_state_field, Integer(static_cast<int>(state)));
+		return m_serializer->serialize(task_data);
+	}
+
+	inline TaskDataGenerator::TaskData TaskDataGenerator::generate_delay_data(const unsigned int delay_ms) const {
+		using namespace mcu_server;
+		using namespace mcu_platform;
+		Object task_data;
+		task_data.add(m_task_type_field, Integer(static_cast<int>(McuTaskType::DELAY)));
+		task_data.add(m_delay_field, Integer(static_cast<int>(delay_ms)));
+		return m_serializer->serialize(task_data);
+	}
 }
 
 #endif // TASK_DATA_GENERATOR_HPP
