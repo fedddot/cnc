@@ -3,10 +3,10 @@ target_include_directories(task_object_generator INTERFACE ${CMAKE_CURRENT_LIST_
 target_link_libraries(
     task_object_generator
     INTERFACE
-    task_data_generator
     data_lib
     gpio
     mcu_factory
+    task_data_generator
 )
 
 add_subdirectory(tests EXCLUDE_FROM_ALL)

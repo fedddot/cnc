@@ -8,8 +8,8 @@ target_link_libraries(
 	cnc_util_tests
 	PRIVATE
     data_lib
-    task_data_generator
-	task_object_generator
+    mcu_factory
+    task_object_generator
 
 	gtest
 )

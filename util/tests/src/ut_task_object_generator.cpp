@@ -5,7 +5,6 @@
 #include "array.hpp"
 #include "data.hpp"
 #include "integer.hpp"
-
 #include "mcu_factory.hpp"
 #include "object.hpp"
 #include "task_object_generator.hpp"
@@ -27,12 +26,12 @@ TEST(ut_task_data_generator, ctor_dtor_sanity) {
 	const std::string tasks_field("tasks");
 
 	// WHEN
-	TaskDataGenerator *instance_ptr(nullptr);
+	TaskObjectGenerator *instance_ptr(nullptr);
 
 	// THEN
 	ASSERT_NO_THROW(
 		(
-			instance_ptr = new TaskDataGenerator(
+			instance_ptr = new TaskObjectGenerator(
 				task_type_field,
 				gpio_id_field,
 				gpio_dir_field,
@@ -63,7 +62,7 @@ TEST(ut_task_data_generator, generate_sanity) {
 	const std::string tasks_field("tasks");
 
 	// WHEN
-	TaskDataGenerator instance(
+	TaskObjectGenerator instance(
 		task_type_field,
 		gpio_id_field,
 		gpio_dir_field,
@@ -74,19 +73,19 @@ TEST(ut_task_data_generator, generate_sanity) {
 	Object result;
 
 	// THEN
-	ASSERT_NO_THROW(result = instance.generate_create_gpio_data(10, TaskDataGenerator::GpioDirection::OUT));
+	ASSERT_NO_THROW(result = instance.generate_create_gpio_data(10, TaskObjectGenerator::GpioDirection::OUT));
 	assert_result_contains_int(result, task_type_field, static_cast<int>(TaskType::CREATE_GPIO));
 	assert_result_contains_int(result, gpio_id_field, 10);
-	assert_result_contains_int(result, gpio_dir_field, static_cast<int>(TaskDataGenerator::GpioDirection::OUT));
+	assert_result_contains_int(result, gpio_dir_field, static_cast<int>(TaskObjectGenerator::GpioDirection::OUT));
 
 	ASSERT_NO_THROW(result = instance.generate_delete_gpio_data(10));
 	assert_result_contains_int(result, task_type_field, static_cast<int>(TaskType::DELETE_GPIO));
 	assert_result_contains_int(result, gpio_id_field, 10);
 
-	ASSERT_NO_THROW(result = instance.generate_set_gpio_data(10, TaskDataGenerator::GpioState::HIGH));
+	ASSERT_NO_THROW(result = instance.generate_set_gpio_data(10, TaskObjectGenerator::GpioState::HIGH));
 	assert_result_contains_int(result, task_type_field, static_cast<int>(TaskType::SET_GPIO));
 	assert_result_contains_int(result, gpio_id_field, 10);
-	assert_result_contains_int(result, gpio_state_field, static_cast<int>(TaskDataGenerator::GpioState::HIGH));
+	assert_result_contains_int(result, gpio_state_field, static_cast<int>(TaskObjectGenerator::GpioState::HIGH));
 
 	ASSERT_NO_THROW(result = instance.generate_delay_data(1304));
 	assert_result_contains_int(result, task_type_field, static_cast<int>(TaskType::DELAY));
@@ -103,7 +102,7 @@ TEST(ut_task_data_generator, generate_tasks_sanity) {
 	const std::string tasks_field("tasks");
 	
 	// WHEN
-	TaskDataGenerator instance(
+	TaskObjectGenerator instance(
 		task_type_field,
 		gpio_id_field,
 		gpio_dir_field,
@@ -112,8 +111,8 @@ TEST(ut_task_data_generator, generate_tasks_sanity) {
 		tasks_field
 	);
 	Array tasks;
-	tasks.push_back(instance.generate_create_gpio_data(10, TaskDataGenerator::GpioDirection::OUT));
-	tasks.push_back(instance.generate_set_gpio_data(10, TaskDataGenerator::GpioState::HIGH));
+	tasks.push_back(instance.generate_create_gpio_data(10, TaskObjectGenerator::GpioDirection::OUT));
+	tasks.push_back(instance.generate_set_gpio_data(10, TaskObjectGenerator::GpioState::HIGH));
 	Object result;
 
 	// THEN
