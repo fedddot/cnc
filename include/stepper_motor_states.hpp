@@ -1,6 +1,7 @@
 #ifndef	STEPPER_MOTOR_STATES_HPP
 #define	STEPPER_MOTOR_STATES_HPP
 
+#include <cstddef>
 #include <stdexcept>
 #include <vector>
 
@@ -20,36 +21,33 @@ namespace cnc {
 		StepperMotorState current() const;
 	private:
 		std::vector<StepperMotorState> m_states;
-		
-		using StateIter = typename std::vector<StepperMotorState>::iterator;
-		StateIter m_current_iter;
+		std::size_t m_current_index;
 	};
 	
-	inline StepperMotorStates::StepperMotorStates(const std::vector<StepperMotorState>& states): m_states(states) {
+	inline StepperMotorStates::StepperMotorStates(const std::vector<StepperMotorState>& states): m_states(states), m_current_index(0UL) {
 		if (1 > m_states.size()) {
 			throw std::invalid_argument("states must contain at list 1 state");
 		}
-		m_current_iter = m_states.begin();
 	}
 
 	inline void StepperMotorStates::move_back() {
-		if (m_states.begin() == m_current_iter) {
-			m_current_iter = m_states.begin() + m_states.size() - 1;
+		if (0 == m_current_index) {
+			m_current_index = m_states.size() - 1;
 			return;
 		}
-		m_current_iter = m_current_iter - 1;
+		--m_current_index;
 	}
 	
 	inline void StepperMotorStates::move_forward() {
-		if (m_states.end() == m_current_iter + 1) {
-			m_current_iter = m_states.begin();
+		if (m_states.size() - 1 == m_current_index) {
+			m_current_index = 0;
 			return;
 		}
-		m_current_iter = m_current_iter + 1;
+		++m_current_index;
 	}
 	
 	inline StepperMotorState StepperMotorStates::current() const {
-		return *m_current_iter;
+		return m_states[m_current_index];
 	}
 }
 
