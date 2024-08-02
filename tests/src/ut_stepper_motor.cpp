@@ -1,9 +1,11 @@
 #include "gtest/gtest.h"
 
+#include "custom_task_executor.hpp"
 #include "gpio.hpp"
 #include "stepper_motor.hpp"
 #include "stepper_motor_state.hpp"
 #include "stepper_motor_states.hpp"
+#include "task_object_generator.hpp"
 
 using namespace cnc;
 using namespace mcu_platform;
@@ -48,7 +50,14 @@ TEST(ut_stepper_motor, ctor_dtor_sanity) {
 	ASSERT_NO_THROW(
 		(
 			instance_ptr = new StepperMotor<GpioId>(
-				
+				shoulders,
+				states,
+				cnc_utl::TaskObjectGenerator(),
+				cnc_utl::CustomTaskExecutor<void(const TestMotor::TaskData&)>(
+					[](const TestMotor::TaskData& data){
+						(void)(data);
+					}
+				)
 			)
 		)
 	);

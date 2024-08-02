@@ -24,15 +24,14 @@ namespace cnc {
 		using Shoulder = typename StepperMotorState::Shoulder;
 		using MotorShoulders = std::map<Shoulder, Tgpio_id>;
 		using TaskData = mcu_server::Object;
-		using TaskDataGenerator = TaskDataGenerator<TaskData, Tgpio_id>;
-		using StepperMotorStates = StepperMotorStates;
-		using TaskExecutor = TaskExecutor<void(const TaskData&)>;
+		using MotorDataGenerator = TaskDataGenerator<TaskData, Tgpio_id>;
+		using MotorTaskExecutor = TaskExecutor<void(const TaskData&)>;
 
 		StepperMotor(
 			const MotorShoulders& shoulders,
 			const StepperMotorStates& states,
-			const TaskDataGenerator& data_generator,
-			const TaskExecutor& executor
+			const MotorDataGenerator& data_generator,
+			const MotorTaskExecutor& executor
 		);
 
 		StepperMotor(const StepperMotor& other) = delete;
@@ -43,16 +42,16 @@ namespace cnc {
 	private:
 		MotorShoulders m_shoulders;
 		StepperMotorStates m_states;
-		std::unique_ptr<TaskDataGenerator> m_data_generator;
-		std::unique_ptr<TaskExecutor> m_executor;
+		std::unique_ptr<MotorDataGenerator> m_data_generator;
+		std::unique_ptr<MotorTaskExecutor> m_executor;
 	};
 
 	template <typename Tgpio_id>
 	inline StepperMotor<Tgpio_id>::StepperMotor(
 		const MotorShoulders& shoulders,
 		const StepperMotorStates& states,
-		const TaskDataGenerator& data_generator,
-		const TaskExecutor& executor
+		const MotorDataGenerator& data_generator,
+		const MotorTaskExecutor& executor
 	): m_shoulders(shoulders), m_states(states), m_data_generator(data_generator.clone()), m_executor(executor.clone()) {
 
 	}
