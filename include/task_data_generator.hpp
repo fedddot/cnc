@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 
+#include "array.hpp"
 #include "data.hpp"
 #include "gpio.hpp"
 #include "integer.hpp"
@@ -37,6 +38,7 @@ namespace cnc {
 		TaskData generate_delete_gpio_data(const GpioId& id) const;
 		TaskData generate_set_gpio_data(const GpioId& id, const GpioState& state) const;
 		TaskData generate_delay_data(const unsigned int delay_ms) const;
+		TaskData generate_tasks_data(const mcu_server::Array& tasks) const;
 	private:
 		const std::unique_ptr<TaskDataSerializer> m_serializer;
 		const std::string m_task_type_field;
@@ -96,6 +98,15 @@ namespace cnc {
 		Object task_data;
 		task_data.add(m_task_type_field, Integer(static_cast<int>(McuTaskType::DELAY)));
 		task_data.add(m_delay_field, Integer(static_cast<int>(delay_ms)));
+		return m_serializer->serialize(task_data);
+	}
+
+	inline TaskDataGenerator::TaskData TaskDataGenerator::generate_tasks_data(const mcu_server::Array& tasks) const {
+		using namespace mcu_server;
+		using namespace mcu_platform;
+		Object task_data;
+		task_data.add(m_task_type_field, Integer(static_cast<int>(McuTaskType::SEQUENCE)));
+		task_data.add(m_tasks_field, tasks);
 		return m_serializer->serialize(task_data);
 	}
 }

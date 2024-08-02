@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 
+#include "array.hpp"
 #include "data.hpp"
 #include "integer.hpp"
 #include "json_data_parser.hpp"
@@ -96,4 +97,33 @@ TEST(ut_task_data_generator, generate_sanity) {
 	ASSERT_NO_THROW(result = instance.generate_delay_data(1304));
 	assert_result_contains_int(result, task_type_field, static_cast<int>(TaskType::DELAY));
 	assert_result_contains_int(result, delay_field, 1304);
+}
+
+TEST(ut_task_data_generator, generate_tasks_sanity) {
+	// GIVEN
+	const std::string task_type_field("task_type");
+	const std::string gpio_id_field("gpio_id");
+	const std::string gpio_dir_field("gpio_dir");
+	const std::string gpio_state_field("gpio_state");
+	const std::string delay_field("delay_ms");
+	const std::string tasks_field("tasks");
+	
+	// WHEN
+	TaskDataGenerator instance(
+		JsonDataSerializer(),
+		task_type_field,
+		gpio_id_field,
+		gpio_dir_field,
+		gpio_state_field,
+		delay_field,
+		tasks_field
+	);
+	JsonDataParser parser;
+	Array tasks;
+	tasks.push_back(*std::unique_ptr<Data>(parser.parse(instance.generate_create_gpio_data(10, TaskDataGenerator::GpioDirection::OUT))));
+	tasks.push_back(*std::unique_ptr<Data>(parser.parse(instance.generate_set_gpio_data(10, TaskDataGenerator::GpioState::HIGH))));
+	TaskDataGenerator::TaskData result("");
+
+	// THEN
+	ASSERT_NO_THROW(result = instance.generate_tasks_data(tasks));
 }
