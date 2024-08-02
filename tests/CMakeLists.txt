@@ -12,6 +12,7 @@ target_link_libraries(
 	task_object_generator
 	stepper_motor
 	custom_task_executor
+	json_data_serializer
 
 	gtest
 )

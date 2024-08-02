@@ -1,7 +1,9 @@
 #include "gtest/gtest.h"
+#include <iostream>
 
 #include "custom_task_executor.hpp"
 #include "gpio.hpp"
+#include "json_data_serializer.hpp"
 #include "stepper_motor.hpp"
 #include "stepper_motor_state.hpp"
 #include "stepper_motor_states.hpp"
@@ -47,7 +49,8 @@ TEST(ut_stepper_motor, ctor_dtor_sanity) {
 				cnc_utl::TaskObjectGenerator(),
 				cnc_utl::CustomTaskExecutor<void(const TestMotor::TaskData&)>(
 					[](const TestMotor::TaskData& data){
-						throw std::runtime_error("NOT IMPLEMENTED");
+						std::cout << "Received task data:" << std::endl;
+						std::cout << mcu_server_utl::JsonDataSerializer().serialize(data) << std::endl;
 					}
 				)
 			)
@@ -95,7 +98,8 @@ TEST(ut_stepper_motor, steps_sanity) {
 		cnc_utl::TaskObjectGenerator(),
 		cnc_utl::CustomTaskExecutor<void(const TestMotor::TaskData&)>(
 			[](const TestMotor::TaskData& data){
-				throw std::runtime_error("NOT IMPLEMENTED");
+				std::cout << "Received task data:" << std::endl;
+				std::cout << mcu_server_utl::JsonDataSerializer().serialize(data) << std::endl;
 			}
 		)
 	);
