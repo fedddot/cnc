@@ -26,7 +26,8 @@ namespace cnc {
 			const std::string& gpio_id_field = "gpio_id",
 			const std::string& gpio_dir_field = "gpio_dir",
 			const std::string& gpio_state_field = "gpio_state",
-			const std::string& delay_field = "delay_ms"
+			const std::string& delay_field = "delay_ms",
+			const std::string& tasks_field = "tasks"
 		);
 		TaskDataGenerator(const TaskDataGenerator& other) = delete;
 		TaskDataGenerator& operator=(const TaskDataGenerator& other) = delete;
@@ -43,6 +44,7 @@ namespace cnc {
 		const std::string m_gpio_dir_field;
 		const std::string m_gpio_state_field;
 		const std::string m_delay_field;
+		const std::string m_tasks_field;
 
 		using McuTaskType = typename mcu_factory::McuFactory<GpioId>::TaskType;
 	};
@@ -53,8 +55,9 @@ namespace cnc {
 		const std::string& gpio_id_field,
 		const std::string& gpio_dir_field,
 		const std::string& gpio_state_field,
-		const std::string& delay_field
-	): m_serializer(serializer.clone()), m_task_type_field(task_type_field), m_gpio_id_field(gpio_id_field), m_gpio_dir_field(gpio_dir_field), m_gpio_state_field(gpio_state_field), m_delay_field(delay_field) {
+		const std::string& delay_field,
+		const std::string& tasks_field
+	): m_serializer(serializer.clone()), m_task_type_field(task_type_field), m_gpio_id_field(gpio_id_field), m_gpio_dir_field(gpio_dir_field), m_gpio_state_field(gpio_state_field), m_delay_field(delay_field), m_tasks_field(tasks_field) {
 
 	}
 

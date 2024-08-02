@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include <memory>
+#include <string>
 
 #include "data.hpp"
 #include "integer.hpp"
@@ -23,6 +24,7 @@ TEST(ut_task_data_generator, ctor_dtor_sanity) {
 	const std::string gpio_dir_field("gpio_dir");
 	const std::string gpio_state_field("gpio_state");
 	const std::string delay_field("delay_ms");
+	const std::string tasks_field("tasks");
 
 	// WHEN
 	TaskDataGenerator *instance_ptr(nullptr);
@@ -36,7 +38,8 @@ TEST(ut_task_data_generator, ctor_dtor_sanity) {
 				gpio_id_field,
 				gpio_dir_field,
 				gpio_state_field,
-				delay_field
+				delay_field,
+				tasks_field
 			)
 		)
 	);
@@ -61,6 +64,7 @@ TEST(ut_task_data_generator, generate_sanity) {
 	const std::string gpio_dir_field("gpio_dir");
 	const std::string gpio_state_field("gpio_state");
 	const std::string delay_field("delay_ms");
+	const std::string tasks_field("tasks");
 
 	// WHEN
 	TaskDataGenerator instance(
@@ -69,7 +73,8 @@ TEST(ut_task_data_generator, generate_sanity) {
 		gpio_id_field,
 		gpio_dir_field,
 		gpio_state_field,
-		delay_field
+		delay_field,
+		tasks_field
 	);
 	TaskDataGenerator::TaskData result("");
 
