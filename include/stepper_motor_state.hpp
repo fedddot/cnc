@@ -11,13 +11,12 @@
 
 namespace cnc {
 
-	template <typename Tgpio_id>
 	class StepperMotorState {
 	public:
 		enum class Shoulder: int { LL, LR, HL, HR };
 		using GpioState = typename mcu_platform::Gpio::State;
 		using ShouldersState = std::map<Shoulder, GpioState>;
-		using ShoulderAction = std::function<void(const Shoulder& shoulder, const Tgpio_id& gpio_id)>;
+		using ShoulderAction = std::function<void(const Shoulder&, const GpioState&)>;
 
 		StepperMotorState(const ShouldersState& state);
 		StepperMotorState(const StepperMotorState& other) = default;
@@ -29,8 +28,7 @@ namespace cnc {
 		ShouldersState m_state;
 	};
 
-	template <typename Tgpio_id>
-	inline StepperMotorState<Tgpio_id>::StepperMotorState(const ShouldersState& state): m_state(state) {
+	inline StepperMotorState::StepperMotorState(const ShouldersState& state): m_state(state) {
 		enum : std::size_t { SHOULDERS_NUMBER = 4UL };
 		static const std::array<Shoulder, SHOULDERS_NUMBER> required_shoulders {Shoulder::LL, Shoulder::LR, Shoulder::HL, Shoulder::HR};
 		for (auto shoulder: required_shoulders) {
@@ -41,8 +39,7 @@ namespace cnc {
 		}
 	}
 
-	template <typename Tgpio_id>
-	inline void StepperMotorState<Tgpio_id>::for_each_shoulder(const ShoulderAction& action) const {
+	inline void StepperMotorState::for_each_shoulder(const ShoulderAction& action) const {
 		for (auto iter: m_state) {
 			action(iter.first, iter.second);
 		}
