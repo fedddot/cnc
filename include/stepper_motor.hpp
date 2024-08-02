@@ -3,6 +3,7 @@
 
 #include <map>
 #include <memory>
+#include <stdexcept>
 
 #include "object.hpp"
 #include "stepper_motor_state.hpp"
@@ -20,11 +21,11 @@ namespace cnc {
 			CCW
 		};
 
-		using Shoulder = typename StepperMotorState<Tgpio_id>::Shoulder;
+		using Shoulder = typename StepperMotorState::Shoulder;
 		using MotorShoulders = std::map<Shoulder, Tgpio_id>;
 		using TaskData = mcu_server::Object;
 		using TaskDataGenerator = TaskDataGenerator<TaskData, Tgpio_id>;
-		using StepperMotorStates = StepperMotorStates<Tgpio_id>;
+		using StepperMotorStates = StepperMotorStates;
 		using TaskExecutor = TaskExecutor<void(const TaskData&)>;
 
 		StepperMotor(
@@ -41,9 +42,9 @@ namespace cnc {
 		void steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) const;
 	private:
 		MotorShoulders m_shoulders;
-		std::unique_ptr<TaskExecutor> m_executor;
-		std::unique_ptr<TaskDataGenerator> m_data_generator;
 		StepperMotorStates m_states;
+		std::unique_ptr<TaskDataGenerator> m_data_generator;
+		std::unique_ptr<TaskExecutor> m_executor;
 	};
 
 	template <typename Tgpio_id>
@@ -52,11 +53,13 @@ namespace cnc {
 		const StepperMotorStates& states,
 		const TaskDataGenerator& data_generator,
 		const TaskExecutor& executor
-	): {
-		
-	}
-	inline void StepperMotor::steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) const {
+	): m_shoulders(shoulders), m_states(states), m_data_generator(data_generator.clone()), m_executor(executor.clone()) {
 
+	}
+
+	template <typename Tgpio_id>
+	inline void StepperMotor<Tgpio_id>::steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) const {
+		throw std::runtime_error("NOT IMPLEMENTED");
 	}
 }
 
