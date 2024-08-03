@@ -20,6 +20,7 @@ namespace cnc {
 		virtual Tdata generate_delay_data(const unsigned int delay_ms) const = 0;
 		virtual Tdata generate_tasks_data(const mcu_server::Array& tasks) const = 0;
 		virtual Tdata generate_create_persistent_task_data(const Ttask_id& id, const mcu_server::Data& task_data) const = 0;
+		virtual Tdata generate_delete_persistent_task_data(const Ttask_id& id) const = 0;
 		virtual TaskDataGenerator *clone() const = 0;
 	};
 }
