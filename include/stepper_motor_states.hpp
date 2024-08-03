@@ -11,6 +11,8 @@ namespace cnc {
 
 	class StepperMotorStates {
 	public:
+		using StateAction = std::function<void(int, const StepperMotorState&)>;
+		
 		StepperMotorStates(const std::vector<StepperMotorState>& states);
 		StepperMotorStates(const StepperMotorStates& other) = default;
 		StepperMotorStates& operator=(const StepperMotorStates& other) = default;
@@ -19,6 +21,7 @@ namespace cnc {
 		void move_back();
 		void move_forward();
 		StepperMotorState current() const;
+		void for_each_state(const StateAction& action) const;
 	private:
 		std::vector<StepperMotorState> m_states;
 		std::size_t m_current_index;
