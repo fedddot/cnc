@@ -1,6 +1,7 @@
 #ifndef	STEPPER_MOTOR_HPP
 #define	STEPPER_MOTOR_HPP
 
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -50,39 +51,14 @@ namespace cnc {
 		const TaskId m_task_id_prefix;
 		const StepperMotorState m_shutdown_state;
 
-		enum ResidingTaskId: int {
-			CREATE_GPIOS = 0,
-			DELETE_GPIOS,
-			APPLY_STATE_START
-		};
-
-		void allocate_states_appliers() const {
-			using namespace mcu_server;
-			Array allocate_tasks;
-			m_states.for_each_state(
-				[&allocate_tasks, this](int state_ind, const StepperMotorState& state) {
-					Array set_tasks;
-					state.for_each_shoulder(
-						[&set_tasks, this](const StepperMotorState::Shoulder& shoulder, const StepperMotorState::GpioState& state) {
-							set_tasks.push_back(m_data_generator->generate_set_gpio_data(m_shoulders[shoulder], state));
-						}
-					);
-					allocate_tasks.push_back(
-						m_data_generator->generate_create_persistent_task_data(
-							m_task_id_prefix + state_ind,
-							m_data_generator->generate_tasks_data(set_tasks)
-						)
-					);
-				}
-			);
-			m_executor->execute(m_data_generator->generate_tasks_data(allocate_tasks));
-		}
-
+		void allocate_states_appliers() const;
+		void deallocate_states_appliers() const;
+		
 		TaskData create_gpios_data() const;
 		TaskData delete_gpios_data() const;
 		TaskData create_states_appliers_data() const;
 		TaskData delete_states_appliers_data() const;
-		TaskData apply_state_data(const StepperMotorState& state) const;
+		TaskData apply_state_data(const std::size_t& state_index) const;
 		static StepperMotorState init_shutdown_state();
 	};
 
@@ -110,7 +86,13 @@ namespace cnc {
 	template <typename Tgpio_id>
 	inline void StepperMotor<Tgpio_id>::steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) const {
 		using namespace mcu_server;
+		const int delay_applier_id = m_task_id_prefix + m_states.size();
+		
 		Array tasks;
+		// add delay persistant task with corresponding 
+		tasks.push_back(
+			m_data_generator->generate_create_persistent_task_data(step_duration_ms));
+		Array persistent_tasks_list;
 		for (auto step_index = 0; steps_num > step_index; ++step_index) {
 			switch (direction) {
 			case Direction::CW:
@@ -122,10 +104,48 @@ namespace cnc {
 			default:
 				throw std::invalid_argument("unsupported direction");
 			}
-			tasks.push_back(apply_state_data(m_states.current()));
+			
+			const int state_applier_id = m_task_id_prefix + m_states.current();
+			
+			persistent_tasks_list.push_back(apply_state_data(m_states.current()));
 			tasks.push_back(m_data_generator->generate_delay_data(step_duration_ms));
 		}
 		m_executor->execute(m_data_generator->generate_tasks_data(tasks));
+	}
+
+	template <typename Tgpio_id>
+	void StepperMotor<Tgpio_id>::allocate_states_appliers() const {
+		using namespace mcu_server;
+		Array allocate_tasks;
+		m_states.for_each_state(
+			[&allocate_tasks, this](int state_ind, const StepperMotorState& state) {
+				Array set_tasks;
+				state.for_each_shoulder(
+					[&set_tasks, this](const StepperMotorState::Shoulder& shoulder, const StepperMotorState::GpioState& state) {
+						set_tasks.push_back(m_data_generator->generate_set_gpio_data(m_shoulders[shoulder], state));
+					}
+				);
+				allocate_tasks.push_back(
+					m_data_generator->generate_create_persistent_task_data(
+						m_task_id_prefix + state_ind,
+						m_data_generator->generate_tasks_data(set_tasks)
+					)
+				);
+			}
+		);
+		m_executor->execute(m_data_generator->generate_tasks_data(allocate_tasks));
+	}
+
+	template <typename Tgpio_id>
+	void StepperMotor<Tgpio_id>::deallocate_states_appliers() const {
+		using namespace mcu_server;
+		Array deallocate_tasks;
+		m_states.for_each_state(
+			[&deallocate_tasks, this](int state_ind, const StepperMotorState& state) {
+				deallocate_tasks.push_back(m_data_generator->generate_delete_persistent_task_data(m_task_id_prefix + state_ind));
+			}
+		);
+		m_executor->execute(m_data_generator->generate_tasks_data(deallocate_tasks));
 	}
 
 	template <typename Tgpio_id>
