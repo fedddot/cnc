@@ -19,6 +19,15 @@ target_link_libraries(
 add_library(task_executor INTERFACE)
 target_include_directories(task_executor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
+add_library(persistent_task INTERFACE)
+target_include_directories(persistent_task INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(
+    persistent_task
+    INTERFACE
+    task_executor
+    creator
+)
+
 add_library(stepper_motor_state INTERFACE)
 target_include_directories(stepper_motor_state INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(stepper_motor_state INTERFACE gpio)
