@@ -52,6 +52,12 @@ namespace cnc {
 	inline StepperMotorState StepperMotorStates::current() const {
 		return m_states[m_current_index];
 	}
+
+	inline void StepperMotorStates::for_each_state(const StateAction& action) const {
+		for (auto state_ind = 0; m_states.size() > state_ind; state_ind++) {
+			action(state_ind, m_states[state_ind]);
+		}
+	}
 }
 
 #endif // STEPPER_MOTOR_STATES_HPP
