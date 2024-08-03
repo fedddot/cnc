@@ -11,13 +11,14 @@ namespace cnc {
 	public:
 		using AllocationDataCreator = mcu_server::Creator<Tdata(const Ttask_id&, const Tdata&)>;
 		using DeallocationDataCreator = mcu_server::Creator<Tdata(const Ttask_id&)>;
+		using TaskIdCreator = mcu_server::Creator<Ttask_id(void)>;
 		using PersistentTaskExecutor = TaskExecutor<void(const Tdata&)>;
 		
 		PersistentTask(
-			const Ttask_id& id, 
 			const Tdata& task_data,
 			const AllocationDataCreator& allocation_data_ctor,
 			const DeallocationDataCreator& deallocation_data_ctor,
+			const TaskIdCreator& task_id_ctor,
 			const PersistentTaskExecutor& executor
 		);
 		PersistentTask(const PersistentTask& other) = delete;
@@ -34,12 +35,12 @@ namespace cnc {
 
 	template <typename Ttask_id, typename Tdata>
 	inline PersistentTask<Ttask_id, Tdata>::PersistentTask(
-		const Ttask_id& id, 
 		const Tdata& task_data,
 		const AllocationDataCreator& allocation_data_ctor,
 		const DeallocationDataCreator& deallocation_data_ctor,
+		const TaskIdCreator& task_id_ctor,
 		const PersistentTaskExecutor& executor
-	): m_id(id), m_deallocation_data_ctor(deallocation_data_ctor.clone()), m_executor(executor.clone()) {
+	): m_id(task_id_ctor.create()), m_deallocation_data_ctor(deallocation_data_ctor.clone()), m_executor(executor.clone()) {
 		m_executor->execute(allocation_data_ctor.create(m_id, task_data));
 	}
 
