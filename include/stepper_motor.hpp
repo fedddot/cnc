@@ -25,14 +25,16 @@ namespace cnc {
 		using Shoulder = typename StepperMotorState::Shoulder;
 		using MotorShoulders = std::map<Shoulder, Tgpio_id>;
 		using TaskData = mcu_server::Object;
-		using MotorDataGenerator = TaskDataGenerator<TaskData, Tgpio_id>;
+		using TaskId = int;
+		using MotorDataGenerator = TaskDataGenerator<TaskData, Tgpio_id, TaskId>;
 		using MotorTaskExecutor = TaskExecutor<void(const TaskData&)>;
 
 		StepperMotor(
 			const MotorShoulders& shoulders,
 			const StepperMotorStates& states,
 			const MotorDataGenerator& data_generator,
-			const MotorTaskExecutor& executor
+			const MotorTaskExecutor& executor,
+			const TaskId& task_id_prefix
 		);
 
 		StepperMotor(const StepperMotor& other) = delete;
@@ -45,10 +47,41 @@ namespace cnc {
 		mutable StepperMotorStates m_states;
 		std::unique_ptr<MotorDataGenerator> m_data_generator;
 		std::unique_ptr<MotorTaskExecutor> m_executor;
+		const TaskId m_task_id_prefix;
 		const StepperMotorState m_shutdown_state;
+
+		enum ResidingTaskId: int {
+			CREATE_GPIOS = 0,
+			DELETE_GPIOS,
+			APPLY_STATE_START
+		};
+
+		void allocate_states_appliers() const {
+			using namespace mcu_server;
+			Array allocate_tasks;
+			m_states.for_each_state(
+				[&allocate_tasks, this](int state_ind, const StepperMotorState& state) {
+					Array set_tasks;
+					state.for_each_shoulder(
+						[&set_tasks, this](const StepperMotorState::Shoulder& shoulder, const StepperMotorState::GpioState& state) {
+							set_tasks.push_back(m_data_generator->generate_set_gpio_data(m_shoulders[shoulder], state));
+						}
+					);
+					allocate_tasks.push_back(
+						m_data_generator->generate_create_persistent_task_data(
+							m_task_id_prefix + state_ind,
+							m_data_generator->generate_tasks_data(set_tasks)
+						)
+					);
+				}
+			);
+			m_executor->execute(m_data_generator->generate_tasks_data(allocate_tasks));
+		}
 
 		TaskData create_gpios_data() const;
 		TaskData delete_gpios_data() const;
+		TaskData create_states_appliers_data() const;
+		TaskData delete_states_appliers_data() const;
 		TaskData apply_state_data(const StepperMotorState& state) const;
 		static StepperMotorState init_shutdown_state();
 	};
@@ -60,10 +93,12 @@ namespace cnc {
 		const MotorShoulders& shoulders,
 		const StepperMotorStates& states,
 		const MotorDataGenerator& data_generator,
-		const MotorTaskExecutor& executor
-	): m_shoulders(shoulders), m_states(states), m_data_generator(data_generator.clone()), m_executor(executor.clone()), m_shutdown_state(init_shutdown_state()) {
+		const MotorTaskExecutor& executor,
+		const TaskId& task_id_prefix
+	): m_shoulders(shoulders), m_states(states), m_data_generator(data_generator.clone()), m_executor(executor.clone()), m_task_id_prefix(task_id_prefix), m_shutdown_state(init_shutdown_state()) {
 		m_executor->execute(create_gpios_data());
 		m_executor->execute(apply_state_data(m_shutdown_state));
+		allocate_states_appliers();
 	}
 
 	template <typename Tgpio_id>
