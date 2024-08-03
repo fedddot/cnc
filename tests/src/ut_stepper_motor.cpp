@@ -52,7 +52,8 @@ TEST(ut_stepper_motor, ctor_dtor_sanity) {
 						std::cout << "Received task data:" << std::endl;
 						std::cout << mcu_server_utl::JsonDataSerializer().serialize(data) << std::endl;
 					}
-				)
+				),
+				0
 			)
 		)
 	);
@@ -101,7 +102,8 @@ TEST(ut_stepper_motor, steps_sanity) {
 				std::cout << "Received task data:" << std::endl;
 				std::cout << mcu_server_utl::JsonDataSerializer().serialize(data) << std::endl;
 			}
-		)
+		),
+		0
 	);
 
 	// THEN
