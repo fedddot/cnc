@@ -20,7 +20,7 @@ namespace cnc {
 
 		void move_back();
 		void move_forward();
-		StepperMotorState current() const;
+		std::size_t current() const;
 		void for_each_state(const StateAction& action) const;
 	private:
 		std::vector<StepperMotorState> m_states;
@@ -49,8 +49,8 @@ namespace cnc {
 		++m_current_index;
 	}
 	
-	inline StepperMotorState StepperMotorStates::current() const {
-		return m_states[m_current_index];
+	inline std::size_t StepperMotorStates::current() const {
+		return m_current_index;
 	}
 
 	inline void StepperMotorStates::for_each_state(const StateAction& action) const {
