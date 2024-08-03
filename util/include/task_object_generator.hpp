@@ -1,7 +1,6 @@
 #ifndef	TASK_OBJECT_GENERATOR_HPP
 #define	TASK_OBJECT_GENERATOR_HPP
 
-#include <stdexcept>
 #include <string>
 
 #include "array.hpp"
@@ -28,7 +27,8 @@ namespace cnc_utl {
 			const std::string& gpio_state_field = "gpio_state",
 			const std::string& delay_field = "delay_ms",
 			const std::string& tasks_field = "tasks",
-			const std::string& task_data_field = "task_data"
+			const std::string& task_data_field = "task_data",
+			const std::string& task_id = "task_id"
 		);
 		TaskObjectGenerator(const TaskObjectGenerator& other);
 		TaskObjectGenerator& operator=(const TaskObjectGenerator& other) = delete;
@@ -48,6 +48,7 @@ namespace cnc_utl {
 		const std::string m_delay_field;
 		const std::string m_tasks_field;
 		const std::string m_task_data_field;
+		const std::string m_task_id;
 
 		using McuTaskType = typename mcu_factory::McuFactory<GpioId, int>::TaskType;
 	};
@@ -59,8 +60,9 @@ namespace cnc_utl {
 		const std::string& gpio_state_field,
 		const std::string& delay_field,
 		const std::string& tasks_field,
-		const std::string& task_data_field
-	): m_task_type_field(task_type_field), m_gpio_id_field(gpio_id_field), m_gpio_dir_field(gpio_dir_field), m_gpio_state_field(gpio_state_field), m_delay_field(delay_field), m_tasks_field(tasks_field), m_task_data_field(task_data_field) {
+		const std::string& task_data_field,
+		const std::string& task_id
+	): m_task_type_field(task_type_field), m_gpio_id_field(gpio_id_field), m_gpio_dir_field(gpio_dir_field), m_gpio_state_field(gpio_state_field), m_delay_field(delay_field), m_tasks_field(tasks_field), m_task_data_field(task_data_field), m_task_id(task_id) {
 
 	}
 
@@ -71,7 +73,8 @@ namespace cnc_utl {
 		m_gpio_state_field(other.m_gpio_state_field),
 		m_delay_field(other.m_delay_field),
 		m_tasks_field(other.m_tasks_field),
-		m_task_data_field(other.m_task_data_field) {
+		m_task_data_field(other.m_task_data_field),
+		m_task_id(other.m_task_id) {
 
 	}
 
@@ -128,6 +131,7 @@ namespace cnc_utl {
 		Object task_data;
 		task_data.add(m_task_type_field, Integer(static_cast<int>(McuTaskType::CREATE_PERSISTENT_TASK)));
 		task_data.add(m_task_data_field, data);
+		task_data.add(m_task_id, Integer(id));
 		return task_data;
 	}
 
