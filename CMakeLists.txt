@@ -7,15 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_library(task_data_generator INTERFACE)
-target_include_directories(task_data_generator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(
-    task_data_generator
-    INTERFACE
-    data_lib
-    gpio
-)
-
 add_library(task_executor INTERFACE)
 target_include_directories(task_executor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
@@ -39,7 +30,7 @@ target_link_libraries(
     INTERFACE
     gpio
     data_lib
-    task_data_generator
+    mcu_factory
     task_executor
 )
 

@@ -44,6 +44,13 @@ TEST(ut_persistent_task, sanity) {
 		}
 	);
 
+	CustomCreator<TaskId(void)> task_id_ctor(
+		[](void) {
+			static TaskId s_last_task_id(0);
+			return s_last_task_id++;
+		}
+	);
+
 	cnc_utl::CustomTaskExecutor<void(const TaskData& data)> executor(
 		[](const TaskData& data) {
 			std::cout << "executing data:" << std::endl;
@@ -53,10 +60,10 @@ TEST(ut_persistent_task, sanity) {
 	
 	// WHEN
 	PersistentTask<TaskId, TaskData> task(
-		task_id,
 		task_data,
 		allocation_ctor,
 		deallocation_ctor,
+		task_id_ctor,
 		executor
 	);
 	
