@@ -46,6 +46,17 @@ target_link_libraries(
     task_executor
 )
 
+add_library(delay_allocator INTERFACE)
+target_include_directories(delay_allocator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(
+    delay_allocator
+    INTERFACE
+    creator
+    data_lib
+    mcu_factory
+    task_executor
+)
+
 
 
 add_subdirectory(external)
