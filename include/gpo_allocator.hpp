@@ -32,6 +32,7 @@ namespace cnc {
 		int set_task_id(const GpioState& to_state) const;
 	private:
 		int m_gpio_id;
+		const std::unique_ptr<TaskIdGenerator> m_task_id_generator;
 		const std::unique_ptr<Executor> m_executor;
 		int m_set_high_id;
 		int m_set_low_id;
@@ -44,7 +45,7 @@ namespace cnc {
 		int gpio_id,
 		const TaskIdGenerator& task_id_generator,
 		const Executor& executor
-	): m_gpio_id(gpio_id), m_executor(executor.clone()) {
+	): m_gpio_id(gpio_id), m_task_id_generator(task_id_generator.clone()), m_executor(executor.clone()) {
 		
 		using namespace mcu_server;
 		using TaskType = mcu_factory::McuFactory<int, int>::TaskType;
@@ -85,11 +86,32 @@ namespace cnc {
 	}
 
 	inline int GpoAllocator::allocate_set_task(const GpioState& to_state) const {
-		throw std::runtime_error("NOT IMPLEMENTED");
+		using namespace mcu_server;
+		using TaskType = mcu_factory::McuFactory<int, int>::TaskType;
+		Object set_gpio_task;
+		set_gpio_task.add("task_type", Integer(static_cast<int>(TaskType::SET_GPIO)));
+		set_gpio_task.add("gpio_id", Integer(static_cast<int>(m_gpio_id)));
+		set_gpio_task.add("gpio_state", Integer(static_cast<int>(to_state)));
+
+		int task_id = m_task_id_generator->create();
+		Object create_persistent_task;
+		create_persistent_task.add("task_type", Integer(static_cast<int>(TaskType::CREATE_PERSISTENT_TASK)));
+		create_persistent_task.add("task_id", Integer(task_id));
+		create_persistent_task.add("task_data", set_gpio_task);
+		
+		m_executor->execute(create_persistent_task);
+		
+		return task_id;
 	}
 
 	inline void GpoAllocator::deallocate_task(int task_id) const {
-		throw std::runtime_error("NOT IMPLEMENTED");
+		using namespace mcu_server;
+		using TaskType = mcu_factory::McuFactory<int, int>::TaskType;
+		Object delete_persistent_task;
+		delete_persistent_task.add("task_type", Integer(static_cast<int>(TaskType::DELETE_PERSISTENT_TASK)));
+		delete_persistent_task.add("task_id", Integer(task_id));
+		
+		m_executor->execute(delete_persistent_task);
 	}
 }
 
