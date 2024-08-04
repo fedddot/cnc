@@ -34,6 +34,20 @@ target_link_libraries(
     task_executor
 )
 
+add_library(gpo_allocator INTERFACE)
+target_include_directories(gpo_allocator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(
+    gpo_allocator
+    INTERFACE
+    creator
+    data_lib
+    gpio
+    mcu_factory
+    task_executor
+)
+
+
+
 add_subdirectory(external)
 add_subdirectory(util)
 add_subdirectory(tests EXCLUDE_FROM_ALL)
