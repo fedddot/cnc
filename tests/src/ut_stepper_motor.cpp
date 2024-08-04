@@ -4,7 +4,10 @@
 #include "custom_task_executor.hpp"
 #include "data.hpp"
 #include "gpio.hpp"
+#include "json_data_parser.hpp"
 #include "json_data_serializer.hpp"
+#include "linux_ipc_connection.hpp"
+#include "mcu_client.hpp"
 #include "stepper_motor.hpp"
 
 using namespace cnc;
@@ -54,8 +57,20 @@ TEST(ut_stepper_motor, ctor_dtor_sanity) {
 				states,
 				cnc_utl::CustomTaskExecutor<void(const Data&)>(
 					[](const Data& data){
+						auto serial_data = mcu_server_utl::JsonDataSerializer().serialize(data);
 						std::cout << "Received task data:" << std::endl;
-						std::cout << mcu_server_utl::JsonDataSerializer().serialize(data) << std::endl;
+						std::cout << serial_data << std::endl;
+
+						linux_mcu_ipc::LinuxIpcConnection connection(
+							"/dev/ttyACM0",
+							linux_mcu_ipc::LinuxIpcConnection::Baud::BAUD9600,
+							"MSG_HEADER",
+							"MSG_TAIL",
+							1000UL
+						);
+        
+						mcu_client::McuClient<std::string> client(&connection);
+						client.run(serial_data);
 					}
 				)
 			)

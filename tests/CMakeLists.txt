@@ -13,6 +13,7 @@ target_link_libraries(
 	custom_task_executor
 	json_data_serializer
 	stepper_motor
-
+	linux_ipc_connection
+	mcu_client
 	gtest
 )
