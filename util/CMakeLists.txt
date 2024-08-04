@@ -11,7 +11,6 @@ target_link_libraries(
     data_lib
     gpio
     mcu_factory
-    task_data_generator
 )
 
 add_subdirectory(tests EXCLUDE_FROM_ALL)
