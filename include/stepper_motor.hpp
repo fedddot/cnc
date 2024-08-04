@@ -12,17 +12,14 @@
 #include "custom_creator.hpp"
 #include "data.hpp"
 #include "gpio.hpp"
+#include "gpo_allocator.hpp"
 #include "integer.hpp"
 #include "object.hpp"
-#include "persistent_task.hpp"
-#include "stepper_motor_state.hpp"
-#include "stepper_motor_states.hpp"
 #include "mcu_factory.hpp"
 #include "task_executor.hpp"
 
 namespace cnc {
 
-	template <typename Tgpio_id>
 	class StepperMotor {
 	public:
 		enum class Direction: int {
@@ -30,11 +27,11 @@ namespace cnc {
 			CCW
 		};
 		enum class Shoulder: int { LL, LR, HL, HR };
-		using Shoulders = std::map<Shoulder, Tgpio_id>;
+		using Shoulders = std::map<Shoulder, int>;
 		using GpioState = mcu_platform::Gpio::State;
 		using MotorState = std::map<Shoulder, GpioState>;
 		using MotorStates = std::vector<MotorState>;
-		using Executor = TaskExecutor<void(const mcu_server::Object&)>;
+		using Executor = TaskExecutor<void(const mcu_server::Data&)>;
 		
 		StepperMotor(
 			const Shoulders& shoulders,
@@ -50,73 +47,25 @@ namespace cnc {
 	private:
 		std::unique_ptr<Executor> m_executor;
 		
+		using GpioId = int;
 		using TaskId = int;
-		using TaskData = mcu_server::Object;
+		using TaskData = mcu_server::Data;
 
-		using MotorStateTask = PersistentTask<TaskId, TaskData>;
-		using MotorStateTasksList = std::vector<std::shared_ptr<MotorStateTask>>;
+		using GpoAllocators = std::map<Shoulder, std::unique_ptr<GpoAllocator>>;
+		GpoAllocators m_gpo_allocators;
 		
+		using TaskTypes = typename mcu_factory::McuFactory<GpioId, TaskId>::TaskType;
 		
-		// std::vector<std::unique_ptr<MotorPersistentTask>> m_persistent_tasks;
-
-		using TaskTypes = typename mcu_factory::McuFactory<Tgpio_id, TaskId>::TaskType;
-		
-		using AllocationDataCreator = mcu_server::Creator<TaskData(const TaskId&, const TaskData&)>;
-		using DeallocationDataCreator = mcu_server::Creator<TaskData(const TaskId&)>;
 		using TaskIdCreator = mcu_server::Creator<TaskId(void)>;
-		std::unique_ptr<AllocationDataCreator> m_pers_task_allocator_ctor;
-		std::unique_ptr<DeallocationDataCreator> m_pers_task_deallocator_ctor;
 		std::unique_ptr<TaskIdCreator> m_pers_task_id_ctor;
-
-		MotorStateTasksList m_state_tasks;
-		MotorStateTasksList generate_tasks_list(const MotorStates& states, const Shoulders& shoulders) const;
-		// using DelayDataCreator = mcu_server::Creator<TaskData(unsigned int)>;
-		// std::unique_ptr<DelayDataCreator> m_delay_data_ctor;
-
-		// void init_persistent_tasks();
-		// void uninit_persistent_tasks();
 	};
 
-	template <typename Tgpio_id>
-	inline StepperMotor<Tgpio_id>::StepperMotor(
+	inline StepperMotor::StepperMotor(
 		const Shoulders& shoulders,
 		const MotorStates& states,
 		const Executor& executor
 	): m_executor(executor.clone()) {
-		m_pers_task_allocator_ctor = std::unique_ptr<AllocationDataCreator>(
-			new mcu_server_utl::CustomCreator<TaskData(const TaskId&, const TaskData&)>(
-				[](const TaskId& id, const TaskData& task_data) {
-					using namespace mcu_server;
-					Object task;
-					task.add("task_type", Integer(static_cast<int>(TaskTypes::CREATE_PERSISTENT_TASK)));
-					task.add("task_id", Integer(static_cast<int>(id)));
-					task.add("task_data", task_data);
-					return task;
-				}
-			)
-		);
-		m_pers_task_deallocator_ctor = std::unique_ptr<DeallocationDataCreator>(
-			new mcu_server_utl::CustomCreator<TaskData(const TaskId&)>(
-				[](const TaskId& id) {
-					using namespace mcu_server;
-					Object task;
-					task.add("task_type", Integer(static_cast<int>(TaskTypes::DELETE_PERSISTENT_TASK)));
-					task.add("task_id", Integer(static_cast<int>(id)));
-					return task;
-				}
-			)
-		);
-		// m_delay_data_ctor = std::unique_ptr<DelayDataCreator>(
-		// 	new mcu_server_utl::CustomCreator<TaskData(unsigned int)>(
-		// 		[](unsigned int delay_ms) {
-		// 			using namespace mcu_server;
-		// 			Object task;
-		// 			task.add("task_type", Integer(static_cast<int>(TaskTypes::DELAY)));
-		// 			task.add("delay_ms", Integer(static_cast<int>(delay_ms)));
-		// 			return task;
-		// 		}
-		// 	)
-		// );
+
 		m_pers_task_id_ctor = std::unique_ptr<TaskIdCreator>(
 			new mcu_server_utl::CustomCreator<TaskId(void)>(
 				[](void) {
@@ -125,18 +74,22 @@ namespace cnc {
 				}
 			)
 		);
-
-		m_state_tasks = generate_tasks_list(states, shoulders);
-		// init_persistent_tasks();
+		for (auto iter: shoulders) {
+			m_gpo_allocators.insert(
+				{
+					iter.first,
+					std::make_unique<GpoAllocator>(
+						iter.second, 
+						*m_pers_task_id_ctor, 
+						*m_executor
+					)
+				}
+			);
+		}
 	}
 
-	// template <typename Tgpio_id>
-	// inline StepperMotor<Tgpio_id>::~StepperMotor() noexcept {
-	// 	void uninit_persistent_tasks();
-	// }
-
-	// template <typename Tgpio_id>
-	// inline void StepperMotor<Tgpio_id>::steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) const {
+	// template <typename GpioId>
+	// inline void StepperMotor<GpioId>::steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) const {
 	// 	using namespace mcu_server;
 	// 	MotorPersistentTask delay_task(
 	// 		m_delay_data_ctor->create(step_duration_ms),
@@ -166,8 +119,8 @@ namespace cnc {
 	// 	m_executor->execute(movement_tasks_data);
 	// }
 
-	// template <typename Tgpio_id>
-	// void StepperMotor<Tgpio_id>::create_persistent_tasks() const {
+	// template <typename GpioId>
+	// void StepperMotor<GpioId>::create_persistent_tasks() const {
 	// 	using namespace mcu_server;
 	// 	Array allocate_tasks;
 	// 	m_states.for_each_state(
@@ -189,8 +142,8 @@ namespace cnc {
 	// 	m_executor->execute(m_data_generator->generate_tasks_data(allocate_tasks));
 	// }
 
-	// template <typename Tgpio_id>
-	// void StepperMotor<Tgpio_id>::deallocate_states_appliers() const {
+	// template <typename GpioId>
+	// void StepperMotor<GpioId>::deallocate_states_appliers() const {
 	// 	using namespace mcu_server;
 	// 	Array deallocate_tasks;
 	// 	m_states.for_each_state(
@@ -201,8 +154,8 @@ namespace cnc {
 	// 	m_executor->execute(m_data_generator->generate_tasks_data(deallocate_tasks));
 	// }
 
-	// template <typename Tgpio_id>
-	// typename StepperMotor<Tgpio_id>::TaskData StepperMotor<Tgpio_id>::create_gpios_data() const {
+	// template <typename GpioId>
+	// typename StepperMotor<GpioId>::TaskData StepperMotor<GpioId>::create_gpios_data() const {
 	// 	using namespace mcu_server;
 	// 	using GpioDirection = typename MotorDataGenerator::GpioDirection;
 	// 	Array tasks;
@@ -212,8 +165,8 @@ namespace cnc {
 	// 	return m_data_generator->generate_tasks_data(tasks);
 	// }
 
-	// template <typename Tgpio_id>
-	// typename StepperMotor<Tgpio_id>::TaskData StepperMotor<Tgpio_id>::delete_gpios_data() const {
+	// template <typename GpioId>
+	// typename StepperMotor<GpioId>::TaskData StepperMotor<GpioId>::delete_gpios_data() const {
 	// 	using namespace mcu_server;
 	// 	Array tasks;
 	// 	for (auto shoulder: m_shoulders) {
@@ -222,8 +175,8 @@ namespace cnc {
 	// 	return m_data_generator->generate_tasks_data(tasks);
 	// }
 	
-	// template <typename Tgpio_id>
-	// typename StepperMotor<Tgpio_id>::TaskData StepperMotor<Tgpio_id>::apply_state_data(const StepperMotorState& state) const {
+	// template <typename GpioId>
+	// typename StepperMotor<GpioId>::TaskData StepperMotor<GpioId>::apply_state_data(const StepperMotorState& state) const {
 	// 	using namespace mcu_server;
 	// 	using GpioState = typename MotorDataGenerator::GpioState;
 	// 	Array tasks;
@@ -235,8 +188,8 @@ namespace cnc {
 	// 	return m_data_generator->generate_tasks_data(tasks);
 	// }
 
-	// template <typename Tgpio_id>
-	// inline StepperMotorState StepperMotor<Tgpio_id>::init_shutdown_state() {
+	// template <typename GpioId>
+	// inline StepperMotorState StepperMotor<GpioId>::init_shutdown_state() {
 	// 	using GpioState = typename StepperMotorState::GpioState;
 	// 	return StepperMotorState(
 	// 		{
@@ -247,38 +200,38 @@ namespace cnc {
 	// 		}
 	// 	);
 	// }
-	template <typename Tgpio_id>
-	typename StepperMotor<Tgpio_id>::MotorStateTasksList StepperMotor<Tgpio_id>::generate_tasks_list(const MotorStates& states, const Shoulders& shoulders) const {
-		MotorStateTasksList result;
-		for (auto state: states) {
-			using namespace mcu_server;
-			Array set_gpio_tasks;
-			for (auto shoulder_state: state) {
-				auto gpio_id = shoulders.at(shoulder_state.first);
-				auto gpio_state = shoulder_state.second;
-				Object set_gpio_task;
-				set_gpio_task.add("task_type", Integer(static_cast<int>(TaskTypes::SET_GPIO)));
-				set_gpio_task.add("gpio_id", Integer(static_cast<int>(gpio_id)));
-				set_gpio_task.add("gpio_state", Integer(static_cast<int>(gpio_state)));
-				set_gpio_tasks.push_back(set_gpio_task);
-			}
-			Object persistent_task_data;
-			persistent_task_data.add("task_type", Integer(static_cast<int>(TaskTypes::SEQUENCE)));
-			persistent_task_data.add("tasks", set_gpio_tasks);
-			result.push_back(
-				std::shared_ptr<MotorStateTask>(
-					new MotorStateTask(
-						persistent_task_data,
-						*m_pers_task_allocator_ctor,
-						*m_pers_task_deallocator_ctor,
-						*m_pers_task_id_ctor,
-						*m_executor
-					)
-				)
-			);
-		}
-		return result;
-	}
+	// template <typename GpioId>
+	// typename StepperMotor<GpioId>::MotorStateTasksList StepperMotor<GpioId>::generate_tasks_list(const MotorStates& states, const Shoulders& shoulders) const {
+	// 	MotorStateTasksList result;
+	// 	for (auto state: states) {
+	// 		using namespace mcu_server;
+	// 		Array set_gpio_tasks;
+	// 		for (auto shoulder_state: state) {
+	// 			auto gpio_id = shoulders.at(shoulder_state.first);
+	// 			auto gpio_state = shoulder_state.second;
+	// 			Object set_gpio_task;
+	// 			set_gpio_task.add("task_type", Integer(static_cast<int>(TaskTypes::SET_GPIO)));
+	// 			set_gpio_task.add("gpio_id", Integer(static_cast<int>(gpio_id)));
+	// 			set_gpio_task.add("gpio_state", Integer(static_cast<int>(gpio_state)));
+	// 			set_gpio_tasks.push_back(set_gpio_task);
+	// 		}
+	// 		Object persistent_task_data;
+	// 		persistent_task_data.add("task_type", Integer(static_cast<int>(TaskTypes::SEQUENCE)));
+	// 		persistent_task_data.add("tasks", set_gpio_tasks);
+	// 		result.push_back(
+	// 			std::shared_ptr<MotorStateTask>(
+	// 				new MotorStateTask(
+	// 					persistent_task_data,
+	// 					*m_pers_task_allocator_ctor,
+	// 					*m_pers_task_deallocator_ctor,
+	// 					*m_pers_task_id_ctor,
+	// 					*m_executor
+	// 				)
+	// 			)
+	// 		);
+	// 	}
+	// 	return result;
+	// }
 }
 
 #endif // STEPPER_MOTOR_HPP

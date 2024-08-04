@@ -2,34 +2,30 @@
 #include <iostream>
 
 #include "custom_task_executor.hpp"
+#include "data.hpp"
 #include "gpio.hpp"
 #include "json_data_serializer.hpp"
-#include "object.hpp"
 #include "stepper_motor.hpp"
-#include "stepper_motor_state.hpp"
-#include "stepper_motor_states.hpp"
-// #include "task_object_generator.hpp"
 
 using namespace cnc;
 using namespace mcu_platform;
 using namespace mcu_server;
 
 using GpioId = int;
-using TestMotor = StepperMotor<GpioId>;
-using Shoulder = typename TestMotor::Shoulder;
-using GpioState = typename TestMotor::GpioState;
+using Shoulder = typename StepperMotor::Shoulder;
+using GpioState = typename Gpio::State;
 
 TEST(ut_stepper_motor, ctor_dtor_sanity) {
 	// GIVEN
-	const TestMotor::Shoulders shoulders {
+	const StepperMotor::Shoulders shoulders {
 		{Shoulder::LL, 4},
 		{Shoulder::LR, 5},
 		{Shoulder::HL, 6},
 		{Shoulder::HR, 7}
 	};
-	const TestMotor::MotorStates states(
+	const StepperMotor::MotorStates states(
 		{
-			TestMotor::MotorState(
+			StepperMotor::MotorState(
 				{
 					{Shoulder::LL, GpioState::HIGH},
 					{Shoulder::LR, GpioState::LOW},
@@ -37,7 +33,7 @@ TEST(ut_stepper_motor, ctor_dtor_sanity) {
 					{Shoulder::HR, GpioState::LOW}
 				}
 			),
-			TestMotor::MotorState(
+			StepperMotor::MotorState(
 				{
 					{Shoulder::LL, GpioState::HIGH},
 					{Shoulder::LR, GpioState::LOW},
@@ -48,16 +44,16 @@ TEST(ut_stepper_motor, ctor_dtor_sanity) {
 		}
 	);
 	// WHEN
-	StepperMotor<GpioId> *instance_ptr(nullptr);
+	StepperMotor *instance_ptr(nullptr);
 
 	// THEN
 	ASSERT_NO_THROW(
 		(
-			instance_ptr = new StepperMotor<GpioId>(
+			instance_ptr = new StepperMotor(
 				shoulders,
 				states,
-				cnc_utl::CustomTaskExecutor<void(const Object&)>(
-					[](const Object& data){
+				cnc_utl::CustomTaskExecutor<void(const Data&)>(
+					[](const Data& data){
 						std::cout << "Received task data:" << std::endl;
 						std::cout << mcu_server_utl::JsonDataSerializer().serialize(data) << std::endl;
 					}
@@ -73,7 +69,7 @@ TEST(ut_stepper_motor, ctor_dtor_sanity) {
 
 // TEST(ut_stepper_motor, steps_sanity) {
 // 	// GIVEN
-// 	const TestMotor::MotorShoulders shoulders {
+// 	const StepperMotor::MotorShoulders shoulders {
 // 		{Shoulder::LL, 4},
 // 		{Shoulder::LR, 5},
 // 		{Shoulder::HL, 6},
@@ -105,8 +101,8 @@ TEST(ut_stepper_motor, ctor_dtor_sanity) {
 // 		shoulders,
 // 		states,
 // 		cnc_utl::TaskObjectGenerator(),
-// 		cnc_utl::CustomTaskExecutor<void(const TestMotor::TaskData&)>(
-// 			[](const TestMotor::TaskData& data){
+// 		cnc_utl::CustomTaskExecutor<void(const StepperMotor::TaskData&)>(
+// 			[](const StepperMotor::TaskData& data){
 // 				std::cout << "Received task data:" << std::endl;
 // 				std::cout << mcu_server_utl::JsonDataSerializer().serialize(data) << std::endl;
 // 			}
