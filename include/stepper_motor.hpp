@@ -4,15 +4,17 @@
 #include <cstddef>
 #include <map>
 #include <memory>
-#include <stdexcept>
 #include <vector>
 
 #include "creator.hpp"
 #include "custom_creator.hpp"
 #include "data.hpp"
+#include "delay_allocator.hpp"
 #include "gpio.hpp"
 #include "gpo_allocator.hpp"
+#include "integer.hpp"
 #include "mcu_factory.hpp"
+#include "object.hpp"
 #include "task_executor.hpp"
 
 namespace cnc {
@@ -40,7 +42,7 @@ namespace cnc {
 		StepperMotor& operator=(const StepperMotor& other) = delete;
 		virtual ~StepperMotor() noexcept = default;
 
-		void steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) const;
+		void steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms);
 	private:
 		std::unique_ptr<Executor> m_executor;
 		MotorStates m_states;
@@ -63,7 +65,7 @@ namespace cnc {
 		const Shoulders& shoulders,
 		const MotorStates& states,
 		const Executor& executor
-	): m_states(states), m_executor(executor.clone()) {
+	): m_states(states), m_executor(executor.clone()), m_current_state(0UL) {
 
 		m_pers_task_id_ctor = std::unique_ptr<TaskIdCreator>(
 			new mcu_server_utl::CustomCreator<TaskId(void)>(
@@ -73,12 +75,12 @@ namespace cnc {
 				}
 			)
 		);
-		for (auto iter: shoulders) {
+		for (auto [shoulder, gpio_id]: shoulders) {
 			m_gpo_allocators.insert(
 				{
-					iter.first,
+					shoulder,
 					std::make_unique<GpoAllocator>(
-						iter.second, 
+						gpio_id, 
 						*m_pers_task_id_ctor, 
 						*m_executor
 					)
@@ -87,8 +89,28 @@ namespace cnc {
 		}
 	}
 
-	inline void StepperMotor::steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) const {
-		throw std::runtime_error("NOT IMPLEMENTED");
+	inline void StepperMotor::steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) {
+		using namespace mcu_server;
+		using TaskType = mcu_factory::McuFactory<int, int>::TaskType;
+
+		Array steps_ids;
+		DelayAllocator delay(step_duration_ms, *m_pers_task_id_ctor, *m_executor);
+		for (auto step = 0; steps_num > step; ++step) {
+			for (auto [shoulder, state]: m_states[m_current_state]) {
+				auto step_id = m_gpo_allocators.at(shoulder)->set_task_id(state);
+				steps_ids.push_back(Integer(step_id));
+			}
+			steps_ids.push_back(Integer(delay.delay_id()));
+
+			++m_current_state;
+			if (m_states.size() <= m_current_state) {
+				m_current_state = 0;
+			}
+		}
+		Object execute_tasks;
+		execute_tasks.add("task_type", Integer(static_cast<int>(TaskType::EXECUTE_PERSISTENT_TASKS)));
+		execute_tasks.add("tasks", steps_ids);
+		m_executor->execute(execute_tasks);
 	}
 
 }
