@@ -12,7 +12,7 @@ namespace cnc {
 	class GpoAllocator: ServerObjectAllocator<mcu_server::Object> {
 	public:
 		GpoAllocator(GpoId gpio_id);
-		GpoAllocator(const GpoAllocator& other);
+		GpoAllocator(const GpoAllocator& other) = default;
 		GpoAllocator& operator=(const GpoAllocator& other) = delete;
 		mcu_server::Object create_data() const override;
 		mcu_server::Object delete_data() const override;

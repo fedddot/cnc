@@ -40,7 +40,7 @@ namespace cnc {
 		void steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms);
 	private:
 		MotorStates m_states;
-		StatesExecutor m_executor;
+		// StatesExecutor m_executor;
 
 		std::size_t m_current_state;
 		const MotorState m_shutdown_state;
@@ -55,7 +55,7 @@ namespace cnc {
 		const TaskIdCreator& task_id_ctor
 	):
 		m_states(states),
-		m_executor(shoulders, executor, task_id_ctor),
+		// m_executor(shoulders, executor, task_id_ctor),
 		m_current_state(0UL),
 		m_shutdown_state(
 			{

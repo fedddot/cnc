@@ -15,6 +15,7 @@
 #include "task_executor.hpp"
 
 namespace cnc {
+	template <typename Tstate_id>
 	class StatesExecutor {
 	public:
 		using Executor = TaskExecutor<void(const mcu_server::Data&)>;

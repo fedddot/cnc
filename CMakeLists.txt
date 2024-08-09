@@ -14,6 +14,17 @@ add_library(stepper_motor_types INTERFACE)
 target_include_directories(stepper_motor_types INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(stepper_motor_types INTERFACE gpio)
 
+add_library(server_object_allocator INTERFACE)
+target_include_directories(server_object_allocator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+
+add_library(persistent_task_allocator INTERFACE)
+target_include_directories(persistent_task_allocator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(persistent_task_allocator INTERFACE server_object_allocator)
+
+add_library(custom_persistent_task_allocator INTERFACE)
+target_include_directories(custom_persistent_task_allocator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(custom_persistent_task_allocator INTERFACE persistent_task_allocator server_object_allocator mcu_factory stepper_motor_types)
+
 add_library(delay_allocator INTERFACE)
 target_include_directories(delay_allocator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(
@@ -36,6 +47,24 @@ target_link_libraries(
     mcu_factory
     task_executor
 )
+
+add_library(state_allocator INTERFACE)
+target_include_directories(state_allocator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(
+    state_allocator
+    INTERFACE
+    array
+    custom_persistent_task_allocator
+    gpo_allocator
+    integer
+    mcu_factory
+    object
+    persistent_task_allocator
+    server_object_allocator
+    stepper_motor_types
+)
+
+
 
 add_library(state_executor INTERFACE)
 target_include_directories(state_executor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)

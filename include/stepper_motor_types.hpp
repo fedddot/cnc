@@ -12,7 +12,6 @@ namespace cnc {
 	using Shoulders = std::map<Shoulder, GpoId>;
 	using GpioState = typename mcu_platform::Gpio::State;
 	using MotorState = std::map<Shoulder, GpioState>;
-	using MotorStates = std::vector<MotorState>;
 }
 
 #endif // STEPPER_MOTOR_TYPES_HPP
