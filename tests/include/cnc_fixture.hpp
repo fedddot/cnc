@@ -29,9 +29,9 @@ namespace cnc_uts {
 
 		mcu_server::Data *run_data(const mcu_server::Data& data) const {
 			auto serial_data = serializer().serialize(data);
-			std::cout << std::endl << std::endl << "running data:" << std::endl << serial_data << std::endl;
+			std::cout << std::endl << std::endl << "running data:" << std::endl << '\t' << serial_data << std::endl;
 			auto serial_report = m_server->run(serial_data);
-			std::cout << "received report:" << std::endl << serial_report << std::endl;
+			std::cout << std::endl << "received report:" << std::endl << '\t' << serial_report << std::endl;
 			return parser().parse(serial_report);
 		}
 	private:

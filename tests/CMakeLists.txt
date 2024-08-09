@@ -32,6 +32,7 @@ target_link_libraries(
 	# mcu_server_fixture
 	state_allocator
 	cnc_fixture
+	test_gpo
 
 	state_allocator
 	gtest
