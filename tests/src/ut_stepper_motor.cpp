@@ -35,8 +35,24 @@ TEST_F(CncFixture, sanity) {
 			),
 			MotorState(
 				{
+					{Shoulder::IN1, GpioState::HIGH},
+					{Shoulder::IN2, GpioState::LOW},
+					{Shoulder::IN3, GpioState::HIGH},
+					{Shoulder::IN4, GpioState::LOW}
+				}
+			),
+			MotorState(
+				{
 					{Shoulder::IN1, GpioState::LOW},
 					{Shoulder::IN2, GpioState::LOW},
+					{Shoulder::IN3, GpioState::HIGH},
+					{Shoulder::IN4, GpioState::LOW}
+				}
+			),
+			MotorState(
+				{
+					{Shoulder::IN1, GpioState::LOW},
+					{Shoulder::IN2, GpioState::HIGH},
 					{Shoulder::IN3, GpioState::HIGH},
 					{Shoulder::IN4, GpioState::LOW}
 				}
@@ -52,6 +68,22 @@ TEST_F(CncFixture, sanity) {
 			MotorState(
 				{
 					{Shoulder::IN1, GpioState::LOW},
+					{Shoulder::IN2, GpioState::HIGH},
+					{Shoulder::IN3, GpioState::LOW},
+					{Shoulder::IN4, GpioState::HIGH}
+				}
+			),
+			MotorState(
+				{
+					{Shoulder::IN1, GpioState::LOW},
+					{Shoulder::IN2, GpioState::LOW},
+					{Shoulder::IN3, GpioState::LOW},
+					{Shoulder::IN4, GpioState::HIGH}
+				}
+			),
+			MotorState(
+				{
+					{Shoulder::IN1, GpioState::HIGH},
 					{Shoulder::IN2, GpioState::LOW},
 					{Shoulder::IN3, GpioState::LOW},
 					{Shoulder::IN4, GpioState::HIGH}
@@ -82,13 +114,16 @@ TEST_F(CncFixture, sanity) {
 			)
 		)
 	);
-	ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CCW, 50, 30));
-	ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CW, 50, 30));
-	ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CCW, 50, 30));
-	ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CW, 50, 30));
-	ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CCW, 50, 30));
-	ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CW, 50, 30));
-	ASSERT_NE(nullptr, instance_ptr);
+
+	int iterations_num(2);
+	int step_duration_ms(10);
+	int steps_number(50);
+	while (iterations_num) {
+		ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CCW, steps_number, step_duration_ms));
+		ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CW, steps_number, step_duration_ms));
+		--iterations_num;
+	}
+
 	ASSERT_NO_THROW(delete instance_ptr);
 
 	instance_ptr = nullptr;
