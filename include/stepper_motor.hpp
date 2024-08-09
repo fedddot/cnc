@@ -57,7 +57,7 @@ namespace cnc {
 		StateAllocators init_state_allocators(const Shoulders& shoulders, const MotorStates& states) const;
 		
 		std::size_t m_current_state;
-		const MotorState m_shutdown_state;
+		const StateAllocator m_shutdown_state_allocator;
 
 		std::size_t next_state(const Direction& direction) const;
 
@@ -73,7 +73,12 @@ namespace cnc {
 		m_executor(executor.clone()),
 		m_task_id_ctor(task_id_ctor.clone()),
 		m_gpo_allocators(init_gpo_allocators(shoulders)),
-		m_state_allocators(init_state_allocators(shoulders, states)) {
+		m_state_allocators(init_state_allocators(shoulders, states)),
+		m_shutdown_state_allocator(
+			m_task_id_ctor->create(),
+			shoulders,
+			MotorState {{Shoulder::IN1, GpioState::LOW}, {Shoulder::IN2, GpioState::LOW}, {Shoulder::IN3, GpioState::LOW}, {Shoulder::IN4, GpioState::LOW}}
+		) {
 		
 		using namespace mcu_server;
 		Array create_tasks;
@@ -83,6 +88,7 @@ namespace cnc {
 		for (const auto& allocator: m_state_allocators) {
 			create_tasks.push_back(allocator.create_data());
 		}
+		create_tasks.push_back(m_shutdown_state_allocator.create_data());
 		execute_sequence_task(create_tasks);
 	}
 
@@ -95,9 +101,8 @@ namespace cnc {
 		for (const auto& allocator: m_state_allocators) {
 			delete_tasks.push_back(allocator.delete_data());
 		}
+		delete_tasks.push_back(m_shutdown_state_allocator.delete_data());
 		execute_sequence_task(delete_tasks);
-
-		
 	}
 
 	inline void StepperMotor::steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) {
@@ -106,6 +111,7 @@ namespace cnc {
 
 		Array tasks;
 		DelayAllocator delay(m_task_id_ctor->create(), step_duration_ms);
+		
 		tasks.push_back(delay.create_data());
 		
 		Array steps_ids;
@@ -116,6 +122,7 @@ namespace cnc {
 			m_current_state = next_state_index;
 			--steps_num;
 		}
+		steps_ids.push_back(Integer(m_shutdown_state_allocator.id()));
 		
 		Object execute_steps_tasks;
 		execute_steps_tasks.add("task_type", Integer(static_cast<int>(TaskType::EXECUTE_PERSISTENT_TASKS)));

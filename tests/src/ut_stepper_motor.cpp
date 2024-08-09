@@ -1,6 +1,6 @@
-#include "gtest/gtest.h"
-#include <cstddef>
 #include <memory>
+
+#include "gtest/gtest.h"
 
 #include "cnc_fixture.hpp"
 #include "custom_creator.hpp"
@@ -70,7 +70,7 @@ TEST_F(CncFixture, sanity) {
 				states,
 				cnc_utl::CustomTaskExecutor<void(const Data&)>(
 					[this](const Data& data){
-						std::unique_ptr<Data>(run_data(data));
+						std::unique_ptr<Data>(run_data_on_mcu(data));
 					}
 				),
 				mcu_server_utl::CustomCreator<TaskId(void)>(
@@ -82,8 +82,12 @@ TEST_F(CncFixture, sanity) {
 			)
 		)
 	);
-	ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CCW, 300, 30));
-	ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CW, 300, 30));
+	ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CCW, 50, 30));
+	ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CW, 50, 30));
+	ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CCW, 50, 30));
+	ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CW, 50, 30));
+	ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CCW, 50, 30));
+	ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CW, 50, 30));
 	ASSERT_NE(nullptr, instance_ptr);
 	ASSERT_NO_THROW(delete instance_ptr);
 
