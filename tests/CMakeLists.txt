@@ -7,14 +7,16 @@ target_link_libraries(
 	mcu_server
 	json_data_parser
 	json_data_serializer
+	linux_ipc_connection
+	mcu_client
 )
 
 add_executable(
 	cnc_tests
 	${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
-	# ${CMAKE_CURRENT_LIST_DIR}/src/ut_stepper_motor.cpp
+	${CMAKE_CURRENT_LIST_DIR}/src/ut_stepper_motor.cpp
 	# ${CMAKE_CURRENT_LIST_DIR}/src/ut_stepper_motor_local_server.cpp
-	${CMAKE_CURRENT_LIST_DIR}/src/ut_state_allocator.cpp
+	# ${CMAKE_CURRENT_LIST_DIR}/src/ut_state_allocator.cpp
 )
 
 target_link_libraries(

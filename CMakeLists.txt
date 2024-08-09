@@ -85,13 +85,13 @@ target_include_directories(stepper_motor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/inc
 target_link_libraries(
     stepper_motor
     INTERFACE
-    gpio
     data_lib
-    mcu_factory
-    task_executor
-    delay_allocator
+    creator
     gpo_allocator
-    state_executor
+    mcu_factory
+    state_allocator
+    stepper_motor_types
+    task_executor
 )
 
 

@@ -9,7 +9,7 @@ namespace cnc {
 	class DelayAllocator: public PersistentTaskAllocator<mcu_server::Object, int> {
 	public:
 		DelayAllocator(int id, int delay_ms);
-		DelayAllocator(const DelayAllocator& other);
+		DelayAllocator(const DelayAllocator& other) = default;
 		DelayAllocator& operator=(const DelayAllocator& other) = delete;
 		
 		mcu_server::Object create_data() const override;
