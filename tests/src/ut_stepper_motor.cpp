@@ -25,43 +25,51 @@ using GpioState = typename Gpio::State;
 TEST(ut_stepper_motor, ctor_dtor_sanity) {
 	// GIVEN
 	const StepperMotor::Shoulders shoulders {
-		{Shoulder::LL, 4},
-		{Shoulder::LR, 5},
-		{Shoulder::HL, 6},
-		{Shoulder::HR, 7}
+		{Shoulder::IN1, 7},
+		{Shoulder::IN2, 6},
+		{Shoulder::IN3, 5},
+		{Shoulder::IN4, 4}
 	};
 	const StepperMotor::MotorStates states(
 		{
 			StepperMotor::MotorState(
 				{
-					{Shoulder::LL, GpioState::HIGH},
-					{Shoulder::LR, GpioState::LOW},
-					{Shoulder::HL, GpioState::LOW},
-					{Shoulder::HR, GpioState::LOW}
+					{Shoulder::IN1, GpioState::HIGH},
+					{Shoulder::IN2, GpioState::LOW},
+					{Shoulder::IN3, GpioState::LOW},
+					{Shoulder::IN4, GpioState::LOW}
 				}
 			),
 			StepperMotor::MotorState(
 				{
-					{Shoulder::LL, GpioState::HIGH},
-					{Shoulder::LR, GpioState::LOW},
-					{Shoulder::HL, GpioState::HIGH},
-					{Shoulder::HR, GpioState::LOW}
+					{Shoulder::IN1, GpioState::LOW},
+					{Shoulder::IN2, GpioState::LOW},
+					{Shoulder::IN3, GpioState::HIGH},
+					{Shoulder::IN4, GpioState::LOW}
 				}
 			),
 			StepperMotor::MotorState(
 				{
-					{Shoulder::LL, GpioState::LOW},
-					{Shoulder::LR, GpioState::LOW},
-					{Shoulder::HL, GpioState::HIGH},
-					{Shoulder::HR, GpioState::LOW}
+					{Shoulder::IN1, GpioState::LOW},
+					{Shoulder::IN2, GpioState::HIGH},
+					{Shoulder::IN3, GpioState::LOW},
+					{Shoulder::IN4, GpioState::LOW}
 				}
 			),
 			StepperMotor::MotorState(
 				{
-					{Shoulder::LL, GpioState::LOW},
-					{Shoulder::LR, GpioState::HIGH},
-					{Shoulder::HL, GpioState::HIGH},
-					{Shoulder::HR, GpioState::LOW}
+					{Shoulder::IN1, GpioState::LOW},
+					{Shoulder::IN2, GpioState::LOW},
+					{Shoulder::IN3, GpioState::LOW},
+					{Shoulder::IN4, GpioState::HIGH}
+				}
+			),
+			StepperMotor::MotorState(
+				{
+					{Shoulder::IN1, GpioState::LOW},
+					{Shoulder::IN2, GpioState::HIGH},
+					{Shoulder::IN3, GpioState::LOW},
+					{Shoulder::IN4, GpioState::LOW}
 				}
 			)
 		}
@@ -103,7 +111,7 @@ TEST(ut_stepper_motor, ctor_dtor_sanity) {
 			)
 		)
 	);
-	ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CCW, 20, 300));
+	ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CCW, 300, 30));
 	ASSERT_NE(nullptr, instance_ptr);
 	ASSERT_NO_THROW(delete instance_ptr);
 

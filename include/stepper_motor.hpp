@@ -2,19 +2,16 @@
 #define	STEPPER_MOTOR_HPP
 
 #include <cstddef>
-#include <map>
-#include <memory>
 #include <vector>
 
 #include "creator.hpp"
-#include "custom_creator.hpp"
 #include "data.hpp"
 #include "delay_allocator.hpp"
-#include "gpio.hpp"
-#include "gpo_allocator.hpp"
 #include "integer.hpp"
 #include "mcu_factory.hpp"
 #include "object.hpp"
+#include "state_executor.hpp"
+#include "stepper_motor_types.hpp"
 #include "task_executor.hpp"
 
 namespace cnc {
@@ -25,17 +22,15 @@ namespace cnc {
 			CW,
 			CCW
 		};
-		enum class Shoulder: int { LL, LR, HL, HR };
-		using Shoulders = std::map<Shoulder, int>;
-		using GpioState = mcu_platform::Gpio::State;
-		using MotorState = std::map<Shoulder, GpioState>;
-		using MotorStates = std::vector<MotorState>;
 		using Executor = TaskExecutor<void(const mcu_server::Data&)>;
+		using TaskId = int;
+		using TaskIdCreator = mcu_server::Creator<TaskId(void)>;
 		
 		StepperMotor(
 			const Shoulders& shoulders,
 			const MotorStates& states,
-			const Executor& executor
+			const Executor& executor,
+			const TaskIdCreator& task_id_ctor
 		);
 
 		StepperMotor(const StepperMotor& other) = delete;
@@ -44,49 +39,33 @@ namespace cnc {
 
 		void steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms);
 	private:
-		std::unique_ptr<Executor> m_executor;
 		MotorStates m_states;
-		std::size_t m_current_state;
-		
-		using GpioId = int;
-		using TaskId = int;
-		using TaskData = mcu_server::Data;
+		StatesExecutor m_executor;
 
-		using GpoAllocators = std::map<Shoulder, std::unique_ptr<GpoAllocator>>;
-		GpoAllocators m_gpo_allocators;
-		
-		using TaskTypes = typename mcu_factory::McuFactory<GpioId, TaskId>::TaskType;
-		
-		using TaskIdCreator = mcu_server::Creator<TaskId(void)>;
-		std::unique_ptr<TaskIdCreator> m_pers_task_id_ctor;
+		std::size_t m_current_state;
+		const MotorState m_shutdown_state;
+
+		std::size_t next_state(const Direction& direction) const;
 	};
 
 	inline StepperMotor::StepperMotor(
 		const Shoulders& shoulders,
 		const MotorStates& states,
-		const Executor& executor
-	): m_states(states), m_executor(executor.clone()), m_current_state(0UL) {
-
-		m_pers_task_id_ctor = std::unique_ptr<TaskIdCreator>(
-			new mcu_server_utl::CustomCreator<TaskId(void)>(
-				[](void) {
-					static TaskId s_id(0);
-					return s_id++;
-				}
-			)
-		);
-		for (auto [shoulder, gpio_id]: shoulders) {
-			m_gpo_allocators.insert(
-				{
-					shoulder,
-					std::make_unique<GpoAllocator>(
-						gpio_id, 
-						*m_pers_task_id_ctor, 
-						*m_executor
-					)
-				}
-			);
-		}
+		const Executor& executor,
+		const TaskIdCreator& task_id_ctor
+	):
+		m_states(states),
+		m_executor(shoulders, executor, task_id_ctor),
+		m_current_state(0UL),
+		m_shutdown_state(
+			{
+				{Shoulder::IN1, GpioState::LOW},
+				{Shoulder::IN2, GpioState::LOW},
+				{Shoulder::IN3, GpioState::LOW},
+				{Shoulder::IN4, GpioState::LOW}
+			}
+		) {
+		
 	}
 
 	inline void StepperMotor::steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) {

@@ -10,6 +10,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_library(task_executor INTERFACE)
 target_include_directories(task_executor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
+add_library(stepper_motor_types INTERFACE)
+target_include_directories(stepper_motor_types INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(stepper_motor_types INTERFACE gpio)
+
 add_library(delay_allocator INTERFACE)
 target_include_directories(delay_allocator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(
@@ -33,6 +37,20 @@ target_link_libraries(
     task_executor
 )
 
+add_library(state_executor INTERFACE)
+target_include_directories(state_executor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(
+    state_executor
+    INTERFACE
+    creator
+    data_lib
+    delay_allocator
+    gpo_allocator
+    mcu_factory
+    stepper_motor_types
+    task_executor
+)
+
 add_library(stepper_motor INTERFACE)
 target_include_directories(stepper_motor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(
@@ -44,6 +62,7 @@ target_link_libraries(
     task_executor
     delay_allocator
     gpo_allocator
+    state_executor
 )
 
 
