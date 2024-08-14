@@ -14,7 +14,7 @@
 #include "stepper_motor_tasks_factory.hpp"
 
 namespace cnc {
-	class StepperMotor {
+	class RemoteStepperMotor {
 	public:
 		enum class Direction: int {
 			CW,
@@ -28,10 +28,10 @@ namespace cnc {
 		using States = std::vector<State>;
 		using Executor = TaskExecutor<void(const mcu_server::Data&)>;
 
-		StepperMotor(const StepperId& id, const Shoulders& shoulders, const States& states, const Executor& executor);
-		StepperMotor(const StepperMotor& other) = delete;
-		StepperMotor& operator=(const StepperMotor& other) = delete;
-		virtual ~StepperMotor() noexcept;
+		RemoteStepperMotor(const StepperId& id, const Shoulders& shoulders, const States& states, const Executor& executor);
+		RemoteStepperMotor(const RemoteStepperMotor& other) = delete;
+		RemoteStepperMotor& operator=(const RemoteStepperMotor& other) = delete;
+		virtual ~RemoteStepperMotor() noexcept;
 
 		void steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms);
 	private:
@@ -44,7 +44,7 @@ namespace cnc {
 		}
 	};
 
-	inline StepperMotor::StepperMotor(const StepperId& id, const Shoulders& shoulders, const States& states, const Executor& executor): m_id(id), m_executor(executor.clone()) {
+	inline RemoteStepperMotor::RemoteStepperMotor(const StepperId& id, const Shoulders& shoulders, const States& states, const Executor& executor): m_id(id), m_executor(executor.clone()) {
 		using namespace mcu_server;
 		Object shoulders_data;
 		for (auto [shoulder, gpio_id]: shoulders) {
@@ -66,7 +66,7 @@ namespace cnc {
 		m_executor->execute(create_data);
 	}
 
-	inline StepperMotor::~StepperMotor() noexcept {
+	inline RemoteStepperMotor::~RemoteStepperMotor() noexcept {
 		using namespace mcu_server;
 		Object delete_data;
 		delete_data.add("task_type", Integer(static_cast<int>(TaskType::DELETE_STEPPER_MOTOR)));
@@ -74,7 +74,7 @@ namespace cnc {
 		m_executor->execute(delete_data);
 	}
 
-	inline void StepperMotor::steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) {
+	inline void RemoteStepperMotor::steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) {
 		using namespace mcu_server;
 		Object steps_data;
 		steps_data.add("task_type", Integer(static_cast<int>(TaskType::STEPS)));
