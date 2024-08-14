@@ -39,8 +39,8 @@ TEST_F(CncFixture, sanity) {
 	);
 
 	int iterations_num(5);
-	int step_duration_ms(0);
-	int steps_number(100);
+	int step_duration_ms(1);
+	int steps_number(1000);
 	while (iterations_num) {
 		ASSERT_NO_THROW(instance_ptr->steps(Direction::CCW, steps_number, step_duration_ms));
 		ASSERT_NO_THROW(instance_ptr->steps(Direction::CW, steps_number, step_duration_ms));
