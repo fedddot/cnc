@@ -15,6 +15,143 @@ using namespace cnc_uts;
 using namespace mcu_platform;
 using namespace mcu_server;
 
+StepperMotor::MotorStates s_states1 {
+	MotorState(
+		{
+			{Shoulder::IN1, GpioState::HIGH},
+			{Shoulder::IN2, GpioState::LOW},
+			{Shoulder::IN3, GpioState::HIGH},
+			{Shoulder::IN4, GpioState::LOW}
+		}
+	),
+	MotorState(
+		{
+			{Shoulder::IN1, GpioState::LOW},
+			{Shoulder::IN2, GpioState::HIGH},
+			{Shoulder::IN3, GpioState::HIGH},
+			{Shoulder::IN4, GpioState::LOW}
+		}
+	),
+	MotorState(
+		{
+			{Shoulder::IN1, GpioState::LOW},
+			{Shoulder::IN2, GpioState::HIGH},
+			{Shoulder::IN3, GpioState::LOW},
+			{Shoulder::IN4, GpioState::HIGH}
+		}
+	),
+	MotorState(
+		{
+			{Shoulder::IN1, GpioState::HIGH},
+			{Shoulder::IN2, GpioState::LOW},
+			{Shoulder::IN3, GpioState::LOW},
+			{Shoulder::IN4, GpioState::HIGH}
+		}
+	)
+};
+
+StepperMotor::MotorStates s_states2 {
+	MotorState(
+		{
+			{Shoulder::IN1, GpioState::HIGH},
+			{Shoulder::IN2, GpioState::LOW},
+			{Shoulder::IN3, GpioState::LOW},
+			{Shoulder::IN4, GpioState::LOW}
+		}
+	),
+	MotorState(
+		{
+			{Shoulder::IN1, GpioState::HIGH},
+			{Shoulder::IN2, GpioState::LOW},
+			{Shoulder::IN3, GpioState::HIGH},
+			{Shoulder::IN4, GpioState::LOW}
+		}
+	),
+	MotorState(
+		{
+			{Shoulder::IN1, GpioState::LOW},
+			{Shoulder::IN2, GpioState::LOW},
+			{Shoulder::IN3, GpioState::HIGH},
+			{Shoulder::IN4, GpioState::LOW}
+		}
+	),
+	MotorState(
+		{
+			{Shoulder::IN1, GpioState::LOW},
+			{Shoulder::IN2, GpioState::HIGH},
+			{Shoulder::IN3, GpioState::HIGH},
+			{Shoulder::IN4, GpioState::LOW}
+		}
+	),
+	MotorState(
+		{
+			{Shoulder::IN1, GpioState::LOW},
+			{Shoulder::IN2, GpioState::HIGH},
+			{Shoulder::IN3, GpioState::LOW},
+			{Shoulder::IN4, GpioState::LOW}
+		}
+	),
+	MotorState(
+		{
+			{Shoulder::IN1, GpioState::LOW},
+			{Shoulder::IN2, GpioState::HIGH},
+			{Shoulder::IN3, GpioState::LOW},
+			{Shoulder::IN4, GpioState::HIGH}
+		}
+	),
+	MotorState(
+		{
+			{Shoulder::IN1, GpioState::LOW},
+			{Shoulder::IN2, GpioState::LOW},
+			{Shoulder::IN3, GpioState::LOW},
+			{Shoulder::IN4, GpioState::HIGH}
+		}
+	),
+	MotorState(
+		{
+			{Shoulder::IN1, GpioState::HIGH},
+			{Shoulder::IN2, GpioState::LOW},
+			{Shoulder::IN3, GpioState::LOW},
+			{Shoulder::IN4, GpioState::HIGH}
+		}
+	)
+};
+
+StepperMotor::MotorStates s_states3 {
+	MotorState(
+		{
+			{Shoulder::IN1, GpioState::HIGH},
+			{Shoulder::IN2, GpioState::LOW},
+			{Shoulder::IN3, GpioState::LOW},
+			{Shoulder::IN4, GpioState::LOW}
+		}
+	),
+	MotorState(
+		{
+			{Shoulder::IN1, GpioState::LOW},
+			{Shoulder::IN2, GpioState::LOW},
+			{Shoulder::IN3, GpioState::HIGH},
+			{Shoulder::IN4, GpioState::LOW}
+		}
+	),
+	MotorState(
+		{
+			{Shoulder::IN1, GpioState::LOW},
+			{Shoulder::IN2, GpioState::HIGH},
+			{Shoulder::IN3, GpioState::LOW},
+			{Shoulder::IN4, GpioState::LOW}
+		}
+	),
+	MotorState(
+		{
+			{Shoulder::IN1, GpioState::LOW},
+			{Shoulder::IN2, GpioState::LOW},
+			{Shoulder::IN3, GpioState::LOW},
+			{Shoulder::IN4, GpioState::HIGH}
+		}
+	)
+};
+
 TEST_F(CncFixture, sanity) {
 	// GIVEN
 	const Shoulders shoulders {
@@ -23,74 +160,7 @@ TEST_F(CncFixture, sanity) {
 		{Shoulder::IN3, 5},
 		{Shoulder::IN4, 4}
 	};
-	const StepperMotor::MotorStates states(
-		{
-			MotorState(
-				{
-					{Shoulder::IN1, GpioState::HIGH},
-					{Shoulder::IN2, GpioState::LOW},
-					{Shoulder::IN3, GpioState::LOW},
-					{Shoulder::IN4, GpioState::LOW}
-				}
-			),
-			MotorState(
-				{
-					{Shoulder::IN1, GpioState::HIGH},
-					{Shoulder::IN2, GpioState::LOW},
-					{Shoulder::IN3, GpioState::HIGH},
-					{Shoulder::IN4, GpioState::LOW}
-				}
-			),
-			MotorState(
-				{
-					{Shoulder::IN1, GpioState::LOW},
-					{Shoulder::IN2, GpioState::LOW},
-					{Shoulder::IN3, GpioState::HIGH},
-					{Shoulder::IN4, GpioState::LOW}
-				}
-			),
-			MotorState(
-				{
-					{Shoulder::IN1, GpioState::LOW},
-					{Shoulder::IN2, GpioState::HIGH},
-					{Shoulder::IN3, GpioState::HIGH},
-					{Shoulder::IN4, GpioState::LOW}
-				}
-			),
-			MotorState(
-				{
-					{Shoulder::IN1, GpioState::LOW},
-					{Shoulder::IN2, GpioState::HIGH},
-					{Shoulder::IN3, GpioState::LOW},
-					{Shoulder::IN4, GpioState::LOW}
-				}
-			),
-			MotorState(
-				{
-					{Shoulder::IN1, GpioState::LOW},
-					{Shoulder::IN2, GpioState::HIGH},
-					{Shoulder::IN3, GpioState::LOW},
-					{Shoulder::IN4, GpioState::HIGH}
-				}
-			),
-			MotorState(
-				{
-					{Shoulder::IN1, GpioState::LOW},
-					{Shoulder::IN2, GpioState::LOW},
-					{Shoulder::IN3, GpioState::LOW},
-					{Shoulder::IN4, GpioState::HIGH}
-				}
-			),
-			MotorState(
-				{
-					{Shoulder::IN1, GpioState::HIGH},
-					{Shoulder::IN2, GpioState::LOW},
-					{Shoulder::IN3, GpioState::LOW},
-					{Shoulder::IN4, GpioState::HIGH}
-				}
-			)
-		}
-	);
+	
 	// WHEN
 	StepperMotor *instance_ptr(nullptr);
 
@@ -99,7 +169,7 @@ TEST_F(CncFixture, sanity) {
 		(
 			instance_ptr = new StepperMotor(
 				shoulders,
-				states,
+				s_states1,
 				cnc_utl::CustomTaskExecutor<void(const Data&)>(
 					[this](const Data& data){
 						std::unique_ptr<Data>(run_data_on_mcu(data));
@@ -115,9 +185,9 @@ TEST_F(CncFixture, sanity) {
 		)
 	);
 
-	int iterations_num(2);
-	int step_duration_ms(10);
-	int steps_number(50);
+	int iterations_num(5);
+	int step_duration_ms(0);
+	int steps_number(100);
 	while (iterations_num) {
 		ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CCW, steps_number, step_duration_ms));
 		ASSERT_NO_THROW(instance_ptr->steps(StepperMotor::Direction::CW, steps_number, step_duration_ms));
