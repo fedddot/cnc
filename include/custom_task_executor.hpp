@@ -6,7 +6,7 @@
 
 #include "task_executor.hpp"
 
-namespace cnc_utl {
+namespace cnc {
 	template <typename Signature>
 	class CustomTaskExecutor;
 
