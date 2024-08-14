@@ -10,6 +10,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_library(task_executor INTERFACE)
 target_include_directories(task_executor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
+add_library(custom_task_executor INTERFACE)
+target_include_directories(custom_task_executor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(custom_task_executor INTERFACE task_executor)
+
 add_library(remote_stepper_motor INTERFACE)
 target_include_directories(remote_stepper_motor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(
@@ -22,5 +26,4 @@ target_link_libraries(
 )
 
 add_subdirectory(external)
-add_subdirectory(util)
 add_subdirectory(tests EXCLUDE_FROM_ALL)
