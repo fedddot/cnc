@@ -4,27 +4,33 @@
 #include <memory>
 #include <string>
 
+#include "gtest/gtest.h"
+
 #include "data.hpp"
+#include "gpo.hpp"
 #include "ipc_connection.hpp"
+#include "json_data_serializer.hpp"
 #include "linux_ipc_connection.hpp"
 #include "mcu_client.hpp"
-#include "mcu_server_fixture.hpp"
 #include "mcu_server.hpp"
+#include "remote_stepper_motor.hpp"
 
 namespace cnc_uts {
-	class CncFixture: public mcu_server_uts::McuServerFixture {
+	class CncFixture: public testing::Test {
 	public:
+		using Shoulder = cnc::RemoteStepperMotor::Shoulder;
+		using Shoulders = cnc::RemoteStepperMotor::Shoulders;
+		using State = cnc::RemoteStepperMotor::State;
+		using States = cnc::RemoteStepperMotor::States;
+		using GpoState = mcu_platform::Gpo::State;
+		using StepperId = int;
+		using Direction = cnc::RemoteStepperMotor::Direction;
+
 		CncFixture() = default;
 		CncFixture(const CncFixture& other) = delete;
 		CncFixture& operator=(const CncFixture& other) = delete;
 
 		void SetUp() override {
-			m_server = std::make_unique<mcu_server::McuServer<std::string>>(
-				parser(),
-				serializer(),
-				factory(),
-				fail_report_creator()
-			);
 			m_connection = std::unique_ptr<mcu_ipc::IpcConnection<std::string>>(
 				new linux_mcu_ipc::LinuxIpcConnection(
 					"/dev/ttyACM0",
@@ -40,21 +46,36 @@ namespace cnc_uts {
 			m_connection = nullptr;
 		}
 
-		mcu_server::Data *run_data(const mcu_server::Data& data) const {
-			auto serial_data = serializer().serialize(data);
+		void run_data(const mcu_server::Data& data) const {
+			auto serial_data = mcu_server_utl::JsonDataSerializer().serialize(data);
 			std::cout << std::endl << std::endl << "running data:" << std::endl << '\t' << serial_data << std::endl;
 			auto serial_report = m_server->run(serial_data);
 			std::cout << std::endl << "received report:" << std::endl << '\t' << serial_report << std::endl;
-			return parser().parse(serial_report);
 		}
 
-		mcu_server::Data *run_data_on_mcu(const mcu_server::Data& data) const {
+		void run_data_on_mcu(const mcu_server::Data& data) const {
 			auto serial_data = mcu_server_utl::JsonDataSerializer().serialize(data);
 			std::cout << std::endl << std::endl << "running data:" << std::endl << '\t' << serial_data << std::endl;
 			mcu_client::McuClient<std::string> client(m_connection.get());
 			auto serial_report = client.run(serial_data);
 			std::cout << std::endl << "received report:" << std::endl << '\t' << serial_report << std::endl;
-			return parser().parse(serial_report);
+		}
+
+		States states() const {
+			return States {
+				{
+					{Shoulder::IN0, GpoState::HIGH},
+					{Shoulder::IN1, GpoState::LOW},
+					{Shoulder::IN2, GpoState::LOW},
+					{Shoulder::IN3, GpoState::LOW}
+				},
+				{
+					{Shoulder::IN0, GpoState::HIGH},
+					{Shoulder::IN1, GpoState::LOW},
+					{Shoulder::IN2, GpoState::HIGH},
+					{Shoulder::IN3, GpoState::LOW}
+				}
+			};
 		}
 	private:
 		std::unique_ptr<mcu_server::McuServer<std::string>> m_server;

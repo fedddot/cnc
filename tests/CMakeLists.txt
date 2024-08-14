@@ -3,12 +3,15 @@ target_include_directories(cnc_fixture INTERFACE ${CMAKE_CURRENT_LIST_DIR}/inclu
 target_link_libraries(
 	cnc_fixture
 	INTERFACE
-	mcu_server_fixture
-	mcu_server
-	json_data_parser
-	json_data_serializer
-	linux_ipc_connection
-	mcu_client
+    data_lib
+    gpo
+    ipc_connection
+    json_data_serializer
+    linux_ipc_connection
+    mcu_client
+    mcu_server
+    remote_stepper_motor
+	gtest
 )
 
 add_executable(
@@ -21,8 +24,7 @@ target_link_libraries(
 	cnc_tests
 	PRIVATE
 	custom_task_executor
-	json_data_parser
-	json_data_serializer
 	remote_stepper_motor
+	cnc_fixture
 	gtest
 )
