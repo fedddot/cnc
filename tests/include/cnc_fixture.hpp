@@ -74,6 +74,42 @@ namespace cnc_uts {
 					{Shoulder::IN1, GpoState::LOW},
 					{Shoulder::IN2, GpoState::HIGH},
 					{Shoulder::IN3, GpoState::LOW}
+				},
+				{
+					{Shoulder::IN0, GpoState::LOW},
+					{Shoulder::IN1, GpoState::LOW},
+					{Shoulder::IN2, GpoState::HIGH},
+					{Shoulder::IN3, GpoState::LOW}
+				},
+				{
+					{Shoulder::IN0, GpoState::LOW},
+					{Shoulder::IN1, GpoState::HIGH},
+					{Shoulder::IN2, GpoState::HIGH},
+					{Shoulder::IN3, GpoState::LOW}
+				},
+				{
+					{Shoulder::IN0, GpoState::LOW},
+					{Shoulder::IN1, GpoState::HIGH},
+					{Shoulder::IN2, GpoState::LOW},
+					{Shoulder::IN3, GpoState::LOW}
+				},
+				{
+					{Shoulder::IN0, GpoState::LOW},
+					{Shoulder::IN1, GpoState::HIGH},
+					{Shoulder::IN2, GpoState::LOW},
+					{Shoulder::IN3, GpoState::HIGH}
+				},
+				{
+					{Shoulder::IN0, GpoState::LOW},
+					{Shoulder::IN1, GpoState::LOW},
+					{Shoulder::IN2, GpoState::LOW},
+					{Shoulder::IN3, GpoState::HIGH}
+				},
+				{
+					{Shoulder::IN0, GpoState::HIGH},
+					{Shoulder::IN1, GpoState::LOW},
+					{Shoulder::IN2, GpoState::LOW},
+					{Shoulder::IN3, GpoState::HIGH}
 				}
 			};
 		}
