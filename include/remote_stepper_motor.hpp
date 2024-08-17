@@ -34,6 +34,7 @@ namespace cnc {
 		virtual ~RemoteStepperMotor() noexcept;
 
 		void steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms);
+		mcu_server::Data *generate_steps_data(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) const;
 	private:
 		using TaskType = typename mcu_factory::StepperMotorTasksFactory<StepperId, GpoId>::TaskType;
 		const StepperId m_id;
@@ -75,6 +76,11 @@ namespace cnc {
 	}
 
 	inline void RemoteStepperMotor::steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) {
+		std::unique_ptr<mcu_server::Data> steps_data(generate_steps_data(direction, steps_num, step_duration_ms));
+		m_executor->execute(*steps_data);
+	}
+
+	inline mcu_server::Data *RemoteStepperMotor::generate_steps_data(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) const {
 		using namespace mcu_server;
 		Object steps_data;
 		steps_data.add("task_type", Integer(static_cast<int>(TaskType::STEPS)));
@@ -82,7 +88,7 @@ namespace cnc {
 		steps_data.add("direction", Integer(static_cast<int>(direction)));
 		steps_data.add("steps_number", Integer(steps_num));
 		steps_data.add("step_duration_ms", Integer(step_duration_ms));
-		m_executor->execute(steps_data);
+		return steps_data.clone();
 	}
 }
 
