@@ -10,44 +10,70 @@ using namespace mcu_server;
 
 TEST_F(CncFixture, sanity) {
 	// GIVEN
-	const Shoulders shoulders {
-		{Shoulder::IN0, 7},
-		{Shoulder::IN1, 6},
-		{Shoulder::IN2, 5},
-		{Shoulder::IN3, 4}
+	const Shoulders shoulders_x {
+		{Shoulder::IN0, 22},
+		{Shoulder::IN1, 26},
+		{Shoulder::IN2, 27},
+		{Shoulder::IN3, 28}
+	};
+	const Shoulders shoulders_y {
+		{Shoulder::IN0, 18},
+		{Shoulder::IN1, 19},
+		{Shoulder::IN2, 20},
+		{Shoulder::IN3, 21}
+	};
+	const Shoulders shoulders_z {
+		{Shoulder::IN0, 14},
+		{Shoulder::IN1, 15},
+		{Shoulder::IN2, 16},
+		{Shoulder::IN3, 17}
 	};
 	
-	const StepperId id(12);
+	const StepperId id_x(0);
+	const StepperId id_y(1);
+	const StepperId id_z(2);
 	
 	// WHEN
-	RemoteStepperMotor *instance_ptr(nullptr);
-
-	// THEN
-	ASSERT_NO_THROW(
-		(
-			instance_ptr = new RemoteStepperMotor(
-				id,
-				shoulders,
-				states(),
-				CustomTaskExecutor<void(const Data&)>(
-					[this](const Data& data) {
-						run_data_on_mcu(data);
-					}
-				)
-			)
+	RemoteStepperMotor motor_x(
+		id_x,
+		shoulders_x,
+		states(),
+		CustomTaskExecutor<void(const Data&)>(
+			[this](const Data& data) {
+				run_data_on_mcu(data);
+			}
+		)
+	);
+	RemoteStepperMotor motor_y(
+		id_y,
+		shoulders_y,
+		states(),
+		CustomTaskExecutor<void(const Data&)>(
+			[this](const Data& data) {
+				run_data_on_mcu(data);
+			}
+		)
+	);
+	RemoteStepperMotor motor_z(
+		id_z,
+		shoulders_z,
+		states(),
+		CustomTaskExecutor<void(const Data&)>(
+			[this](const Data& data) {
+				run_data_on_mcu(data);
+			}
 		)
 	);
 
-	int iterations_num(5);
+	// THEN
 	int step_duration_ms(1);
-	int steps_number(1000);
-	while (iterations_num) {
-		ASSERT_NO_THROW(instance_ptr->steps(Direction::CCW, steps_number, step_duration_ms));
-		ASSERT_NO_THROW(instance_ptr->steps(Direction::CW, steps_number, step_duration_ms));
-		--iterations_num;
-	}
-
-	ASSERT_NO_THROW(delete instance_ptr);
-
-	instance_ptr = nullptr;
+	int steps_x(5000);
+	int steps_y(600);
+	int steps_z(3000);
+	ASSERT_NO_THROW(motor_x.steps(Direction::CCW, steps_x, step_duration_ms));
+	ASSERT_NO_THROW(motor_y.steps(Direction::CCW, steps_y, step_duration_ms));
+	ASSERT_NO_THROW(motor_z.steps(Direction::CCW, steps_z, step_duration_ms));
+	ASSERT_NO_THROW(motor_x.steps(Direction::CW, steps_x, step_duration_ms));
+	ASSERT_NO_THROW(motor_y.steps(Direction::CW, steps_y, step_duration_ms));
+	ASSERT_NO_THROW(motor_z.steps(Direction::CW, steps_z, step_duration_ms));
 }
