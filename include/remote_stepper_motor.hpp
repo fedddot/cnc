@@ -76,14 +76,15 @@ namespace cnc {
 	}
 
 	inline void RemoteStepperMotor::steps(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) {
-		std::unique_ptr<mcu_server::Data> steps_data(generate_steps_data(direction, steps_num, step_duration_ms));
+		using namespace mcu_server;
+		std::unique_ptr<Data> steps_data(generate_steps_data(direction, steps_num, step_duration_ms));
+		Data::cast<Object>(*steps_data).add("task_type", Integer(static_cast<int>(TaskType::STEPS)));
 		m_executor->execute(*steps_data);
 	}
 
 	inline mcu_server::Data *RemoteStepperMotor::generate_steps_data(const Direction& direction, unsigned int steps_num, unsigned int step_duration_ms) const {
 		using namespace mcu_server;
 		Object steps_data;
-		steps_data.add("task_type", Integer(static_cast<int>(TaskType::STEPS)));
 		steps_data.add("stepper_id", Integer(m_id));
 		steps_data.add("direction", Integer(static_cast<int>(direction)));
 		steps_data.add("steps_number", Integer(steps_num));
