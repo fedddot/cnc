@@ -59,8 +59,8 @@ func (i *ProxyStepperMotor) Steps(steps_num uint, direction MotorDirection, time
 	body := make(map[string]interface{}, 0)
 	body["steps_num"] = steps_num
 	body["dir"] = direction
-	body["time_on_ms"] = time_on
-	body["time_off_ms"] = time_off
+	body["on_time_ms"] = time_on
+	body["off_time_ms"] = time_off
 	response, err := i.connection.RunRequest(
 		communication.Request{
 			Route:  fmt.Sprintf("steppers/%s", i.id),

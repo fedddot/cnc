@@ -54,6 +54,7 @@ func TestInitUninitHttp(t *testing.T) {
 		&connection,
 	)
 	assert.Equal(t, nil, err, "received error is not nil")
-	err = instance.Steps(10, CCW, 500, 100)
+	err = instance.Steps(1000, CCW, 500, 100)
 	assert.Equal(t, nil, err, "received error is not nil")
+	instance.Uninit()
 }
