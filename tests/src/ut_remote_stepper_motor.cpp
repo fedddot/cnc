@@ -1,8 +1,14 @@
 #include "gtest/gtest.h"
+#include <memory>
 
+#include "array.hpp"
 #include "custom_task_executor.hpp"
+#include "data.hpp"
+#include "integer.hpp"
+#include "object.hpp"
 #include "remote_stepper_motor.hpp"
 #include "cnc_fixture.hpp"
+#include "stepper_motor_tasks_factory.hpp"
 
 using namespace cnc;
 using namespace cnc_uts;
@@ -67,13 +73,50 @@ TEST_F(CncFixture, sanity) {
 
 	// THEN
 	int step_duration_ms(1);
-	int steps_x(5000);
-	int steps_y(600);
-	int steps_z(3000);
-	ASSERT_NO_THROW(motor_x.steps(Direction::CCW, steps_x, step_duration_ms));
-	ASSERT_NO_THROW(motor_y.steps(Direction::CCW, steps_y, step_duration_ms));
-	ASSERT_NO_THROW(motor_z.steps(Direction::CCW, steps_z, step_duration_ms));
-	ASSERT_NO_THROW(motor_x.steps(Direction::CW, steps_x, step_duration_ms));
-	ASSERT_NO_THROW(motor_y.steps(Direction::CW, steps_y, step_duration_ms));
-	ASSERT_NO_THROW(motor_z.steps(Direction::CW, steps_z, step_duration_ms));
+	int steps_x(500);
+	int steps_y(500);
+	int steps_z(500);
+
+	Array sequence_data;
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_x.generate_steps_data(Direction::CCW, steps_x, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_y.generate_steps_data(Direction::CCW, steps_y, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_z.generate_steps_data(Direction::CCW, steps_z, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_x.generate_steps_data(Direction::CW, steps_x, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_y.generate_steps_data(Direction::CW, steps_y, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_z.generate_steps_data(Direction::CW, steps_z, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_x.generate_steps_data(Direction::CCW, steps_x, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_y.generate_steps_data(Direction::CCW, steps_y, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_z.generate_steps_data(Direction::CCW, steps_z, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_x.generate_steps_data(Direction::CW, steps_x, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_y.generate_steps_data(Direction::CW, steps_y, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_z.generate_steps_data(Direction::CW, steps_z, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_x.generate_steps_data(Direction::CCW, steps_x, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_y.generate_steps_data(Direction::CCW, steps_y, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_z.generate_steps_data(Direction::CCW, steps_z, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_x.generate_steps_data(Direction::CW, steps_x, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_y.generate_steps_data(Direction::CW, steps_y, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_z.generate_steps_data(Direction::CW, steps_z, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_x.generate_steps_data(Direction::CCW, steps_x, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_y.generate_steps_data(Direction::CCW, steps_y, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_z.generate_steps_data(Direction::CCW, steps_z, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_x.generate_steps_data(Direction::CW, steps_x, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_y.generate_steps_data(Direction::CW, steps_y, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_z.generate_steps_data(Direction::CW, steps_z, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_x.generate_steps_data(Direction::CCW, steps_x, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_y.generate_steps_data(Direction::CCW, steps_y, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_z.generate_steps_data(Direction::CCW, steps_z, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_x.generate_steps_data(Direction::CW, steps_x, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_y.generate_steps_data(Direction::CW, steps_y, step_duration_ms)));
+	sequence_data.push_back(*std::unique_ptr<Data>(motor_z.generate_steps_data(Direction::CW, steps_z, step_duration_ms)));
+	Object task_data;
+	task_data.add("task_type", Integer(static_cast<int>(mcu_factory::StepperMotorTasksFactory<int, int>::TaskType::STEPS_SEQUENCE)));
+	task_data.add("sequence", sequence_data);
+	// ASSERT_NO_THROW(motor_x.steps(Direction::CCW, steps_x, step_duration_ms));
+	// ASSERT_NO_THROW(motor_y.steps(Direction::CCW, steps_y, step_duration_ms));
+	// ASSERT_NO_THROW(motor_z.steps(Direction::CCW, steps_z, step_duration_ms));
+	// ASSERT_NO_THROW(motor_x.steps(Direction::CW, steps_x, step_duration_ms));
+	// ASSERT_NO_THROW(motor_y.steps(Direction::CW, steps_y, step_duration_ms));
+	// ASSERT_NO_THROW(motor_z.steps(Direction::CW, steps_z, step_duration_ms));
+
+	run_data_on_mcu(task_data);
 }
