@@ -7,33 +7,23 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_library(task_data_generator INTERFACE)
-target_include_directories(task_data_generator INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(
-    task_data_generator
-    INTERFACE
-    data_lib
-    gpio
-)
-
 add_library(task_executor INTERFACE)
 target_include_directories(task_executor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
-add_library(stepper_motor_state INTERFACE)
-target_include_directories(stepper_motor_state INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(stepper_motor_state INTERFACE gpio)
+add_library(custom_task_executor INTERFACE)
+target_include_directories(custom_task_executor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(custom_task_executor INTERFACE task_executor)
 
-add_library(stepper_motor INTERFACE)
-target_include_directories(stepper_motor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+add_library(remote_stepper_motor INTERFACE)
+target_include_directories(remote_stepper_motor INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(
-    stepper_motor
+    remote_stepper_motor
     INTERFACE
-    gpio
     data_lib
-    task_data_generator
+    gpo
     task_executor
+    stepper_motor_tasks_factory
 )
 
 add_subdirectory(external)
-add_subdirectory(util)
 add_subdirectory(tests EXCLUDE_FROM_ALL)
