@@ -32,11 +32,11 @@ func TestInitUninit(t *testing.T) {
 			return communication.Response{ResultCode: 200, Body: map[string]interface{}{}}, nil
 		},
 	)
-	instance := StepperMotor{}
+	instance := ProxyStepperMotor{}
 	err := instance.Init(
 		s_test_gpo_map,
 		s_test_id,
 		&connection,
 	)
-	assert.NotEqual(t, nil, err, "received error is not nil")
+	assert.Equal(t, nil, err, "received error is not nil")
 }
