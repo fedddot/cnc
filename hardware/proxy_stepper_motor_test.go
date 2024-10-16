@@ -25,10 +25,10 @@ func TestInitUninit(t *testing.T) {
 		func(request communication.Request) (communication.Response, error) {
 			// THEN
 			for gpo_field, gpo_id := range s_test_gpo_map {
-				assert.NotEqual(t, nil, request.Body[gpo_field])
-				assert.Equal(t, gpo_id, request.Body[gpo_field])
+				assert.NotEqual(t, nil, request.Body.(map[string]interface{})[gpo_field])
+				assert.Equal(t, gpo_id, request.Body.(map[string]interface{})[gpo_field])
 			}
-			assert.Equal(t, s_test_id, request.Body["id"])
+			assert.Equal(t, s_test_id, request.Body.(map[string]interface{})["id"])
 			return communication.Response{ResultCode: 200, Body: map[string]interface{}{}}, nil
 		},
 	)

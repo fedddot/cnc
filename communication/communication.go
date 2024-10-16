@@ -3,12 +3,12 @@ package communication
 type Request struct {
 	Route  string
 	Method string
-	Body   map[string]interface{}
+	Body   interface{}
 }
 
 type Response struct {
 	ResultCode int
-	Body       map[string]interface{}
+	Body       interface{}
 }
 
 type Connection interface {
