@@ -31,7 +31,7 @@ func (i *ProxyStepperMotor) Init(gpo_map map[string]int, id string, connection c
 	if err != nil {
 		return err
 	}
-	if response.ResultCode != 200 {
+	if response.ResultCode != 0 {
 		return fmt.Errorf("failed to create motor %s, result code: %d", id, response.ResultCode)
 	}
 	return nil
@@ -49,7 +49,7 @@ func (i *ProxyStepperMotor) Uninit() error {
 	if err != nil {
 		return err
 	}
-	if response.ResultCode != 200 {
+	if response.ResultCode != 0 {
 		return fmt.Errorf("failed to delete motor %s, result code: %d", i.id, response.ResultCode)
 	}
 	return nil
@@ -71,7 +71,7 @@ func (i *ProxyStepperMotor) Steps(steps_num uint, direction MotorDirection, time
 	if err != nil {
 		return err
 	}
-	if response.ResultCode != 200 {
+	if response.ResultCode != 0 {
 		return fmt.Errorf("failed to update motor %s, result code: %d", i.id, response.ResultCode)
 	}
 	return nil

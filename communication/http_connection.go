@@ -89,6 +89,35 @@ func (i *HttpConnection) runPostRequest(path string, body interface{}) (Response
 	return Response{}, nil
 }
 
+func (i *HttpConnection) runPutRequest(path string, body interface{}) (Response, error) {
+	response := Response{}
+	body_bytes, err := json.Marshal(body)
+	if err != nil {
+		return response, err
+	}
+	request, err := http.NewRequest("PUT", path, bytes.NewBuffer(body_bytes))
+	if err != nil {
+		return response, err
+	}
+	http_response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return response, err
+	}
+	defer http_response.Body.Close()
+	http_response_body_bytes, err := io.ReadAll(http_response.Body)
+	if err != nil {
+		return response, err
+	}
+	var body_parsed interface{}
+	err = json.Unmarshal(http_response_body_bytes, &body_parsed)
+	if err != nil {
+		return response, err
+	}
+	response.Body = body_parsed
+	response.ResultCode = http_response.StatusCode
+	return Response{}, nil
+}
+
 func (i *HttpConnection) RunRequest(request Request) (Response, error) {
 	path := fmt.Sprintf("%s:%s/%s", i.server_hostname, i.server_servicename, request.Route)
 	switch request.Method {
@@ -98,6 +127,8 @@ func (i *HttpConnection) RunRequest(request Request) (Response, error) {
 		return i.runPostRequest(path, request.Body)
 	case "DELETE":
 		return i.runDeleteRequest(path)
+	case "PUT":
+		return i.runPutRequest(path, request.Body)
 	default:
 		return Response{500, nil}, fmt.Errorf("unsupported method received: %s", request.Method)
 	}

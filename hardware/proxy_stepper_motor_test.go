@@ -8,11 +8,11 @@ import (
 )
 
 var s_test_gpo_map map[string]int = map[string]int{
-	"a0": 10,
-	"a1": 11,
-	"b0": 12,
-	"b1": 13,
-	"en": 14,
+	"a0": 16,
+	"a1": 17,
+	"b0": 18,
+	"b1": 19,
+	"en": 15,
 }
 var s_test_id string = "motor1"
 
@@ -38,5 +38,22 @@ func TestInitUninit(t *testing.T) {
 		s_test_id,
 		&connection,
 	)
+	assert.Equal(t, nil, err, "received error is not nil")
+}
+
+func TestInitUninitHttp(t *testing.T) {
+	// GIVEN:
+	connection := communication.HttpConnection{}
+
+	// WHEN
+	connection.Init("http://127.0.0.1", "5000")
+	instance := ProxyStepperMotor{}
+	err := instance.Init(
+		s_test_gpo_map,
+		s_test_id,
+		&connection,
+	)
+	assert.Equal(t, nil, err, "received error is not nil")
+	err = instance.Steps(10, CCW, 500, 100)
 	assert.Equal(t, nil, err, "received error is not nil")
 }
