@@ -56,11 +56,13 @@ func (i *ProxyStepperMotor) Uninit() error {
 }
 
 func (i *ProxyStepperMotor) Steps(steps_num uint, direction MotorDirection, time_on uint, time_off uint) error {
+	config := make(map[string]interface{}, 0)
+	config["steps_num"] = steps_num
+	config["dir"] = direction
+	config["on_time"] = time_on
+	config["off_time"] = time_off
 	body := make(map[string]interface{}, 0)
-	body["steps_num"] = steps_num
-	body["dir"] = direction
-	body["on_time_ms"] = time_on
-	body["off_time_ms"] = time_off
+	body["config"] = config
 	response, err := i.connection.RunRequest(
 		communication.Request{
 			Route:  fmt.Sprintf("steppers/%s", i.id),
