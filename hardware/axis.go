@@ -21,7 +21,7 @@ func (i *Axis) ResetPosition(position Position) {
 func (i *Axis) GetPosition() Position {
 	return i.current_position
 }
-func (i *Axis) Move(absolute_position Position) error {
+func (i *Axis) MoveAbs(absolute_position Position) error {
 	delta := absolute_position - i.current_position
 	direction := CW
 	if delta < 0.0 {
@@ -29,10 +29,13 @@ func (i *Axis) Move(absolute_position Position) error {
 		delta = -delta
 	}
 	steps_number := uint(delta * Position(i.steps_per_mm))
-	err := i.motor.Steps(steps_number, direction, 500, 100) // TODO: derive times from the feed speed
-	if err == nil {
+	err := i.motor.Steps(steps_number, direction, 300, 100) // TODO: derive times from the feed speed
+	if err != nil {
 		return err
 	}
 	i.current_position = absolute_position
 	return nil
+}
+func (i *Axis) MoveRel(relative_position Position) error {
+	return i.MoveAbs(i.current_position + relative_position)
 }
