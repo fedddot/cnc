@@ -55,7 +55,7 @@ func (i *StepperMovementExecutor) Init(steps_per_mm float32, dim_to_motor_mappin
 }
 
 func (i *StepperMovementExecutor) Execute(movement model.Vector, feed float32) error {
-	err, body := i.generateMovements(movement, feed)
+	body, err := i.generateMovements(movement, feed)
 	if err != nil {
 		return err
 	}
@@ -75,6 +75,6 @@ func (i *StepperMovementExecutor) Execute(movement model.Vector, feed float32) e
 	return nil
 }
 
-func (i *StepperMovementExecutor) generateMovements(movement model.Vector, feed float32) (error, MovementsBody) {
-
+func (i *StepperMovementExecutor) generateMovements(movement model.Vector, feed float32) (MovementsBody, error) {
+	return MovementsBody{}, fmt.Errorf("NOT IMPLEMENTED")
 }
