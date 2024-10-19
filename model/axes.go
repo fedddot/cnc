@@ -1,9 +1,5 @@
 package model
 
-type MovementExecutor interface {
-	Execute(movement Vector, feed float32) error
-}
-
 type Axes struct {
 	current_position Vector
 	executor         MovementExecutor
