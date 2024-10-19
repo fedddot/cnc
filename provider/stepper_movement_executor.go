@@ -49,6 +49,9 @@ func (i *StepperMovementExecutor) Init(steps_per_mm float32, dim_to_motor_mappin
 			return fmt.Errorf("invalid mapping received - missing dimension %d", dim)
 		}
 	}
+	if steps_per_mm == 0.0 {
+		return fmt.Errorf("invalid steps per mm ratio received - can't be zero")
+	}
 	i.steps_per_mm = steps_per_mm
 	i.dim_to_motor_mapping = dim_to_motor_mapping
 	return nil
