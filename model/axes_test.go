@@ -28,6 +28,8 @@ func TestAxes(t *testing.T) {
 	executor := TestExecutor{}
 	executor.Init(
 		func(movement Vector, feed float32) error {
+			assert.True(t, test_movement.Equals(movement))
+			assert.Equal(t, test_feed, feed)
 			return nil
 		},
 	)
@@ -36,6 +38,9 @@ func TestAxes(t *testing.T) {
 	test_axes.Init(test_movement, &executor)
 
 	// THEN
+	position_before := test_axes.Position()
 	err := test_axes.Move(test_movement, test_feed)
 	assert.Equal(t, nil, err)
+	position_after := test_axes.Position()
+	assert.True(t, position_after.Equals(position_before.Add(test_movement)))
 }
