@@ -42,7 +42,7 @@ type StepperMovementExecutor struct {
 	connection           communication.Connection
 }
 
-func (i *StepperMovementExecutor) Init(steps_per_mm float32, dim_to_motor_mapping DimensionToMotorMapping) error {
+func (i *StepperMovementExecutor) Init(steps_per_mm float32, dim_to_motor_mapping DimensionToMotorMapping, connection communication.Connection) error {
 	for _, dim := range []model.Dimension{model.X, model.Y, model.Z} {
 		_, ok := dim_to_motor_mapping[dim]
 		if !ok {
@@ -54,6 +54,7 @@ func (i *StepperMovementExecutor) Init(steps_per_mm float32, dim_to_motor_mappin
 	}
 	i.steps_per_mm = steps_per_mm
 	i.dim_to_motor_mapping = dim_to_motor_mapping
+	i.connection = connection
 	return nil
 }
 
@@ -79,5 +80,16 @@ func (i *StepperMovementExecutor) Execute(movement model.Vector, feed float32) e
 }
 
 func (i *StepperMovementExecutor) generateMovements(movement model.Vector, feed float32) (MovementsBody, error) {
+	// movements := make([]MovementConfiguration, 0)
+	steps_numbers := i.vectorToStepsNumbers(movement)
+	fmt.Printf("steps_numbers = %v\n", steps_numbers)
 	return MovementsBody{}, fmt.Errorf("NOT IMPLEMENTED")
+}
+
+func (i *StepperMovementExecutor) vectorToStepsNumbers(vector model.Vector) map[string]int {
+	steps_numbers := make(map[string]int, 0)
+	for _, dim := range []model.Dimension{model.X, model.Y, model.Z} {
+		steps_numbers[i.dim_to_motor_mapping[dim]] = int(i.steps_per_mm * vector.Get(dim))
+	}
+	return steps_numbers
 }
