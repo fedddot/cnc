@@ -37,9 +37,10 @@ type MovementsBody struct {
 }
 
 type StepperMovementExecutor struct {
-	steps_per_mm         float32
-	dim_to_motor_mapping DimensionToMotorMapping
-	connection           communication.Connection
+	steps_per_mm          float32
+	dim_to_motor_mapping  DimensionToMotorMapping
+	connection            communication.Connection
+	grid_resolution_steps uint
 }
 
 func (i *StepperMovementExecutor) Init(steps_per_mm float32, dim_to_motor_mapping DimensionToMotorMapping, connection communication.Connection) error {
@@ -55,6 +56,7 @@ func (i *StepperMovementExecutor) Init(steps_per_mm float32, dim_to_motor_mappin
 	i.steps_per_mm = steps_per_mm
 	i.dim_to_motor_mapping = dim_to_motor_mapping
 	i.connection = connection
+	i.grid_resolution_steps = 1
 	return nil
 }
 
@@ -93,3 +95,5 @@ func (i *StepperMovementExecutor) vectorToStepsNumbers(vector model.Vector) map[
 	}
 	return steps_numbers
 }
+
+func (i *StepperMovementExecutor) normalizeSteps
