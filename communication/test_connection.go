@@ -1,6 +1,7 @@
 package communication
 
 type TestConnection struct {
+	Connection
 	action func(request Request) (Response, error)
 }
 

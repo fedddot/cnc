@@ -18,10 +18,10 @@ type LinearMovementCreateConfig struct {
 type Movement struct {
 	config     LinearMovementCreateConfig
 	steppers   map[model.Dimension]StepperMotor
-	connection *communication.Connection
+	connection communication.Connection
 }
 
-func (i *Movement) Init(movement_config LinearMovementCreateConfig, steppers_mapping map[model.Dimension]StepperMotorCreateConfig, connection *communication.Connection) error {
+func (i *Movement) Init(movement_config LinearMovementCreateConfig, steppers_mapping map[model.Dimension]StepperMotorCreateConfig, connection communication.Connection) error {
 	if connection == nil {
 		return fmt.Errorf("invalid connection ptr received")
 	}
@@ -39,7 +39,7 @@ func (i *Movement) Init(movement_config LinearMovementCreateConfig, steppers_map
 		Method: "POST",
 		Body:   movement_config,
 	}
-	resp, err := (*connection).RunRequest(request)
+	resp, err := connection.RunRequest(request)
 	if err == nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func (i *Movement) Uninit() error {
 		Method: "DELETE",
 		Body:   map[string]interface{}{},
 	}
-	resp, err := (*(i.connection)).RunRequest(request)
+	resp, err := i.connection.RunRequest(request)
 	if err == nil {
 		return err
 	}

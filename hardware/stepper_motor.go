@@ -33,10 +33,10 @@ type StepperMotorUpdateConfig struct {
 
 type StepperMotor struct {
 	create_config StepperMotorCreateConfig
-	connection    *communication.Connection
+	connection    communication.Connection
 }
 
-func (i *StepperMotor) Init(config StepperMotorCreateConfig, connection *communication.Connection) error {
+func (i *StepperMotor) Init(config StepperMotorCreateConfig, connection communication.Connection) error {
 	i.create_config = config
 	i.connection = connection
 
@@ -45,7 +45,7 @@ func (i *StepperMotor) Init(config StepperMotorCreateConfig, connection *communi
 		Method: "POST",
 		Body:   i.create_config,
 	}
-	response, err := (*(i.connection)).RunRequest(request)
+	response, err := i.connection.RunRequest(request)
 	if err != nil {
 		return err
 	}
@@ -61,7 +61,7 @@ func (i *StepperMotor) Uninit() error {
 		Method: "DELETE",
 		Body:   map[string]interface{}{},
 	}
-	response, err := (*(i.connection)).RunRequest(request)
+	response, err := i.connection.RunRequest(request)
 	if err != nil {
 		return err
 	}
