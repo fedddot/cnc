@@ -45,7 +45,7 @@ func (i *StepperMotor) Init(config StepperMotorCreateConfig, connection *communi
 		Method: "POST",
 		Body:   i.create_config,
 	}
-	response, err := i.connection.RunRequest(request)
+	response, err := (*(i.connection)).RunRequest(request)
 	if err != nil {
 		return err
 	}
@@ -61,7 +61,7 @@ func (i *StepperMotor) Uninit() error {
 		Method: "DELETE",
 		Body:   map[string]interface{}{},
 	}
-	response, err := i.(*connection).RunRequest(request)
+	response, err := (*(i.connection)).RunRequest(request)
 	if err != nil {
 		return err
 	}
