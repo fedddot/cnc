@@ -4,7 +4,6 @@ import (
 	"cnc/client/communication"
 	"cnc/client/model"
 	"fmt"
-	"math"
 )
 
 type LinearMovementAxesConfig struct {
@@ -21,8 +20,8 @@ type LinearMovementSteps map[ResourceId]int
 type StepDurationUnit uint
 
 type LinearMovementDescription struct {
-	Steps        LinearMovementSteps `json:"steps"`
-	StepDuration StepDurationUnit    `json:"step_duration"`
+	Steps        []LinearMovementSteps `json:"steps"`
+	StepDuration StepDurationUnit      `json:"step_duration"`
 }
 
 type LinearMovementMoveConfig struct {
@@ -103,37 +102,28 @@ func (i LinearMovement) toStepsVector(vector model.Vector[float32]) model.Vector
 	return res
 }
 
-func getPrimaryLength(steps_vector model.Vector[int]) uint {
-	res := uint(0)
-	for _, dim := range []model.Dimension{model.X, model.Y, model.Z} {
-		abs_coord := uint(math.Abs(float64(steps_vector.Get(dim))))
-		if abs_coord > res {
-			res = abs_coord
-		}
-	}
-	return res
-}
-
-func (i LinearMovement) toStepDuration(steps_vector model.Vector[int], feed float32) (StepDurationUnit, error) {
+func (i LinearMovement) toStepDuration(feed float32) (StepDurationUnit, error) {
 	if feed <= 0 {
 		return 0, fmt.Errorf("invalid feed received (must be greater than zero)")
 	}
-	norm := steps_vector.Norm()
-	if norm == 0 {
+	steps_per_time_unit := uint(feed * float32(i.steps_per_unit)) // TODO: add correction: ... * float32(steps_to_perform) / float32(length_to_pass))
+	if steps_per_time_unit == 0 {
 		return 0, nil
 	}
-	primary_length := getPrimaryLength(steps_vector)
-	steps_per_second := uint(feed * float32(i.steps_per_unit) * float32(primary_length) / float32(norm))
-	return StepDurationUnit(i.time_divider / steps_per_second), nil
+	return StepDurationUnit(i.time_divider / steps_per_time_unit), nil
 }
 
-func (i *LinearMovement) Move(movement model.Vector[float32], feed float32) error {
-	steps := make(LinearMovementSteps, 0)
-	steps_vector := i.toStepsVector(movement)
-	for _, dim := range []model.Dimension{model.X, model.Y, model.Z} {
-		steps[i.steppers[dim].Id()] = steps_vector.Get(dim)
+func (i *LinearMovement) Move(movements []model.Vector[float32], feed float32) error {
+	steps := make([]LinearMovementSteps, 0)
+	for _, movement := range movements {
+		steps_item := make(LinearMovementSteps, 0)
+		steps_vector := i.toStepsVector(movement)
+		for _, dim := range []model.Dimension{model.X, model.Y, model.Z} {
+			steps_item[i.steppers[dim].Id()] = steps_vector.Get(dim)
+		}
+		steps = append(steps, steps_item)
 	}
-	step_duration, err := i.toStepDuration(steps_vector, feed)
+	step_duration, err := i.toStepDuration(feed)
 	if err != nil {
 		return err
 	}

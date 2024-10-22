@@ -32,7 +32,7 @@ func createChordMovements(radius float32, number_of_sectors uint) []model.Vector
 	return res
 }
 
-func TestMovement_Init_Uninit(t *testing.T) {
+func TestMovement_Init_Move_Uninit(t *testing.T) {
 	// GIVEN
 	create_cfg := LinearMovementCreateConfig{
 		Id: "test_movement",

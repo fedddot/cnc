@@ -56,3 +56,13 @@ func (i Vector[T]) Norm() T {
 	}
 	return T(math.Sqrt(float64(sqr_norm)))
 }
+
+func (i Vector[T]) Negate() Vector[T] {
+	res := Vector[T]{}
+	res.Init(
+		-i.Get(X),
+		-i.Get(Y),
+		-i.Get(Z),
+	)
+	return res
+}
