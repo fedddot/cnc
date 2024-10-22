@@ -51,7 +51,7 @@ func (i *StepperMotor) Init(config StepperMotorCreateConfig, connection communic
 	if err != nil {
 		return err
 	}
-	if response.ResultCode != 0 {
+	if response.ResultCode != 200 {
 		return fmt.Errorf("server failure, code: %d", response.ResultCode)
 	}
 	return nil
@@ -67,7 +67,7 @@ func (i *StepperMotor) Uninit() error {
 	if err != nil {
 		return err
 	}
-	if response.ResultCode != 0 {
+	if response.ResultCode != 200 {
 		return fmt.Errorf("server failure, code: %d", response.ResultCode)
 	}
 	return nil

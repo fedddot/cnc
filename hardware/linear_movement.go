@@ -55,7 +55,7 @@ func (i *LinearMovement) Init(movement_config LinearMovementCreateConfig, steppe
 	if err != nil {
 		return err
 	}
-	if resp.ResultCode != 0 {
+	if resp.ResultCode != 200 {
 		return fmt.Errorf("server failure, code = %d", resp.ResultCode)
 	}
 	i.config = movement_config
@@ -82,7 +82,7 @@ func (i *LinearMovement) Uninit() error {
 	if err != nil {
 		return err
 	}
-	if resp.ResultCode != 0 {
+	if resp.ResultCode != 200 {
 		return fmt.Errorf("server failure, code = %d", resp.ResultCode)
 	}
 	i.steppers = make(map[model.Dimension]StepperMotor, 0)
@@ -146,7 +146,7 @@ func (i *LinearMovement) Move(movement model.Vector[float32], feed float32) erro
 	if err != nil {
 		return err
 	}
-	if resp.ResultCode != 0 {
+	if resp.ResultCode != 200 {
 		return fmt.Errorf("server failure, code = %d", resp.ResultCode)
 	}
 	return nil
