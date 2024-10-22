@@ -11,7 +11,7 @@ func TestStepperMotor_Init_Uninit(t *testing.T) {
 	// GIVEN
 	connection := communication.TestConnection{}
 	action := func(request communication.Request) (communication.Response, error) {
-		return communication.Response{ResultCode: 0, Body: nil}, nil
+		return communication.Response{ResultCode: 200, Body: nil}, nil
 	}
 	create_config := StepperMotorCreateConfig{
 		Id: "test_motor",
