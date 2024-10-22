@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+type ResourceId string
+
 type Direction int
 
 const (
@@ -12,14 +14,14 @@ const (
 	CCW Direction = 1
 )
 
-type ResourceId string
+type GpoId int
 
 type StepperMotorGpoMapping struct {
-	A0 ResourceId `json:"a0"`
-	A1 ResourceId `json:"a1"`
-	B0 ResourceId `json:"b0"`
-	B1 ResourceId `json:"b1"`
-	En ResourceId `json:"en"`
+	A0 GpoId `json:"a0"`
+	A1 GpoId `json:"a1"`
+	B0 GpoId `json:"b0"`
+	B1 GpoId `json:"b1"`
+	En GpoId `json:"en"`
 }
 
 type StepperMotorCreateConfig struct {

@@ -20,31 +20,31 @@ func TestMovement_Init_Uninit(t *testing.T) {
 		model.X: {
 			Id: "X",
 			Config: StepperMotorGpoMapping{
-				A0: "10",
-				A1: "20",
-				B0: "30",
-				B1: "40",
-				En: "50",
+				A0: 10,
+				A1: 20,
+				B0: 30,
+				B1: 40,
+				En: 50,
 			},
 		},
 		model.Y: {
 			Id: "Y",
 			Config: StepperMotorGpoMapping{
-				A0: "60",
-				A1: "70",
-				B0: "80",
-				B1: "90",
-				En: "100",
+				A0: 60,
+				A1: 70,
+				B0: 80,
+				B1: 90,
+				En: 100,
 			},
 		},
 		model.Z: {
 			Id: "Z",
 			Config: StepperMotorGpoMapping{
-				A0: "110",
-				A1: "120",
-				B0: "130",
-				B1: "140",
-				En: "150",
+				A0: 110,
+				A1: 120,
+				B0: 130,
+				B1: 140,
+				En: 150,
 			},
 		},
 	}
@@ -55,12 +55,14 @@ func TestMovement_Init_Uninit(t *testing.T) {
 	test_feed := float32(15.4)
 
 	// WHEN
-	connection := communication.TestConnection{}
-	connection.Init(
-		func(request communication.Request) (communication.Response, error) {
-			return communication.Response{}, nil
-		},
-	)
+	// connection := communication.TestConnection{}
+	// connection.Init(
+	// func(request communication.Request) (communication.Response, error) {
+	// return communication.Response{}, nil
+	// },
+	// )
+	connection := communication.HttpConnection{}
+	connection.Init("http://127.0.0.1", "5000")
 	instance := LinearMovement{}
 
 	// THEN

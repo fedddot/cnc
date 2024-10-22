@@ -16,11 +16,11 @@ func TestStepperMotor_Init_Uninit(t *testing.T) {
 	create_config := StepperMotorCreateConfig{
 		Id: "test_motor",
 		Config: StepperMotorGpoMapping{
-			A0: "10",
-			A1: "20",
-			B0: "30",
-			B1: "40",
-			En: "50",
+			A0: 10,
+			A1: 20,
+			B0: 30,
+			B1: 40,
+			En: 50,
 		},
 	}
 
