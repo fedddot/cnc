@@ -36,7 +36,7 @@ func (i *HttpConnection) runGetRequest(path string) (Response, error) {
 	}
 	response.Body = body_parsed
 	response.ResultCode = http_response.StatusCode
-	return Response{}, nil
+	return response, nil
 }
 
 func (i *HttpConnection) runDeleteRequest(path string) (Response, error) {
@@ -61,7 +61,7 @@ func (i *HttpConnection) runDeleteRequest(path string) (Response, error) {
 	}
 	response.Body = body_parsed
 	response.ResultCode = http_response.StatusCode
-	return Response{}, nil
+	return response, nil
 }
 
 func (i *HttpConnection) runPostRequest(path string, body interface{}) (Response, error) {
@@ -86,7 +86,7 @@ func (i *HttpConnection) runPostRequest(path string, body interface{}) (Response
 	}
 	response.Body = body_parsed
 	response.ResultCode = http_response.StatusCode
-	return Response{}, nil
+	return response, nil
 }
 
 func (i *HttpConnection) runPutRequest(path string, body interface{}) (Response, error) {
@@ -115,7 +115,7 @@ func (i *HttpConnection) runPutRequest(path string, body interface{}) (Response,
 	}
 	response.Body = body_parsed
 	response.ResultCode = http_response.StatusCode
-	return Response{}, nil
+	return response, nil
 }
 
 func (i *HttpConnection) RunRequest(request Request) (Response, error) {
