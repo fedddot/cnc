@@ -48,6 +48,11 @@ func TestMovement_Init_Uninit(t *testing.T) {
 			},
 		},
 	}
+	steps_per_unit := uint(100)
+	time_divider := uint(1000000) // s -> us
+	test_movement := model.Vector[float32]{}
+	test_movement.Init(10.3, 12.43, 139.2)
+	test_feed := float32(15.4)
 
 	// WHEN
 	connection := communication.TestConnection{}
@@ -59,8 +64,12 @@ func TestMovement_Init_Uninit(t *testing.T) {
 	instance := LinearMovement{}
 
 	// THEN
-	err := instance.Init(create_cfg, motors_mapping, &connection)
+	err := instance.Init(create_cfg, motors_mapping, steps_per_unit, time_divider, &connection)
 	assert.Equal(t, nil, err)
+
+	err = instance.Move(test_movement, test_feed)
+	assert.Equal(t, nil, err)
+
 	err = instance.Uninit()
 	assert.Equal(t, nil, err)
 }
