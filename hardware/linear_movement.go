@@ -15,13 +15,13 @@ type LinearMovementCreateConfig struct {
 	Config LinearMovementAxesConfig `json:"config"`
 }
 
-type Movement struct {
+type LinearMovement struct {
 	config     LinearMovementCreateConfig
 	steppers   map[model.Dimension]StepperMotor
 	connection communication.Connection
 }
 
-func (i *Movement) Init(movement_config LinearMovementCreateConfig, steppers_mapping map[model.Dimension]StepperMotorCreateConfig, connection communication.Connection) error {
+func (i *LinearMovement) Init(movement_config LinearMovementCreateConfig, steppers_mapping map[model.Dimension]StepperMotorCreateConfig, connection communication.Connection) error {
 	if connection == nil {
 		return fmt.Errorf("invalid connection ptr received")
 	}
@@ -40,7 +40,7 @@ func (i *Movement) Init(movement_config LinearMovementCreateConfig, steppers_map
 		Body:   movement_config,
 	}
 	resp, err := connection.RunRequest(request)
-	if err == nil {
+	if err != nil {
 		return err
 	}
 	if resp.ResultCode != 0 {
@@ -52,7 +52,7 @@ func (i *Movement) Init(movement_config LinearMovementCreateConfig, steppers_map
 	return nil
 }
 
-func (i *Movement) Uninit() error {
+func (i *LinearMovement) Uninit() error {
 	for _, motor := range i.steppers {
 		err := motor.Uninit()
 		if err != nil {
