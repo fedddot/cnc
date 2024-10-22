@@ -20,9 +20,13 @@ type LinearMovementSteps map[ResourceId]int
 
 type StepDurationUnit uint
 
-type LinearMovementMoveConfig struct {
+type LinearMovementDescription struct {
 	Steps        LinearMovementSteps `json:"steps"`
 	StepDuration StepDurationUnit    `json:"step_duration"`
+}
+
+type LinearMovementMoveConfig struct {
+	Config LinearMovementDescription `json:"config"`
 }
 
 type LinearMovement struct {
@@ -134,8 +138,10 @@ func (i *LinearMovement) Move(movement model.Vector[float32], feed float32) erro
 		return err
 	}
 	request_body := LinearMovementMoveConfig{
-		Steps:        steps,
-		StepDuration: step_duration,
+		Config: LinearMovementDescription{
+			Steps:        steps,
+			StepDuration: step_duration,
+		},
 	}
 	request := communication.Request{
 		Route:  fmt.Sprintf("movements/%s", i.config.Id),
