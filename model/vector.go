@@ -2,6 +2,14 @@ package model
 
 import "math"
 
+type Dimension int
+
+const (
+	X Dimension = iota
+	Y
+	Z
+)
+
 type Coordinate interface {
 	float32 | float64 | int
 }
