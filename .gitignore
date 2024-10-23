@@ -5,4 +5,5 @@
 !Dockerfile
 !*.dockerfile
 !*.go
-!*.mod
+!go.mod
+!go.sum
