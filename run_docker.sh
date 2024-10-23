@@ -1,1 +1,1 @@
-docker run -it --rm --user 0:0 --network=host -v ~/dev/cnc:/usr/src/app --name cnc-container cnc-go /bin/bash
+docker run -it --user 0:0 --network=host -v ~/dev/cnc:/usr/src/app --name cnc_dev_cnt cnc_dev_img /bin/bash
