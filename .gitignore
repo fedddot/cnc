@@ -4,3 +4,5 @@
 !*.dockerfile
 !*.go
 !*.mod
+!*.yml
+!*.yaml
