@@ -6,6 +6,14 @@ import (
 	"fmt"
 )
 
+type Dimension int
+
+const (
+	X Dimension = iota
+	Y
+	Z
+)
+
 type LinearMovementAxesConfig struct {
 	Inverse int `json:"inverse"`
 }
@@ -30,17 +38,17 @@ type LinearMovementMoveConfig struct {
 
 type LinearMovement struct {
 	config         LinearMovementCreateConfig
-	steppers       map[model.Dimension]StepperMotor
+	steppers       map[Dimension]StepperMotor
 	connection     communication.Connection
 	steps_per_unit uint
 	time_divider   uint
 }
 
-func (i *LinearMovement) Init(movement_config LinearMovementCreateConfig, steppers_mapping map[model.Dimension]StepperMotorCreateConfig, steps_per_length_unit uint, time_divider uint, connection communication.Connection) error {
+func (i *LinearMovement) Init(movement_config LinearMovementCreateConfig, steppers_mapping map[Dimension]StepperMotorCreateConfig, steps_per_length_unit uint, time_divider uint, connection communication.Connection) error {
 	if connection == nil {
 		return fmt.Errorf("invalid connection ptr received")
 	}
-	steppers := make(map[model.Dimension]StepperMotor, 0)
+	steppers := make(map[Dimension]StepperMotor, 0)
 	for dim, cfg := range steppers_mapping {
 		stepper := StepperMotor{}
 		err := stepper.Init(cfg, connection)
@@ -88,18 +96,16 @@ func (i *LinearMovement) Uninit() error {
 	if resp.ResultCode != 200 {
 		return fmt.Errorf("server failure, code = %d", resp.ResultCode)
 	}
-	i.steppers = make(map[model.Dimension]StepperMotor, 0)
+	i.steppers = make(map[Dimension]StepperMotor, 0)
 	return nil
 }
 
 func (i LinearMovement) toStepsVector(vector model.Vector[float32]) model.Vector[int] {
-	res := model.Vector[int]{}
-	int_coords := make(map[model.Dimension]int, 0)
-	for _, dim := range []model.Dimension{model.X, model.Y, model.Z} {
-		int_coords[dim] = int(float32(i.steps_per_unit) * vector.Get(dim))
+	return model.Vector[int]{
+		X: int(float32(i.steps_per_unit) * vector.X),
+		Y: int(float32(i.steps_per_unit) * vector.Y),
+		Z: int(float32(i.steps_per_unit) * vector.Z),
 	}
-	res.Init(int_coords[model.X], int_coords[model.Y], int_coords[model.Z])
-	return res
 }
 
 func (i LinearMovement) toStepDuration(feed float32) (StepDurationUnit, error) {
@@ -116,10 +122,11 @@ func (i LinearMovement) toStepDuration(feed float32) (StepDurationUnit, error) {
 func (i *LinearMovement) Move(movements []model.Vector[float32], feed float32) error {
 	steps := make([]LinearMovementSteps, 0)
 	for _, movement := range movements {
-		steps_item := make(LinearMovementSteps, 0)
 		steps_vector := i.toStepsVector(movement)
-		for _, dim := range []model.Dimension{model.X, model.Y, model.Z} {
-			steps_item[i.steppers[dim].Id()] = steps_vector.Get(dim)
+		steps_item := LinearMovementSteps{
+			i.steppers[X].Id(): steps_vector.X,
+			i.steppers[Y].Id(): steps_vector.Y,
+			i.steppers[Z].Id(): steps_vector.Z,
 		}
 		steps = append(steps, steps_item)
 	}

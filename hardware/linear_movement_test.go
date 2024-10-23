@@ -10,13 +10,11 @@ import (
 )
 
 func createMovementBetweenSectors(phi1, phi2, radius float64) model.Vector[float32] {
-	result := model.Vector[float32]{}
-	result.Init(
-		float32(radius*(math.Cos(phi2)-math.Cos(phi1))),
-		float32(radius*(math.Sin(phi2)-math.Sin(phi1))),
-		0,
-	)
-	return result
+	return model.Vector[float32]{
+		X: float32(radius * (math.Cos(phi2) - math.Cos(phi1))),
+		Y: float32(radius * (math.Sin(phi2) - math.Sin(phi1))),
+		Z: 0,
+	}
 }
 
 func createChordMovements(radius float32, number_of_sectors uint) []model.Vector[float32] {
@@ -40,8 +38,8 @@ func TestMovement_Init_Move_Uninit(t *testing.T) {
 			Inverse: 0,
 		},
 	}
-	motors_mapping := map[model.Dimension]StepperMotorCreateConfig{
-		model.X: {
+	motors_mapping := map[Dimension]StepperMotorCreateConfig{
+		X: {
 			Id: "X",
 			Config: StepperMotorGpoMapping{
 				A0: 16,
@@ -51,7 +49,7 @@ func TestMovement_Init_Move_Uninit(t *testing.T) {
 				En: 15,
 			},
 		},
-		model.Y: {
+		Y: {
 			Id: "Y",
 			Config: StepperMotorGpoMapping{
 				A0: 6,
@@ -61,7 +59,7 @@ func TestMovement_Init_Move_Uninit(t *testing.T) {
 				En: 7,
 			},
 		},
-		model.Z: {
+		Z: {
 			Id: "Z",
 			Config: StepperMotorGpoMapping{
 				A0: 13,
