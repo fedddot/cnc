@@ -1,5 +1,6 @@
 *.*
 !*.sh
 !Dockerfile
+!*.dockerfile
 !*.go
 !*.mod
