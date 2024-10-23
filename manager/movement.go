@@ -26,7 +26,7 @@ type MovementCreateConfig struct {
 }
 
 type Movement struct {
-	Config     MovementCreateConfig
+	Id         model.ResourceId
 	Connection communication.Connection
 }
 
@@ -46,14 +46,14 @@ func (i *Movement) Init(movement_config MovementCreateConfig, connection communi
 	if resp.ResultCode != 200 {
 		return fmt.Errorf("server failure, code = %d", resp.ResultCode)
 	}
-	i.Config = movement_config
+	i.Id = movement_config.Id
 	i.Connection = connection
 	return nil
 }
 
 func (i *Movement) Uninit() error {
 	request := communication.Request{
-		Route:  fmt.Sprintf("movements/%s", i.Config.Id),
+		Route:  fmt.Sprintf("movements/%s", i.Id),
 		Method: "DELETE",
 		Body:   map[string]interface{}{},
 	}
