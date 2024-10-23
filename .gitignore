@@ -1,8 +1,7 @@
 *.*
+!.github
 !*.sh
 !Dockerfile
 !*.dockerfile
 !*.go
 !*.mod
-!*.yml
-!*.yaml
