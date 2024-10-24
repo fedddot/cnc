@@ -3,7 +3,6 @@ package manager
 import (
 	"cnc/client/communication"
 	"cnc/client/model"
-	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -36,10 +35,6 @@ func TestMovement_Init_Move_Uninit(t *testing.T) {
 	connection := communication.TestConnection{}
 	connection.Init(
 		func(request communication.Request) (communication.Response, error) {
-			switch request.Method {
-			case "POST":
-				parsed_body := json.Unmarshal(*)
-			}
 			return communication.Response{ResultCode: 200, Body: map[string]interface{}{}}, nil
 		},
 	)
