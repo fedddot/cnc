@@ -6,11 +6,9 @@ import (
 	"fmt"
 )
 
-type LinearMovementSteps map[model.Dimension]int
-
 type LinearMovementConfig struct {
-	Steps LinearMovementSteps `json:"steps"`
-	Feed  uint                `json:"feed"`
+	MovementVector model.Vector[int] `json:"vector"`
+	Feed           uint              `json:"feed"`
 }
 
 type LinearMovement struct {
@@ -30,15 +28,15 @@ func (i *LinearMovement) Init(movement_config MovementCreateConfig, connection c
 }
 
 func (i *LinearMovement) Move(vector model.Vector[float32], feed float32) error {
-	steps := LinearMovementSteps{
-		model.X: int(float32(i.steps_per_unit) * vector.X),
-		model.Y: int(float32(i.steps_per_unit) * vector.Y),
-		model.Z: int(float32(i.steps_per_unit) * vector.Z),
+	movement_vector := model.Vector[int]{
+		X: int(float32(i.steps_per_unit) * vector.X),
+		Y: int(float32(i.steps_per_unit) * vector.Y),
+		Z: int(float32(i.steps_per_unit) * vector.Z),
 	}
 	steps_feed := uint(float32(feed) * float32(i.steps_per_unit))
 	request_body := LinearMovementConfig{
-		Steps: steps,
-		Feed:  steps_feed,
+		MovementVector: movement_vector,
+		Feed:           steps_feed,
 	}
 	request := communication.Request{
 		Route:  fmt.Sprintf("movements/%s", i.Id),
