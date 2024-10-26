@@ -13,11 +13,12 @@ const (
 	CIRCULAR_INTERPOLATION
 )
 
-type MotorsMapping map[model.Dimension]model.ResourceId
+type MotorsMapping map[string]model.ResourceId
 
 type MovementConfig struct {
-	MotorsMapping MotorsMapping `json:"steppers"`
-	Type          MovementType  `json:"type"`
+	MotorsMapping  MotorsMapping `json:"steppers"`
+	Type           MovementType  `json:"type"`
+	TimeMultiplier uint          `json:"time_multiplier"`
 }
 
 type MovementCreateConfig struct {

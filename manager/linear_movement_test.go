@@ -14,30 +14,33 @@ func TestMovement_Init_Move_Uninit(t *testing.T) {
 		Id: "test_movement",
 		Config: MovementConfig{
 			MotorsMapping: MotorsMapping{
-				model.X: "motor1",
-				model.Y: "motor2",
-				model.Z: "motor3",
+				"x": "motor1",
+				"y": "motor2",
+				"z": "motor3",
 			},
-			Type: LINEAR,
+			Type:           LINEAR,
+			TimeMultiplier: 1000000,
 		},
 	}
 	steps_per_unit := uint(100)
 	time_divider := uint(1000000) // s -> us
 
 	test_vector := model.Vector[float32]{
-		X: 23.1,
-		Y: 26.2,
-		Z: 34.5,
+		X: 5.0,
+		Y: 0,
+		Z: 0,
 	}
 	test_feed := float32(16)
 
 	// WHEN
-	connection := communication.TestConnection{}
-	connection.Init(
-		func(request communication.Request) (communication.Response, error) {
-			return communication.Response{ResultCode: 200, Body: map[string]interface{}{}}, nil
-		},
-	)
+	// connection := communication.TestConnection{}
+	// connection.Init(
+	// 	func(request communication.Request) (communication.Response, error) {
+	// 		return communication.Response{ResultCode: 200, Body: map[string]interface{}{}}, nil
+	// 	},
+	// )
+	connection := communication.HttpConnection{}
+	connection.Init("http://localhost", "5000")
 	instance := LinearMovement{}
 
 	// THEN
