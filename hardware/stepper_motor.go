@@ -2,10 +2,9 @@ package hardware
 
 import (
 	"cnc/client/communication"
+	"cnc/client/model"
 	"fmt"
 )
-
-type ResourceId string
 
 type Direction int
 
@@ -25,7 +24,7 @@ type StepperMotorGpoMapping struct {
 }
 
 type StepperMotorCreateConfig struct {
-	Id     ResourceId             `json:"id"`
+	Id     model.ResourceId       `json:"id"`
 	Config StepperMotorGpoMapping `json:"config"`
 }
 
@@ -73,6 +72,6 @@ func (i *StepperMotor) Uninit() error {
 	return nil
 }
 
-func (i StepperMotor) Id() ResourceId {
+func (i StepperMotor) Id() model.ResourceId {
 	return i.create_config.Id
 }
