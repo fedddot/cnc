@@ -16,7 +16,7 @@ const (
 type MotorsMapping map[model.Dimension]model.ResourceId
 
 type MovementConfig struct {
-	MotorsMapping MotorsMapping `json:"motors_mapping"`
+	MotorsMapping MotorsMapping `json:"steppers"`
 	Type          MovementType  `json:"type"`
 }
 
