@@ -15,7 +15,9 @@ type Coordinate interface {
 }
 
 type Vector[T Coordinate] struct {
-	X, Y, Z T
+	X T `json:"x"`
+	Y T `json:"y"`
+	Z T `json:"z"`
 }
 
 func (i Vector[T]) Add(other Vector[T]) Vector[T] {
