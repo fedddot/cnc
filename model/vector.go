@@ -1,6 +1,9 @@
 package model
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 type Dimension int
 
@@ -42,4 +45,31 @@ func (i Vector[T]) Negate() Vector[T] {
 		Y: -i.Y,
 		Z: -i.Z,
 	}
+}
+
+func (i Vector[T]) Get(dim Dimension) (T, error) {
+	switch dim {
+	case X:
+		return i.X, nil
+	case Y:
+		return i.Y, nil
+	case Z:
+		return i.Z, nil
+	default:
+		return 0, fmt.Errorf("invalid dimension received: %d", dim)
+	}
+}
+
+func (i *Vector[T]) Set(dim Dimension, value T) error {
+	switch dim {
+	case X:
+		i.X = value
+	case Y:
+		i.Y = value
+	case Z:
+		i.Z = value
+	default:
+		return fmt.Errorf("invalid dimension received: %d", dim)
+	}
+	return nil
 }
