@@ -66,7 +66,7 @@ func uninitMotors(motors map[string]hardware.StepperMotor) error {
 	return nil
 }
 
-func TestMovement_Init_Move_Uninit(t *testing.T) {
+func TestLinearMovement_Init_Move_Uninit(t *testing.T) {
 	// GIVEN
 	create_cfg := MovementCreateConfig{
 		Id: "test_movement",
