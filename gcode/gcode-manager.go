@@ -15,11 +15,11 @@ type GcodeManager struct {
 	location_mode LocationMode
 	position      model.Vector[float32]
 
-	linear_movement   manager.IMovement
-	circular_movement manager.IMovement
+	linear_movement   manager.LinearMovement
+	circular_movement manager.CircularMovement
 }
 
-func (i *GcodeManager) Init(linear_movement manager.IMovement, circular_movement manager.IMovement) error {
+func (i *GcodeManager) Init(linear_movement manager.LinearMovement, circular_movement manager.CircularMovement) error {
 	i.default_feed = float32(10)
 	i.fast_feed = float32(20)
 	i.location_mode = ABSOLUTE
@@ -130,8 +130,7 @@ func (i GcodeManager) parseCircularMovementDescriptor(command_id CommandId, toke
 }
 
 func (i *GcodeManager) runLinearMovementCommand(command_id CommandId, descriptor MovementDescriptor) error {
-	linear_movement := i.linear_movement.(*manager.LinearMovement)
-	err := (*i.linear_movement).(manager.LinearMovement).Move(descriptor.Target, descriptor.Feed)
+	err := i.linear_movement.Move(descriptor.Target, descriptor.Feed)
 	if err != nil {
 		return err
 	}
