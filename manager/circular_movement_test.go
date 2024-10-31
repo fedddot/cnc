@@ -24,14 +24,11 @@ func TestCircularMovement_Init_Move_Uninit(t *testing.T) {
 	}
 	steps_per_unit := uint(100)
 	time_divider := uint(1000000) // s -> us
+	test_feed := float32(15)
 
-	test_target := model.Vector[float32]{X: -10, Y: -10, Z: 0}
-	test_rotation_center := model.Vector[float32]{X: 10, Y: 0, Z: 0}
-	test_feed := float32(0.0000020)
+	test_target := model.Vector[float32]{X: 5, Y: -5, Z: 0}
+	test_rotation_center := model.Vector[float32]{X: 0, Y: -5, Z: 0}
 	test_direction := CW
-
-	// WHEN
-	// connection := communication.TestConnection{}
 	// connection.Init(
 	// 	func(request communication.Request) (communication.Response, error) {
 	// 		return communication.Response{ResultCode: 200, Body: map[string]interface{}{}}, nil

@@ -45,7 +45,7 @@ func (i CircularMovement) generateMovementVector(vector model.Vector[float32]) m
 }
 
 func (i *CircularMovement) Move(target, rotation_center model.Vector[float32], direction CircularMovementDirection, feed float32) error {
-	steps_feed := uint(feed * float32(i.steps_per_unit*i.time_divider))
+	steps_feed := uint(feed * float32(i.steps_per_unit))
 	request_body := CircularMovementConfig{
 		Target:         i.generateMovementVector(target),
 		RotationCenter: i.generateMovementVector(rotation_center),
