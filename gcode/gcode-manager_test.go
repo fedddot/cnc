@@ -15,18 +15,24 @@ import (
 func TestGcodeManager_RunCommand(t *testing.T) {
 	connection := communication.HttpConnection{}
 	connection.Init("http://127.0.0.1", "5000")
+	steps_per_unit := uint(100)
+	time_multiplier := uint(1000000)
+	steppers_mapping := manager.MotorsMapping{
+		"x": "motor1",
+		"y": "motor2",
+		"z": "motor3",
+	}
 
 	steppers := initSteppers(t, &connection)
 	defer uninitSteppers(t, steppers)
 
-	movements := initMovements(t, &connection)
-	defer uninitMovements(t, movements)
-
-	linear := movements[manager.LINEAR]
-	circular := movements[manager.CIRCULAR_INTERPOLATION]
+	linear_movement := initLinearMovement(t, &connection, steps_per_unit, time_multiplier, steppers_mapping)
+	defer linear_movement.Uninit()
+	circular_movement := initCircularMovement(t, &connection, steps_per_unit, time_multiplier, steppers_mapping)
+	defer circular_movement.Uninit()
 
 	manager := GcodeManager{}
-	err := manager.Init(linear.(manager.LinearMovement), circular.(manager.CircularMovement))
+	err := manager.Init(linear_movement, circular_movement)
 	assert.Equal(t, nil, err)
 
 	commands, err := readCommandsFromFile("/usr/src/app/front.ngc")
@@ -108,47 +114,32 @@ func uninitSteppers(t *testing.T, steppers []hardware.StepperMotor) {
 	}
 }
 
-func initMovements(t *testing.T, connection communication.Connection) map[manager.MovementType]manager.Movement {
-	result := make(map[manager.MovementType]manager.Movement, 0)
-	steps_per_unit := uint(100)
-	time_multiplier := uint(1000000)
-	steppers_mapping := manager.MotorsMapping{
-		"x": "motor1",
-		"y": "motor2",
-		"z": "motor3",
-	}
-
+func initLinearMovement(t *testing.T, connection communication.Connection, steps_per_unit uint, time_multiplier uint, mapping manager.MotorsMapping) manager.LinearMovement {
 	linear_movement_cfg := manager.MovementCreateConfig{
-		Id: "linear_movement",
+		Id: "linear",
 		Config: manager.MovementConfig{
 			Type:           manager.LINEAR,
-			MotorsMapping:  steppers_mapping,
+			MotorsMapping:  mapping,
 			TimeMultiplier: time_multiplier,
 		},
 	}
 	linear_movement := manager.LinearMovement{}
 	err := linear_movement.Init(linear_movement_cfg, connection, steps_per_unit, time_multiplier)
 	assert.Equal(t, nil, err)
-	result[manager.LINEAR] = linear_movement.Movement
+	return linear_movement
+}
 
+func initCircularMovement(t *testing.T, connection communication.Connection, steps_per_unit uint, time_multiplier uint, mapping manager.MotorsMapping) manager.CircularMovement {
 	circular_movement_cfg := manager.MovementCreateConfig{
-		Id: "circular_movement",
+		Id: "circular",
 		Config: manager.MovementConfig{
-			MotorsMapping:  steppers_mapping,
+			MotorsMapping:  mapping,
 			Type:           manager.CIRCULAR_INTERPOLATION,
 			TimeMultiplier: time_multiplier,
 		},
 	}
 	circular_movement := manager.CircularMovement{}
-	err = circular_movement.Init(circular_movement_cfg, connection, steps_per_unit, time_multiplier)
+	err := circular_movement.Init(circular_movement_cfg, connection, steps_per_unit, time_multiplier)
 	assert.Equal(t, nil, err)
-	result[manager.CIRCULAR_INTERPOLATION] = circular_movement.Movement
-	return result
-}
-
-func uninitMovements(t *testing.T, movements map[manager.MovementType]manager.Movement) {
-	for _, movement := range movements {
-		err := movement.Uninit()
-		assert.Equal(t, nil, err)
-	}
+	return circular_movement
 }
