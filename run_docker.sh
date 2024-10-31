@@ -1,1 +1,1 @@
-docker run -it --user 0:0 --network=host -v ~/dev/cnc:/usr/src/app --name dev_cnc dev_cnc_img /bin/bash
+docker run -it --user 1000:1000 --network=host -d -v ~/dev/cnc:/usr/src/app --name dev_cnc dev_cnc_img /bin/bash
