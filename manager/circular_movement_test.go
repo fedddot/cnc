@@ -18,25 +18,28 @@ func TestCircularMovement_Init_Move_Uninit(t *testing.T) {
 				"y": "motor2",
 				"z": "motor3",
 			},
-			Type:           LINEAR,
+			Type:           CIRCULAR_INTERPOLATION,
 			TimeMultiplier: 1000000,
 		},
 	}
 	steps_per_unit := uint(100)
 	time_divider := uint(1000000) // s -> us
 
-	test_target := model.Vector[float32]{X: 10, Y: 10, Z: 0}
+	test_target := model.Vector[float32]{X: -10, Y: -10, Z: 0}
 	test_rotation_center := model.Vector[float32]{X: 10, Y: 0, Z: 0}
-	test_feed := float32(10)
+	test_feed := float32(0.0000020)
 	test_direction := CW
 
 	// WHEN
-	connection := communication.TestConnection{}
-	connection.Init(
-		func(request communication.Request) (communication.Response, error) {
-			return communication.Response{ResultCode: 200, Body: map[string]interface{}{}}, nil
-		},
-	)
+	// connection := communication.TestConnection{}
+	// connection.Init(
+	// 	func(request communication.Request) (communication.Response, error) {
+	// 		return communication.Response{ResultCode: 200, Body: map[string]interface{}{}}, nil
+	// 	},
+	// )
+	connection := communication.HttpConnection{}
+	connection.Init("http://127.0.0.1", "5000")
+
 	instance := CircularMovement{}
 	motors, err := initMotors(create_cfg.Config.MotorsMapping, &connection)
 	assert.Equal(t, nil, err)
