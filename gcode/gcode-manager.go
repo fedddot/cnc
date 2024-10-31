@@ -15,18 +15,17 @@ type GcodeManager struct {
 	location_mode LocationMode
 	position      model.Vector[float32]
 
-	linear_movement *manager.LinearMovement
+	linear_movement   manager.IMovement
+	circular_movement manager.IMovement
 }
 
-func (i *GcodeManager) Init(linear_movement *manager.LinearMovement) error {
-	if linear_movement == nil {
-		return fmt.Errorf("invalid linear movement ptr received")
-	}
+func (i *GcodeManager) Init(linear_movement manager.IMovement, circular_movement manager.IMovement) error {
 	i.default_feed = float32(10)
 	i.fast_feed = float32(20)
 	i.location_mode = ABSOLUTE
 	i.position = model.Vector[float32]{X: 0.0, Y: 0.0, Z: 0.0}
 	i.linear_movement = linear_movement
+	i.circular_movement = circular_movement
 	return nil
 }
 
@@ -41,9 +40,22 @@ func parseTokens(command string) []string {
 	return tokens
 }
 
+func (i GcodeManager) getTargetVectorFromReceivedCoordinates(coordinates map[model.Dimension]float32) model.Vector[float32] {
+	res := model.Vector[float32]{X: 0, Y: 0, Z: 0}
+	for dim, value := range coordinates {
+		if i.location_mode == ABSOLUTE {
+			current_pos, _ := i.position.Get(dim)
+			res.Set(dim, value-current_pos)
+		} else {
+			res.Set(dim, value)
+		}
+	}
+	return res
+}
+
 func (i GcodeManager) parseMovementDescriptor(command_id CommandId, tokens []string) (MovementDescriptor, error) {
 	res := MovementDescriptor{}
-	coordinates := make(map[model.Dimension]float32, 0)
+	target_coordinates := make(map[model.Dimension]float32, 0)
 	feed := i.default_feed
 	for _, token := range tokens {
 		if len(token) < 2 {
@@ -55,25 +67,25 @@ func (i GcodeManager) parseMovementDescriptor(command_id CommandId, tokens []str
 		}
 		switch token[0] {
 		case 'X':
-			coordinates[model.X] = float32(value)
+			target_coordinates[model.X] = float32(value)
 		case 'Y':
-			coordinates[model.Y] = float32(value)
+			target_coordinates[model.Y] = float32(value)
 		case 'Z':
-			coordinates[model.Z] = float32(value)
+			target_coordinates[model.Z] = float32(value)
 		case 'F':
-
 			feed = float32(value)
 		default:
 			continue
 		}
 	}
+	target := i.getTargetVectorFromReceivedCoordinates(target_coordinates)
 	switch command_id {
 	case G00:
 		feed = i.fast_feed
 	case G28:
 		feed = i.fast_feed
 	}
-	res.Coordinates = coordinates
+	res.Target = target
 	res.Feed = feed
 	return res, nil
 }
@@ -87,13 +99,13 @@ func (i GcodeManager) parseCircularMovementDescriptor(command_id CommandId, toke
 	res.MovementDescriptor = movement_descriptor
 	switch command_id {
 	case G02:
-		res.Direction = CW
+		res.Direction = manager.CW
 	case G03:
-		res.Direction = CCW
+		res.Direction = manager.CCW
 	default:
 		return res, fmt.Errorf("non-circular command: %s", command_id)
 	}
-	center_coordinates := make(map[model.Dimension]float32, 0)
+	rotation_center := model.Vector[float32]{X: 0, Y: 0, Z: 0}
 	for _, token := range tokens {
 		if len(token) < 2 {
 			return res, fmt.Errorf("token %s is too short", token)
@@ -104,54 +116,36 @@ func (i GcodeManager) parseCircularMovementDescriptor(command_id CommandId, toke
 		}
 		switch token[0] {
 		case 'I':
-			center_coordinates[model.X] = float32(value)
+			rotation_center.X = float32(value)
 		case 'J':
-			center_coordinates[model.Y] = float32(value)
+			rotation_center.Y = float32(value)
 		case 'K':
-			center_coordinates[model.Z] = float32(value)
+			rotation_center.Z = float32(value)
 		default:
 			continue
 		}
 	}
-	res.RotationCenter = center_coordinates
+	res.RotationCenter = rotation_center
 	return res, nil
 }
 
-func (i GcodeManager) generateLinearMovementVector(descriptor MovementDescriptor) (model.Vector[float32], error) {
-	result := model.Vector[float32]{}
-	switch i.location_mode {
-	case ABSOLUTE:
-		result = i.position
-		for dim, coord := range descriptor.Coordinates {
-			result.Set(dim, coord)
-		}
-		result = result.Add(i.position.Negate())
-	case RELATIVE:
-		result = model.Vector[float32]{X: 0, Y: 0, Z: 0}
-		for dim, coord := range descriptor.Coordinates {
-			result.Set(dim, coord)
-		}
-	default:
-		return result, fmt.Errorf("unsupported location mode: %d", i.location_mode)
-	}
-	return result, nil
-}
-
 func (i *GcodeManager) runLinearMovementCommand(command_id CommandId, descriptor MovementDescriptor) error {
-	movement_vector, err := i.generateLinearMovementVector(descriptor)
+	linear_movement := i.linear_movement.(*manager.LinearMovement)
+	err := (*i.linear_movement).(manager.LinearMovement).Move(descriptor.Target, descriptor.Feed)
 	if err != nil {
 		return err
 	}
-	err = i.linear_movement.Move(movement_vector, descriptor.Feed)
-	if err != nil {
-		return err
-	}
-	i.position = i.position.Add(movement_vector)
+	i.position = i.position.Add(descriptor.Target)
 	return nil
 }
 
-func runCircularMovementCommand(command_id CommandId, descriptor CircularMovementDescriptor) error {
-	return fmt.Errorf("NOT IMPLEMENTED")
+func (i *GcodeManager) runCircularMovementCommand(command_id CommandId, descriptor CircularMovementDescriptor) error {
+	err := i.circular_movement.Move(descriptor.Target, descriptor.RotationCenter, descriptor.Direction, descriptor.Feed)
+	if err != nil {
+		return err
+	}
+	i.position = i.position.Add(descriptor.Target)
+	return nil
 }
 
 func (i *GcodeManager) RunCommand(command string) error {
@@ -178,13 +172,13 @@ func (i *GcodeManager) RunCommand(command string) error {
 		if err != nil {
 			return err
 		}
-		return runCircularMovementCommand(command_id_token, descriptor)
+		return i.runCircularMovementCommand(command_id_token, descriptor)
 	case G03:
 		descriptor, err := i.parseCircularMovementDescriptor(command_id_token, tokens[1:])
 		if err != nil {
 			return err
 		}
-		return runCircularMovementCommand(command_id_token, descriptor)
+		return i.runCircularMovementCommand(command_id_token, descriptor)
 	case G90:
 		i.location_mode = ABSOLUTE
 		return nil

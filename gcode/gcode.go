@@ -1,6 +1,9 @@
 package gcode
 
-import "cnc/client/model"
+import (
+	"cnc/client/manager"
+	"cnc/client/model"
+)
 
 type CommandId string
 
@@ -42,12 +45,12 @@ const (
 )
 
 type MovementDescriptor struct {
-	Coordinates map[model.Dimension]float32 `json:"coordinates"`
-	Feed        float32                     `json:"feed"`
+	Target model.Vector[float32] `json:"target"`
+	Feed   float32               `json:"feed"`
 }
 
 type CircularMovementDescriptor struct {
 	MovementDescriptor
-	RotationCenter map[model.Dimension]float32 `json:"rotation_center"`
-	Direction      CircularMovementDirection   `json:"direction"`
+	RotationCenter model.Vector[float32]             `json:"rotation_center"`
+	Direction      manager.CircularMovementDirection `json:"direction"`
 }
