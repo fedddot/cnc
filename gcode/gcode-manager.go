@@ -20,8 +20,8 @@ type GcodeManager struct {
 }
 
 func (i *GcodeManager) Init(linear_movement manager.LinearMovement, circular_movement manager.CircularMovement) error {
-	i.default_feed = float32(10)
-	i.fast_feed = float32(20)
+	i.default_feed = float32(8)
+	i.fast_feed = float32(10)
 	i.location_mode = ABSOLUTE
 	i.position = model.Vector[float32]{X: 0.0, Y: 0.0, Z: 0.0}
 	i.linear_movement = linear_movement

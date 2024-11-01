@@ -35,7 +35,7 @@ func TestGcodeManager_RunCommand(t *testing.T) {
 	err := manager.Init(linear_movement, circular_movement)
 	assert.Equal(t, nil, err)
 
-	commands, err := readCommandsFromFile("/usr/src/app/front.ngc")
+	commands, err := readCommandsFromFile("/usr/src/app/asdf.gcode")
 	assert.Equal(t, nil, err)
 
 	for _, command := range commands {
