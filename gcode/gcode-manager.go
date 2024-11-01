@@ -129,7 +129,7 @@ func (i GcodeManager) parseCircularMovementDescriptor(command_id CommandId, toke
 	return res, nil
 }
 
-func (i *GcodeManager) runLinearMovementCommand(command_id CommandId, descriptor MovementDescriptor) error {
+func (i *GcodeManager) runLinearMovementCommand(descriptor MovementDescriptor) error {
 	err := i.linear_movement.Move(descriptor.Target, descriptor.Feed)
 	if err != nil {
 		return err
@@ -138,7 +138,7 @@ func (i *GcodeManager) runLinearMovementCommand(command_id CommandId, descriptor
 	return nil
 }
 
-func (i *GcodeManager) runCircularMovementCommand(command_id CommandId, descriptor CircularMovementDescriptor) error {
+func (i *GcodeManager) runCircularMovementCommand(descriptor CircularMovementDescriptor) error {
 	err := i.circular_movement.Move(descriptor.Target, descriptor.RotationCenter, descriptor.Direction, descriptor.Feed)
 	if err != nil {
 		return err
@@ -159,25 +159,25 @@ func (i *GcodeManager) RunCommand(command string) error {
 		if err != nil {
 			return err
 		}
-		return i.runLinearMovementCommand(command_id_token, descriptor)
+		return i.runLinearMovementCommand(descriptor)
 	case G01:
 		descriptor, err := i.parseMovementDescriptor(command_id_token, tokens[1:])
 		if err != nil {
 			return err
 		}
-		return i.runLinearMovementCommand(command_id_token, descriptor)
+		return i.runLinearMovementCommand(descriptor)
 	case G02:
 		descriptor, err := i.parseCircularMovementDescriptor(command_id_token, tokens[1:])
 		if err != nil {
 			return err
 		}
-		return i.runCircularMovementCommand(command_id_token, descriptor)
+		return i.runCircularMovementCommand(descriptor)
 	case G03:
 		descriptor, err := i.parseCircularMovementDescriptor(command_id_token, tokens[1:])
 		if err != nil {
 			return err
 		}
-		return i.runCircularMovementCommand(command_id_token, descriptor)
+		return i.runCircularMovementCommand(descriptor)
 	case G90:
 		i.location_mode = ABSOLUTE
 		return nil
