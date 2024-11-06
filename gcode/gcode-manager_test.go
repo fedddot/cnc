@@ -15,8 +15,13 @@ import (
 func TestGcodeManager_RunCommand(t *testing.T) {
 	connection := communication.HttpConnection{}
 	connection.Init("http://127.0.0.1", "5000")
+	// connection := communication.TestConnection{}
+	// connection.Init(
+	// 	func(request communication.Request) (communication.Response, error) {
+	// 		return communication.Response{ResultCode: 200, Body: map[string]interface{}{}}, nil
+	// 	},
+	// )
 	steps_per_unit := uint(100)
-	time_multiplier := uint(1000000)
 	steppers_mapping := manager.MotorsMapping{
 		"x": "motor1",
 		"y": "motor2",
@@ -26,9 +31,9 @@ func TestGcodeManager_RunCommand(t *testing.T) {
 	steppers := initSteppers(t, &connection)
 	defer uninitSteppers(t, steppers)
 
-	linear_movement := initLinearMovement(t, &connection, steps_per_unit, time_multiplier, steppers_mapping)
+	linear_movement := initLinearMovement(t, &connection, steps_per_unit, steppers_mapping)
 	defer linear_movement.Uninit()
-	circular_movement := initCircularMovement(t, &connection, steps_per_unit, time_multiplier, steppers_mapping)
+	circular_movement := initCircularMovement(t, &connection, steps_per_unit, steppers_mapping)
 	defer circular_movement.Uninit()
 
 	manager := GcodeManager{}
@@ -114,32 +119,32 @@ func uninitSteppers(t *testing.T, steppers []hardware.StepperMotor) {
 	}
 }
 
-func initLinearMovement(t *testing.T, connection communication.Connection, steps_per_unit uint, time_multiplier uint, mapping manager.MotorsMapping) manager.LinearMovement {
+func initLinearMovement(t *testing.T, connection communication.Connection, steps_per_unit uint, mapping manager.MotorsMapping) manager.LinearMovement {
 	linear_movement_cfg := manager.MovementCreateConfig{
 		Id: "linear",
 		Config: manager.MovementConfig{
 			Type:           manager.LINEAR,
 			MotorsMapping:  mapping,
-			TimeMultiplier: time_multiplier,
+			StepsPerLength: steps_per_unit,
 		},
 	}
 	linear_movement := manager.LinearMovement{}
-	err := linear_movement.Init(linear_movement_cfg, connection, steps_per_unit, time_multiplier)
+	err := linear_movement.Init(linear_movement_cfg, connection)
 	assert.Equal(t, nil, err)
 	return linear_movement
 }
 
-func initCircularMovement(t *testing.T, connection communication.Connection, steps_per_unit uint, time_multiplier uint, mapping manager.MotorsMapping) manager.CircularMovement {
+func initCircularMovement(t *testing.T, connection communication.Connection, steps_per_unit uint, mapping manager.MotorsMapping) manager.CircularMovement {
 	circular_movement_cfg := manager.MovementCreateConfig{
 		Id: "circular",
 		Config: manager.MovementConfig{
 			MotorsMapping:  mapping,
 			Type:           manager.CIRCULAR_INTERPOLATION,
-			TimeMultiplier: time_multiplier,
+			StepsPerLength: steps_per_unit,
 		},
 	}
 	circular_movement := manager.CircularMovement{}
-	err := circular_movement.Init(circular_movement_cfg, connection, steps_per_unit, time_multiplier)
+	err := circular_movement.Init(circular_movement_cfg, connection)
 	assert.Equal(t, nil, err)
 	return circular_movement
 }
