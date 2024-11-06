@@ -77,45 +77,45 @@ func TestLinearMovement_Init_Move_Uninit(t *testing.T) {
 				"z": "motor3",
 			},
 			Type:           LINEAR,
-			TimeMultiplier: 1000000,
+			StepsPerLength: 100,
 		},
 	}
-	steps_per_unit := uint(100)
-	time_divider := uint(1000000) // s -> us
 
 	test_vectors := []model.Vector[float32]{
 		{
-			X: 0.0,
-			Y: 0.0,
-			Z: 3.0,
+			X: 5,
+			Y: 0,
+			Z: 3.5,
 		},
 		{
-			X: 0.0,
-			Y: 0.0,
-			Z: -6.0,
+			X: 0,
+			Y: 10,
+			Z: -3.5,
 		},
 		{
-			X: 0.0,
-			Y: 0.0,
-			Z: 3.0,
+			X: -5,
+			Y: -10,
+			Z: 0,
 		},
 	}
 	test_feed := float32(10)
 
 	// WHEN
-	connection := communication.TestConnection{}
-	connection.Init(
-		func(request communication.Request) (communication.Response, error) {
-			return communication.Response{ResultCode: 200, Body: map[string]interface{}{}}, nil
-		},
-	)
+	// connection := communication.TestConnection{}
+	// connection.Init(
+	// 	func(request communication.Request) (communication.Response, error) {
+	// 		return communication.Response{ResultCode: 200, Body: map[string]interface{}{}}, nil
+	// 	},
+	// )
+	connection := communication.HttpConnection{}
+	connection.Init("http://127.0.0.1", "5000")
 	instance := LinearMovement{}
 	motors, err := initMotors(create_cfg.Config.MotorsMapping, &connection)
 	assert.Equal(t, nil, err)
 	defer uninitMotors(motors)
 
 	// THEN
-	err = instance.Init(create_cfg, &connection, steps_per_unit, time_divider)
+	err = instance.Init(create_cfg, &connection)
 	assert.Equal(t, nil, err)
 
 	for _, test_vector := range test_vectors {
