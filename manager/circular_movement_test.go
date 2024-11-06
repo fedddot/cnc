@@ -19,16 +19,25 @@ func TestCircularMovement_Init_Move_Uninit(t *testing.T) {
 				"z": "motor3",
 			},
 			Type:           CIRCULAR_INTERPOLATION,
-			TimeMultiplier: 1000000,
+			StepsPerLength: 100,
 		},
 	}
-	steps_per_unit := uint(100)
-	time_divider := uint(1000000) // s -> us
-	test_feed := float32(15)
 
-	test_target := model.Vector[float32]{X: 5, Y: -5, Z: 0}
-	test_rotation_center := model.Vector[float32]{X: 0, Y: -5, Z: 0}
-	test_direction := CW
+	target := model.Vector[float32]{
+		X: -10,
+		Y: -10,
+		Z: 0,
+	}
+	center := model.Vector[float32]{
+		X: -10,
+		Y: 0,
+		Z: 0,
+	}
+	dir := CW
+	test_feed := float32(10)
+
+	// WHEN
+	// connection := communication.TestConnection{}
 	// connection.Init(
 	// 	func(request communication.Request) (communication.Response, error) {
 	// 		return communication.Response{ResultCode: 200, Body: map[string]interface{}{}}, nil
@@ -36,17 +45,16 @@ func TestCircularMovement_Init_Move_Uninit(t *testing.T) {
 	// )
 	connection := communication.HttpConnection{}
 	connection.Init("http://127.0.0.1", "5000")
-
 	instance := CircularMovement{}
 	motors, err := initMotors(create_cfg.Config.MotorsMapping, &connection)
 	assert.Equal(t, nil, err)
 	defer uninitMotors(motors)
 
 	// THEN
-	err = instance.Init(create_cfg, &connection, steps_per_unit, time_divider)
+	err = instance.Init(create_cfg, &connection)
 	assert.Equal(t, nil, err)
 
-	err = instance.Move(test_target, test_rotation_center, test_direction, test_feed)
+	err = instance.Move(target, center, dir, test_feed)
 	assert.Equal(t, nil, err)
 
 	err = instance.Uninit()
