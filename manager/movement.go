@@ -18,7 +18,7 @@ type MotorsMapping map[string]model.ResourceId
 type MovementConfig struct {
 	MotorsMapping  MotorsMapping `json:"steppers"`
 	Type           MovementType  `json:"type"`
-	TimeMultiplier uint          `json:"time_multiplier"`
+	StepsPerLength uint          `json:"steps_per_length"`
 }
 
 type MovementCreateConfig struct {
@@ -29,6 +29,7 @@ type MovementCreateConfig struct {
 type Movement struct {
 	Id         model.ResourceId
 	Connection communication.Connection
+	Config     MovementCreateConfig
 }
 
 func (i *Movement) Init(movement_config MovementCreateConfig, connection communication.Connection) error {
@@ -49,6 +50,7 @@ func (i *Movement) Init(movement_config MovementCreateConfig, connection communi
 	}
 	i.Id = movement_config.Id
 	i.Connection = connection
+	i.Config = movement_config
 	return nil
 }
 
