@@ -13,7 +13,7 @@ type GcodeManager struct {
 	fast_feed    float32
 
 	location_mode LocationMode
-	position      model.Vector[float32]
+	position      model.Vector[model.FloatCoordinate]
 
 	linear_movement   manager.LinearMovement
 	circular_movement manager.CircularMovement
@@ -23,7 +23,7 @@ func (i *GcodeManager) Init(linear_movement manager.LinearMovement, circular_mov
 	i.default_feed = float32(4)
 	i.fast_feed = float32(6)
 	i.location_mode = ABSOLUTE
-	i.position = model.Vector[float32]{X: 0.0, Y: 0.0, Z: 0.0}
+	i.position = model.Vector[model.FloatCoordinate]{X: 0.0, Y: 0.0, Z: 0.0}
 	i.linear_movement = linear_movement
 	i.circular_movement = circular_movement
 	return nil
@@ -40,8 +40,8 @@ func parseTokens(command string) []string {
 	return tokens
 }
 
-func (i GcodeManager) getTargetVectorFromReceivedCoordinates(coordinates map[model.Dimension]float32) model.Vector[float32] {
-	res := model.Vector[float32]{X: 0, Y: 0, Z: 0}
+func (i GcodeManager) getTargetVectorFromReceivedCoordinates(coordinates map[model.Dimension]model.FloatCoordinate) model.Vector[model.FloatCoordinate] {
+	res := model.Vector[model.FloatCoordinate]{X: 0.0, Y: 0.0, Z: 0.0}
 	for dim, value := range coordinates {
 		if i.location_mode == ABSOLUTE {
 			current_pos, _ := i.position.Get(dim)
@@ -55,7 +55,7 @@ func (i GcodeManager) getTargetVectorFromReceivedCoordinates(coordinates map[mod
 
 func (i GcodeManager) parseMovementDescriptor(command_id CommandId, tokens []string) (MovementDescriptor, error) {
 	res := MovementDescriptor{}
-	target_coordinates := make(map[model.Dimension]float32, 0)
+	target_coordinates := make(map[model.Dimension]model.FloatCoordinate, 0)
 	feed := i.default_feed
 	for _, token := range tokens {
 		if len(token) < 2 {
@@ -67,11 +67,11 @@ func (i GcodeManager) parseMovementDescriptor(command_id CommandId, tokens []str
 		}
 		switch token[0] {
 		case 'X':
-			target_coordinates[model.X] = float32(value)
+			target_coordinates[model.X] = model.FloatCoordinate(value)
 		case 'Y':
-			target_coordinates[model.Y] = float32(value)
+			target_coordinates[model.Y] = model.FloatCoordinate(value)
 		case 'Z':
-			target_coordinates[model.Z] = float32(value)
+			target_coordinates[model.Z] = model.FloatCoordinate(value)
 		case 'F':
 			feed = float32(value)
 		default:
@@ -105,7 +105,7 @@ func (i GcodeManager) parseCircularMovementDescriptor(command_id CommandId, toke
 	default:
 		return res, fmt.Errorf("non-circular command: %s", command_id)
 	}
-	rotation_center := model.Vector[float32]{X: 0, Y: 0, Z: 0}
+	rotation_center := model.Vector[model.FloatCoordinate]{X: 0, Y: 0, Z: 0}
 	for _, token := range tokens {
 		if len(token) < 2 {
 			return res, fmt.Errorf("token %s is too short", token)
@@ -116,11 +116,11 @@ func (i GcodeManager) parseCircularMovementDescriptor(command_id CommandId, toke
 		}
 		switch token[0] {
 		case 'I':
-			rotation_center.X = float32(value)
+			rotation_center.X = model.FloatCoordinate(value)
 		case 'J':
-			rotation_center.Y = float32(value)
+			rotation_center.Y = model.FloatCoordinate(value)
 		case 'K':
-			rotation_center.Z = float32(value)
+			rotation_center.Z = model.FloatCoordinate(value)
 		default:
 			continue
 		}

@@ -45,12 +45,12 @@ const (
 )
 
 type MovementDescriptor struct {
-	Target model.Vector[float32] `json:"target"`
-	Feed   float32               `json:"feed"`
+	Target model.Vector[model.FloatCoordinate] `json:"target"`
+	Feed   float32                             `json:"feed"`
 }
 
 type CircularMovementDescriptor struct {
 	MovementDescriptor
-	RotationCenter model.Vector[float32]             `json:"rotation_center"`
-	Direction      manager.CircularMovementDirection `json:"direction"`
+	RotationCenter model.Vector[model.FloatCoordinate] `json:"rotation_center"`
+	Direction      manager.CircularMovementDirection   `json:"direction"`
 }

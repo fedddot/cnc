@@ -41,6 +41,7 @@ func TestGcodeManager_RunCommand(t *testing.T) {
 	assert.Equal(t, nil, err)
 
 	commands, err := readCommandsFromFile("/usr/src/app/asdf.gcode")
+	// commands, err := readCommandsFromFile("/usr/src/app/gagaga.nc")
 	assert.Equal(t, nil, err)
 
 	for _, command := range commands {

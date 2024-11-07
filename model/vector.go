@@ -13,8 +13,14 @@ const (
 	Z
 )
 
+type FloatCoordinate float32
+
+func (i FloatCoordinate) String() string {
+	return fmt.Sprintf("%.*f", 3, i)
+}
+
 type Coordinate interface {
-	float32 | float64 | int
+	FloatCoordinate | float32 | float64 | int
 }
 
 type Vector[T Coordinate] struct {

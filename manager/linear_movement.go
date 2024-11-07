@@ -7,8 +7,8 @@ import (
 )
 
 type LinearMovementConfig struct {
-	Target model.Vector[float32] `json:"target"`
-	Feed   float32               `json:"feed"`
+	Target model.Vector[model.FloatCoordinate] `json:"target"`
+	Feed   float32                             `json:"feed"`
 }
 
 type LinearMovement struct {
@@ -23,9 +23,10 @@ func (i *LinearMovement) Init(movement_config MovementCreateConfig, connection c
 	return nil
 }
 
-func (i *LinearMovement) Move(target model.Vector[float32], feed float32) error {
+func (i *LinearMovement) Move(target model.Vector[model.FloatCoordinate], feed float32) error {
+	inverted_target := model.Vector[model.FloatCoordinate]{X: target.X, Y: -target.Y, Z: target.Z}
 	request_body := LinearMovementConfig{
-		Target: target,
+		Target: inverted_target,
 		Feed:   feed,
 	}
 	request := communication.Request{

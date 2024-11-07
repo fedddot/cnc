@@ -81,7 +81,7 @@ func TestLinearMovement_Init_Move_Uninit(t *testing.T) {
 		},
 	}
 
-	test_vectors := []model.Vector[float32]{
+	test_vectors := []model.Vector[model.FloatCoordinate]{
 		{
 			X: 5,
 			Y: 0,

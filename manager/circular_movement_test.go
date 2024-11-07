@@ -23,12 +23,12 @@ func TestCircularMovement_Init_Move_Uninit(t *testing.T) {
 		},
 	}
 
-	target := model.Vector[float32]{
+	target := model.Vector[model.FloatCoordinate]{
 		X: -10,
 		Y: -10,
 		Z: 0,
 	}
-	center := model.Vector[float32]{
+	center := model.Vector[model.FloatCoordinate]{
 		X: -10,
 		Y: 0,
 		Z: 0,
