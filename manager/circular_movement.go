@@ -33,10 +33,16 @@ func (i *CircularMovement) Init(movement_config MovementCreateConfig, connection
 }
 
 func (i *CircularMovement) Move(target model.Vector[model.FloatCoordinate], rotation_center model.Vector[model.FloatCoordinate], direction CircularMovementDirection, feed float32) error {
+	inverted_target := model.Vector[model.FloatCoordinate]{X: target.X, Y: -target.Y, Z: target.Z}
+	inverted_rotation_center := model.Vector[model.FloatCoordinate]{X: rotation_center.X, Y: -rotation_center.Y, Z: rotation_center.Z}
+	inverted_direction := CCW
+	if direction == CCW {
+		inverted_direction = CW
+	}
 	request_body := CircularMovementConfig{
-		Target:         target,
-		RotationCenter: rotation_center,
-		Direction:      direction,
+		Target:         inverted_target,
+		RotationCenter: inverted_rotation_center,
+		Direction:      inverted_direction,
 		Feed:           feed,
 	}
 	request := communication.Request{
