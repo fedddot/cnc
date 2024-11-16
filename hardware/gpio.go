@@ -18,19 +18,21 @@ type GpioConfig struct {
 	Direction GpioDirection `json:"dir"`
 }
 
-type Gpio struct {
-	connection communication.Connection
-	id         string
+type GpioCreateConfig struct {
+	Id     string     `json:"id"`
+	Config GpioConfig `json:"config"`
 }
 
-func (i *Gpio) Init(id string, cfg GpioConfig, connection communication.Connection) error {
-	body := make(map[string]interface{}, 0)
-	body["id"] = id
-	body["config"] = cfg
+type Gpio struct {
+	connection communication.Connection
+	create_cfg GpioCreateConfig
+}
+
+func (i *Gpio) Init(create_cfg GpioCreateConfig, connection communication.Connection) error {
 	request := communication.Request{
 		Route:  "gpios",
 		Method: "POST",
-		Body:   body,
+		Body:   create_cfg,
 	}
 	resp, err := connection.RunRequest(request)
 	if err != nil {
@@ -41,14 +43,14 @@ func (i *Gpio) Init(id string, cfg GpioConfig, connection communication.Connecti
 		return fmt.Errorf("server returned failure code: %d; %s", resp.ResultCode, response_body)
 	}
 	i.connection = connection
-	i.id = id
+	i.create_cfg = create_cfg
 	return nil
 }
 
 func (i Gpio) Uninit() error {
 	body := make(map[string]interface{}, 0)
 	request := communication.Request{
-		Route:  fmt.Sprintf("gpios/%s", i.id),
+		Route:  fmt.Sprintf("gpios/%s", i.create_cfg.Id),
 		Method: "DELETE",
 		Body:   body,
 	}

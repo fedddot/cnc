@@ -18,10 +18,12 @@ func run_test_request(request communication.Request) (communication.Response, er
 func Test_Gpio_Init_Uninit(t *testing.T) {
 	// GIVEN
 	connection := communication.TestConnection{}
-	test_id := "test_gpio"
-	test_cfg := GpioConfig{
-		GpioId:    17,
-		Direction: GpioDirection(CW),
+	test_create_cfg := GpioCreateConfig{
+		Id: "test_gpio",
+		Config: GpioConfig{
+			GpioId:    17,
+			Direction: GpioDirection(CW),
+		},
 	}
 
 	// WHEN
@@ -29,7 +31,7 @@ func Test_Gpio_Init_Uninit(t *testing.T) {
 	instance := Gpio{}
 
 	// THEN
-	err := instance.Init(test_id, test_cfg, &connection)
+	err := instance.Init(test_create_cfg, &connection)
 	assert.Equal(t, nil, err)
 
 	err = instance.Uninit()
