@@ -95,6 +95,48 @@ func (i StepperMotor) generateStepperConfig() interface{} {
 			BTop: LOW,
 			BBtm: LOW,
 		},
+		{
+			ATop: HIGH,
+			ABtm: LOW,
+			BTop: HIGH,
+			BBtm: LOW,
+		},
+		{
+			ATop: LOW,
+			ABtm: LOW,
+			BTop: HIGH,
+			BBtm: LOW,
+		},
+		{
+			ATop: LOW,
+			ABtm: HIGH,
+			BTop: HIGH,
+			BBtm: LOW,
+		},
+		{
+			ATop: LOW,
+			ABtm: HIGH,
+			BTop: LOW,
+			BBtm: LOW,
+		},
+		{
+			ATop: LOW,
+			ABtm: HIGH,
+			BTop: LOW,
+			BBtm: HIGH,
+		},
+		{
+			ATop: LOW,
+			ABtm: LOW,
+			BTop: LOW,
+			BBtm: HIGH,
+		},
+		{
+			ATop: HIGH,
+			ABtm: LOW,
+			BTop: LOW,
+			BBtm: HIGH,
+		},
 	}
 	return map[string]interface{}{
 		"control_outputs":   control_outputs,
