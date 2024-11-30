@@ -81,11 +81,11 @@ func (i *StepperMotor) Init(id StepperMotorId, config StepperMotorConfig, connec
 
 func (i StepperMotor) generateStepperConfig() interface{} {
 	control_outputs := make(map[ControlOutput]interface{}, 0)
-	for control_tag, _ := range i.config.ControlOutputs {
+	for control_tag := range i.config.ControlOutputs {
 		control_outputs[control_tag] = fmt.Sprintf("%s%s%s", i.id, i.delimeter, control_tag)
 	}
 	direction_outputs := make(map[DirectionOutput]interface{}, 0)
-	for direction_tag, _ := range i.config.DirectionOutputs {
+	for direction_tag := range i.config.DirectionOutputs {
 		direction_outputs[direction_tag] = fmt.Sprintf("%s%s%s", i.id, i.delimeter, direction_tag)
 	}
 	states := []map[DirectionOutput]GpioState{
