@@ -24,12 +24,16 @@ type CircularMovement struct {
 	Movement
 }
 
-func (i *CircularMovement) Init(movement_config MovementCreateConfig, connection communication.Connection) error {
-	err := i.Movement.Init(movement_config, connection)
-	if err != nil {
-		return err
-	}
-	return nil
+func (i *CircularMovement) Init(id model.ResourceId, motors_mapping MotorsMapping, steps_per_length uint, connection communication.Connection) error {
+	return i.Movement.Init(
+		id,
+		MovementConfig{
+			MotorsMapping:  motors_mapping,
+			Type:           CIRCULAR_INTERPOLATION,
+			StepsPerLength: steps_per_length,
+		},
+		connection,
+	)
 }
 
 func (i *CircularMovement) Move(target model.Vector[model.FloatCoordinate], rotation_center model.Vector[model.FloatCoordinate], direction CircularMovementDirection, feed float32) error {
