@@ -21,9 +21,9 @@ func TestCircularMovement_Init_Move_Uninit(t *testing.T) {
 
 	// WHEN
 	connection.Init("http://127.0.0.1", "5000")
-	motors, err := initMotors(motors_mapping, &connection)
+	motors, err := InitMotors(motors_mapping, &connection)
 	assert.Equal(t, nil, err)
-	defer uninitMotors(motors)
+	defer UninitMotors(motors)
 
 	instance := CircularMovement{}
 
