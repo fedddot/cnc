@@ -28,9 +28,8 @@ func (i *LinearMovement) Init(id model.ResourceId, motors_mapping MotorsMapping,
 }
 
 func (i *LinearMovement) Move(target model.Vector[model.FloatCoordinate], feed float32) error {
-	inverted_target := model.Vector[model.FloatCoordinate]{X: target.X, Y: -target.Y, Z: target.Z}
 	request_body := LinearMovementConfig{
-		Target: inverted_target,
+		Target: target,
 		Feed:   feed,
 	}
 	request := communication.Request{
