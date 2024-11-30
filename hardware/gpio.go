@@ -15,7 +15,7 @@ const (
 
 type GpioConfig struct {
 	GpioId    int           `json:"gpio_id"`
-	Direction GpioDirection `json:"dir"`
+	Direction GpioDirection `json:"direction"`
 }
 
 type GpioCreateConfig struct {
