@@ -30,7 +30,7 @@ type Gpio struct {
 func (i *Gpio) Init(id string, num GpioNumber, dir GpioDirection, connection communication.Connection) error {
 	gpio_cfg := make(map[string]interface{}, 0)
 	gpio_cfg["gpio_id"] = num
-	gpio_cfg["direction"] = dir
+	gpio_cfg["dir"] = dir
 
 	request_body := make(map[string]interface{}, 0)
 	request_body["id"] = id
