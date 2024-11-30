@@ -10,7 +10,7 @@ import (
 
 func TestCircularMovement_Init_Move_Uninit(t *testing.T) {
 	// GIVEN
-	movement_id := model.ResourceId("linear_id")
+	movement_id := model.ResourceId("circular_movement")
 	motors_mapping := MotorsMapping{
 		X: "motor_x",
 		Y: "motor_y",
@@ -36,4 +36,12 @@ func TestCircularMovement_Init_Move_Uninit(t *testing.T) {
 	)
 	assert.Equal(t, nil, err)
 	defer instance.Uninit()
+
+	err = instance.Move(
+		model.Vector[model.FloatCoordinate]{X: 10, Y: 10, Z: 0},
+		model.Vector[model.FloatCoordinate]{X: 10, Y: 0, Z: 0},
+		CCW,
+		3.0,
+	)
+	assert.Equal(t, nil, err)
 }

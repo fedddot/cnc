@@ -88,7 +88,7 @@ func uninitMotors(motors map[AxisTag]hardware.StepperMotor) error {
 
 func TestLinearMovement_Init_Move_Uninit(t *testing.T) {
 	// GIVEN
-	movement_id := model.ResourceId("linear_id")
+	movement_id := model.ResourceId("linear_movement")
 	motors_mapping := MotorsMapping{
 		X: "motor_x",
 		Y: "motor_y",
@@ -114,4 +114,10 @@ func TestLinearMovement_Init_Move_Uninit(t *testing.T) {
 	)
 	assert.Equal(t, nil, err)
 	defer instance.Uninit()
+
+	err = instance.Move(
+		model.Vector[model.FloatCoordinate]{X: 10, Y: 10, Z: 10},
+		3.0,
+	)
+	assert.Equal(t, nil, err)
 }
