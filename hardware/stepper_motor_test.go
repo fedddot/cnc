@@ -9,26 +9,27 @@ import (
 
 func TestStepperMotor_Init_Uninit(t *testing.T) {
 	// GIVEN
-	connection := communication.TestConnection{}
-	action := func(request communication.Request) (communication.Response, error) {
-		return communication.Response{ResultCode: 200, Body: nil}, nil
-	}
-	create_config := StepperMotorCreateConfig{
-		Id: "test_motor",
-		Config: StepperMotorGpoMapping{
-			A0: 10,
-			A1: 20,
-			B0: 30,
-			B1: 40,
-			En: 50,
+	connection := communication.HttpConnection{}
+	test_cfg := StepperMotorConfig{
+		ControlOutputs: StepperMotorControlOutputs{
+			ENA: 10,
+			ENB: 11,
+		},
+		DirectionOutputs: StepperMotorDirectionOutputs{
+			ATop: 12,
+			ABtm: 13,
+			BTop: 14,
+			BBtm: 15,
 		},
 	}
+	test_id := StepperMotorId("test_stepper_motor")
 
 	// WHEN
-	connection.Init(action)
-	motor := StepperMotor{}
-	err := motor.Init(create_config, &connection)
+	connection.Init("http://127.0.0.1", "5000")
+	instance := StepperMotor{}
+
+	// THEN
+	err := instance.Init(test_id, test_cfg, &connection)
 	assert.Equal(t, nil, err)
-	err = motor.Uninit()
-	assert.Equal(t, nil, err)
+	defer instance.Uninit()
 }

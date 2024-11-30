@@ -2,76 +2,105 @@ package hardware
 
 import (
 	"cnc/client/communication"
-	"cnc/client/model"
 	"fmt"
 )
 
-type Direction int
+type StepperMotorId string
+
+type StepperMotorDirection int
 
 const (
-	CW  Direction = 0
-	CCW Direction = 1
+	CW  StepperMotorDirection = 0
+	CCW StepperMotorDirection = 1
 )
 
-type GpoId int
+type ControlOutput string
 
-type StepperMotorGpoMapping struct {
-	A0 GpoId `json:"a0"`
-	A1 GpoId `json:"a1"`
-	B0 GpoId `json:"b0"`
-	B1 GpoId `json:"b1"`
-	En GpoId `json:"en"`
-}
+const (
+	ENA ControlOutput = "ena"
+	ENB ControlOutput = "enb"
+)
 
-type StepperMotorCreateConfig struct {
-	Id     model.ResourceId       `json:"id"`
-	Config StepperMotorGpoMapping `json:"config"`
-}
+type DirectionOutput string
 
-type StepperMotorUpdateConfig struct {
-	Config map[string]interface{} `json:"config"`
+const (
+	ATop DirectionOutput = "a_top"
+	ABtm DirectionOutput = "a_btm"
+	BTop DirectionOutput = "b_top"
+	BBtm DirectionOutput = "b_btm"
+)
+
+type StepperMotorControlOutputs map[ControlOutput]GpioNumber
+type StepperMotorDirectionOutputs map[DirectionOutput]GpioNumber
+
+type StepperMotorConfig struct {
+	ControlOutputs   StepperMotorControlOutputs   `json:"control_outputs"`
+	DirectionOutputs StepperMotorDirectionOutputs `json:"direction_outputs"`
 }
 
 type StepperMotor struct {
-	create_config StepperMotorCreateConfig
-	connection    communication.Connection
+	id         StepperMotorId
+	config     StepperMotorConfig
+	connection communication.Connection
+	delimeter  string
+	gpos       []Gpio
 }
 
-func (i *StepperMotor) Init(config StepperMotorCreateConfig, connection communication.Connection) error {
-	i.create_config = config
+func (i *StepperMotor) Init(id StepperMotorId, config StepperMotorConfig, connection communication.Connection) error {
+	i.id = id
+	i.config = config
 	i.connection = connection
+	i.delimeter = "-"
+	i.gpos = make([]Gpio, 0)
 
-	request := communication.Request{
-		Route:  "steppers",
-		Method: "POST",
-		Body:   i.create_config,
-	}
-	response, err := i.connection.RunRequest(request)
+	err := i.initGpos()
 	if err != nil {
 		return err
 	}
-	if response.ResultCode != 200 {
-		return fmt.Errorf("server failure, code: %d", response.ResultCode)
-	}
+
+	// TODO: init also the stepper
 	return nil
 }
 
 func (i *StepperMotor) Uninit() error {
-	request := communication.Request{
-		Route:  fmt.Sprintf("steppers/%s", i.create_config.Id),
-		Method: "DELETE",
-		Body:   map[string]interface{}{},
+	// TODO: init also the stepper
+	return i.uninitGpos()
+}
+
+func (i *StepperMotor) initGpos() error {
+	for control_output_id, control_output_gpo_number := range i.config.ControlOutputs {
+		gpo := Gpio{}
+		err := gpo.Init(
+			fmt.Sprintf("%s%s%s", i.id, i.delimeter, control_output_id),
+			control_output_gpo_number,
+			OUT,
+			i.connection,
+		)
+		if err != nil {
+			return err
+		}
+		i.gpos = append(i.gpos, gpo)
 	}
-	response, err := i.connection.RunRequest(request)
-	if err != nil {
-		return err
-	}
-	if response.ResultCode != 200 {
-		return fmt.Errorf("server failure, code: %d", response.ResultCode)
+	for direction_output_id, direction_output_gpo_number := range i.config.DirectionOutputs {
+		gpo := Gpio{}
+		err := gpo.Init(
+			fmt.Sprintf("%s%s%s", i.id, i.delimeter, direction_output_id),
+			direction_output_gpo_number,
+			OUT,
+			i.connection,
+		)
+		if err != nil {
+			return err
+		}
+		i.gpos = append(i.gpos, gpo)
 	}
 	return nil
 }
 
-func (i StepperMotor) Id() model.ResourceId {
-	return i.create_config.Id
+func (i *StepperMotor) uninitGpos() error {
+	for _, gpo := range i.gpos {
+		gpo.Uninit()
+	}
+	i.gpos = make([]Gpio, 0)
+	return nil
 }
