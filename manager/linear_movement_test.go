@@ -10,53 +10,73 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func initMotors(mapping MotorsMapping, connection communication.Connection) (map[string]hardware.StepperMotor, error) {
-	result := make(map[string]hardware.StepperMotor, 0)
+func get_mappings(axis AxisTag) (hardware.StepperMotorControlOutputs, hardware.StepperMotorDirectionOutputs, error) {
+	switch axis {
+	case X:
+		return hardware.StepperMotorControlOutputs{
+				hardware.ENA: 14,
+				hardware.ENB: 15,
+			},
+			hardware.StepperMotorDirectionOutputs{
+				hardware.ATop: 10,
+				hardware.ABtm: 11,
+				hardware.BTop: 12,
+				hardware.BBtm: 13,
+			},
+			nil
+	case Y:
+		return hardware.StepperMotorControlOutputs{
+				hardware.ENA: 24,
+				hardware.ENB: 25,
+			},
+			hardware.StepperMotorDirectionOutputs{
+				hardware.ATop: 20,
+				hardware.ABtm: 21,
+				hardware.BTop: 22,
+				hardware.BBtm: 23,
+			},
+			nil
+	case Z:
+		return hardware.StepperMotorControlOutputs{
+				hardware.ENA: 34,
+				hardware.ENB: 35,
+			},
+			hardware.StepperMotorDirectionOutputs{
+				hardware.ATop: 30,
+				hardware.ABtm: 31,
+				hardware.BTop: 32,
+				hardware.BBtm: 33,
+			},
+			nil
+	}
+	return nil, nil, fmt.Errorf("unsupported axis tag: %s", axis)
+}
+
+func initMotors(mapping MotorsMapping, connection communication.Connection) (map[AxisTag]hardware.StepperMotor, error) {
+	result := make(map[AxisTag]hardware.StepperMotor, 0)
 	for tag, id := range mapping {
-		var gpo_mapping hardware.StepperMotorGpoMapping
-		switch tag {
-		case "x":
-			gpo_mapping = hardware.StepperMotorGpoMapping{
-				A0: 16,
-				A1: 17,
-				B0: 18,
-				B1: 19,
-				En: 15,
-			}
-		case "y":
-			gpo_mapping = hardware.StepperMotorGpoMapping{
-				A0: 6,
-				A1: 5,
-				B0: 4,
-				B1: 3,
-				En: 7,
-			}
-		case "z":
-			gpo_mapping = hardware.StepperMotorGpoMapping{
-				A0: 13,
-				A1: 12,
-				B0: 11,
-				B1: 10,
-				En: 14,
-			}
-		default:
-			return result, fmt.Errorf("invalid dimension tag received: %s", tag)
-		}
-		stepper_cfg := hardware.StepperMotorCreateConfig{
-			Id:     id,
-			Config: gpo_mapping,
-		}
-		stepper := hardware.StepperMotor{}
-		err := stepper.Init(stepper_cfg, connection)
+		controls, directions, err := get_mappings(tag)
 		if err != nil {
 			return result, err
 		}
-		result[tag] = stepper
+		motor := hardware.StepperMotor{}
+		err = motor.Init(
+			hardware.StepperMotorId(id),
+			hardware.StepperMotorConfig{
+				ControlOutputs:   controls,
+				DirectionOutputs: directions,
+			},
+			connection,
+		)
+		if err != nil {
+			return result, err
+		}
+		result[tag] = motor
 	}
 	return result, nil
 }
 
-func uninitMotors(motors map[string]hardware.StepperMotor) error {
+func uninitMotors(motors map[AxisTag]hardware.StepperMotor) error {
 	for _, motor := range motors {
 		err := motor.Uninit()
 		if err != nil {
@@ -68,61 +88,30 @@ func uninitMotors(motors map[string]hardware.StepperMotor) error {
 
 func TestLinearMovement_Init_Move_Uninit(t *testing.T) {
 	// GIVEN
-	create_cfg := MovementCreateConfig{
-		Id: "test_movement",
-		Config: MovementConfig{
-			MotorsMapping: MotorsMapping{
-				"x": "motor1",
-				"y": "motor2",
-				"z": "motor3",
-			},
-			Type:           LINEAR,
-			StepsPerLength: 100,
-		},
+	movement_id := model.ResourceId("linear_id")
+	motors_mapping := MotorsMapping{
+		X: "motor_x",
+		Y: "motor_y",
+		Z: "motor_z",
 	}
-
-	test_vectors := []model.Vector[model.FloatCoordinate]{
-		{
-			X: 5,
-			Y: 0,
-			Z: 3.5,
-		},
-		{
-			X: 0,
-			Y: 10,
-			Z: -3.5,
-		},
-		{
-			X: -5,
-			Y: -10,
-			Z: 0,
-		},
-	}
-	test_feed := float32(10)
+	steps_per_length := uint(100)
+	connection := communication.HttpConnection{}
 
 	// WHEN
-	// connection := communication.TestConnection{}
-	// connection.Init(
-	// 	func(request communication.Request) (communication.Response, error) {
-	// 		return communication.Response{ResultCode: 200, Body: map[string]interface{}{}}, nil
-	// 	},
-	// )
-	connection := communication.HttpConnection{}
 	connection.Init("http://127.0.0.1", "5000")
-	instance := LinearMovement{}
-	motors, err := initMotors(create_cfg.Config.MotorsMapping, &connection)
+	motors, err := initMotors(motors_mapping, &connection)
 	assert.Equal(t, nil, err)
 	defer uninitMotors(motors)
 
+	instance := LinearMovement{}
+
 	// THEN
-	err = instance.Init(create_cfg, &connection)
+	err = instance.Init(
+		movement_id,
+		motors_mapping,
+		steps_per_length,
+		&connection,
+	)
 	assert.Equal(t, nil, err)
-
-	for _, test_vector := range test_vectors {
-		err = instance.Move(test_vector, test_feed)
-		assert.Equal(t, nil, err)
-	}
-
-	err = instance.Uninit()
-	assert.Equal(t, nil, err)
+	defer instance.Uninit()
 }

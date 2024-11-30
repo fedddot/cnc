@@ -15,12 +15,16 @@ type LinearMovement struct {
 	Movement
 }
 
-func (i *LinearMovement) Init(movement_config MovementCreateConfig, connection communication.Connection) error {
-	err := i.Movement.Init(movement_config, connection)
-	if err != nil {
-		return err
-	}
-	return nil
+func (i *LinearMovement) Init(id model.ResourceId, motors_mapping MotorsMapping, steps_per_length uint, connection communication.Connection) error {
+	return i.Movement.Init(
+		id,
+		MovementConfig{
+			MotorsMapping:  motors_mapping,
+			Type:           LINEAR,
+			StepsPerLength: steps_per_length,
+		},
+		connection,
+	)
 }
 
 func (i *LinearMovement) Move(target model.Vector[model.FloatCoordinate], feed float32) error {

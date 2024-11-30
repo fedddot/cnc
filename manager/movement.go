@@ -3,7 +3,16 @@ package manager
 import (
 	"cnc/client/communication"
 	"cnc/client/model"
+	"encoding/json"
 	"fmt"
+)
+
+type AxisTag string
+
+const (
+	X AxisTag = "x"
+	Y AxisTag = "y"
+	Z AxisTag = "z"
 )
 
 type MovementType int
@@ -13,7 +22,7 @@ const (
 	CIRCULAR_INTERPOLATION
 )
 
-type MotorsMapping map[string]model.ResourceId
+type MotorsMapping map[AxisTag]model.ResourceId
 
 type MovementConfig struct {
 	MotorsMapping  MotorsMapping `json:"steppers"`
@@ -21,36 +30,36 @@ type MovementConfig struct {
 	StepsPerLength uint          `json:"steps_per_length"`
 }
 
-type MovementCreateConfig struct {
-	Id     model.ResourceId `json:"id"`
-	Config MovementConfig   `json:"config"`
-}
-
 type Movement struct {
 	Id         model.ResourceId
+	Config     MovementConfig
 	Connection communication.Connection
-	Config     MovementCreateConfig
 }
 
-func (i *Movement) Init(movement_config MovementCreateConfig, connection communication.Connection) error {
+func (i *Movement) Init(id model.ResourceId, config MovementConfig, connection communication.Connection) error {
 	if connection == nil {
 		return fmt.Errorf("invalid connection ptr received")
+	}
+	request_body := map[string]interface{}{
+		"id":     id,
+		"config": config,
 	}
 	request := communication.Request{
 		Route:  "movements",
 		Method: "POST",
-		Body:   movement_config,
+		Body:   request_body,
 	}
 	resp, err := connection.RunRequest(request)
 	if err != nil {
 		return err
 	}
 	if resp.ResultCode != 200 {
-		return fmt.Errorf("server failure, code = %d", resp.ResultCode)
+		response_body, _ := json.Marshal(resp.Body)
+		return fmt.Errorf("server returned failure code: %d; %s", resp.ResultCode, response_body)
 	}
-	i.Id = movement_config.Id
+	i.Id = id
+	i.Config = config
 	i.Connection = connection
-	i.Config = movement_config
 	return nil
 }
 
@@ -65,7 +74,8 @@ func (i *Movement) Uninit() error {
 		return err
 	}
 	if resp.ResultCode != 200 {
-		return fmt.Errorf("server failure, code = %d", resp.ResultCode)
+		response_body, _ := json.Marshal(resp.Body)
+		return fmt.Errorf("server returned failure code: %d; %s", resp.ResultCode, response_body)
 	}
 	return nil
 }
