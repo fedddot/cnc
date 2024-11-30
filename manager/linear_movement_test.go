@@ -14,8 +14,20 @@ func get_mappings(axis AxisTag) (hardware.StepperMotorControlOutputs, hardware.S
 	switch axis {
 	case X:
 		return hardware.StepperMotorControlOutputs{
-				hardware.ENA: 14,
-				hardware.ENB: 15,
+				hardware.ENA: 15,
+				hardware.ENB: 20,
+			},
+			hardware.StepperMotorDirectionOutputs{
+				hardware.ATop: 16,
+				hardware.ABtm: 17,
+				hardware.BTop: 18,
+				hardware.BBtm: 19,
+			},
+			nil
+	case Y:
+		return hardware.StepperMotorControlOutputs{
+				hardware.ENA: 9,
+				hardware.ENB: 14,
 			},
 			hardware.StepperMotorDirectionOutputs{
 				hardware.ATop: 10,
@@ -24,28 +36,16 @@ func get_mappings(axis AxisTag) (hardware.StepperMotorControlOutputs, hardware.S
 				hardware.BBtm: 13,
 			},
 			nil
-	case Y:
-		return hardware.StepperMotorControlOutputs{
-				hardware.ENA: 24,
-				hardware.ENB: 25,
-			},
-			hardware.StepperMotorDirectionOutputs{
-				hardware.ATop: 20,
-				hardware.ABtm: 21,
-				hardware.BTop: 22,
-				hardware.BBtm: 23,
-			},
-			nil
 	case Z:
 		return hardware.StepperMotorControlOutputs{
-				hardware.ENA: 34,
-				hardware.ENB: 35,
+				hardware.ENA: 2,
+				hardware.ENB: 7,
 			},
 			hardware.StepperMotorDirectionOutputs{
-				hardware.ATop: 30,
-				hardware.ABtm: 31,
-				hardware.BTop: 32,
-				hardware.BBtm: 33,
+				hardware.ATop: 3,
+				hardware.ABtm: 4,
+				hardware.BTop: 5,
+				hardware.BBtm: 6,
 			},
 			nil
 	}
@@ -116,8 +116,8 @@ func TestLinearMovement_Init_Move_Uninit(t *testing.T) {
 	defer instance.Uninit()
 
 	err = instance.Move(
-		model.Vector[model.FloatCoordinate]{X: 10, Y: 10, Z: 10},
-		3.0,
+		model.Vector[model.FloatCoordinate]{X: 0, Y: 10, Z: 0},
+		8.0,
 	)
 	assert.Equal(t, nil, err)
 }
